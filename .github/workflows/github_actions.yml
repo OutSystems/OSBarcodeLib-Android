@@ -38,4 +38,4 @@ jobs:
       run: bundle exec fastlane sonarqube
       env: 
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SONAR_TOKEN: ${{ secrets.SONARCLOUD_KEY }}      
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}      
