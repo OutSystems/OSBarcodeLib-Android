@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">LibTemplatePlaceholder</string>
+    <string name="title_activity_osbarcscanner">OSBARCScannerActivity</string>
 </resources>

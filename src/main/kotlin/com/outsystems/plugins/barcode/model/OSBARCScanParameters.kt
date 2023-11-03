@@ -1,6 +1,6 @@
 package com.outsystems.plugins.barcode.model
 
-data class OSBRCDScanParameters(
+data class OSBARCScanParameters(
     val scanInstructions: String?,
     val cameraDirection: Int?,
     val scanOrientation: Int?,
