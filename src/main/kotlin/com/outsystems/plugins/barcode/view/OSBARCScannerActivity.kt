@@ -1,5 +1,6 @@
 package com.outsystems.plugins.barcode.view
 
+import android.Manifest
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -11,14 +12,18 @@ import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.camera.core.ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST
 import androidx.compose.ui.Modifier
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
@@ -31,64 +36,92 @@ import com.outsystems.plugins.barcode.view.ui.theme.BarcodeScannerTheme
 import java.lang.Exception
 
 class OSBARCScannerActivity : ComponentActivity() {
+
+    companion object {
+        private const val CAMERA_PERMISSION_DENIED_RESULT_CODE = 101
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             BarcodeScannerTheme {
-
-                val lifecycleOwner = LocalLifecycleOwner.current
-                val context = LocalContext.current
-                val cameraProviderFuture = remember {
-                    ProcessCameraProvider.getInstance(context)
-                }
-                var barcode by remember {
-                    mutableStateOf("")
-                }
-
-                Column (
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    AndroidView(
-                        factory = { context ->
-                            val previewView = PreviewView(context)
-                            val preview = Preview.Builder().build()
-                            val selector = CameraSelector.Builder()
-                                .requireLensFacing(CameraSelector.LENS_FACING_BACK)
-                                .build()
-                            preview.setSurfaceProvider(previewView.surfaceProvider)
-                            val imageAnalysis = ImageAnalysis.Builder()
-                                .setBackpressureStrategy(STRATEGY_KEEP_ONLY_LATEST)
-                                .build()
-                            imageAnalysis.setAnalyzer(
-                                ContextCompat.getMainExecutor(context),
-                                OSBARCBarcodeAnalyzer { result ->
-                                    barcode = result
-                                }
-                            )
-                            try {
-                                cameraProviderFuture.get().bindToLifecycle(
-                                    lifecycleOwner,
-                                    selector,
-                                    preview,
-                                    imageAnalysis
-                                )
-                            } catch (e: Exception) {
-                                e.printStackTrace()
-                            }
-                            previewView
-                        },
-                        modifier = Modifier.weight(1f)
-                    )
-                    Text(
-                        text = "Barcode text is $barcode",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(64.dp)
-                    )
-                }
+                ScanScreen()
             }
         }
     }
+
+    @Composable
+    fun ScanScreen() {
+        val lifecycleOwner = LocalLifecycleOwner.current
+        val context = LocalContext.current
+
+        // permissions
+        val requestPermissionLauncher = rememberLauncherForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            if (isGranted) {
+                // do nothing, continue
+            } else {
+                this.setResult(CAMERA_PERMISSION_DENIED_RESULT_CODE)
+                this.finish()
+            }
+        }
+        SideEffect {
+            requestPermissionLauncher.launch(Manifest.permission.CAMERA)
+        }
+
+        // rest of the UI
+        val cameraProviderFuture = remember {
+            ProcessCameraProvider.getInstance(context)
+        }
+        var barcode by remember {
+            mutableStateOf("")
+        }
+
+        Column (
+            modifier = Modifier.fillMaxSize()
+        ) {
+            AndroidView(
+                factory = { context ->
+                    val previewView = PreviewView(context)
+                    val preview = Preview.Builder().build()
+                    val selector = CameraSelector.Builder()
+                        .requireLensFacing(CameraSelector.LENS_FACING_BACK)
+                        .build()
+                    preview.setSurfaceProvider(previewView.surfaceProvider)
+                    val imageAnalysis = ImageAnalysis.Builder()
+                        .setBackpressureStrategy(STRATEGY_KEEP_ONLY_LATEST)
+                        .build()
+                    imageAnalysis.setAnalyzer(
+                        ContextCompat.getMainExecutor(context),
+                        OSBARCBarcodeAnalyzer { result ->
+                            barcode = result
+                        }
+                    )
+                    try {
+                        cameraProviderFuture.get().bindToLifecycle(
+                            lifecycleOwner,
+                            selector,
+                            preview,
+                            imageAnalysis
+                        )
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                    previewView
+                },
+                modifier = Modifier.weight(1f)
+            )
+            Text(
+                text = "Barcode text is $barcode",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(64.dp)
+            )
+        }
+    }
+
 }
