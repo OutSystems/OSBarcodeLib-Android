@@ -10,7 +10,6 @@ import com.google.zxing.MultiFormatReader
 import com.google.zxing.RGBLuminanceSource
 import com.google.zxing.common.HybridBinarizer
 import java.lang.Exception
-import java.nio.ByteBuffer
 
 class OSBARCBarcodeAnalyzer(
     private val onBarcodeScanned: (String) -> Unit
@@ -51,13 +50,6 @@ class OSBARCBarcodeAnalyzer(
             e.printStackTrace()
         } finally {
             image.close()
-        }
-    }
-
-    private fun ByteBuffer.toByteArray(): ByteArray {
-        rewind()
-        return ByteArray(remaining()).also {
-            get(it)
         }
     }
 
