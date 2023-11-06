@@ -6,6 +6,6 @@ class ScanCodeTests {
 
     @Test
     fun scanCodeTest() {
-        // TODO implement unit tests
+        // temporarily empty
     }
 }
