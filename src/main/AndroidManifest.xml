@@ -2,9 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.outsystems.plugins.barcode">
     <uses-permission android:name="android.permission.CAMERA" />
-    <application
-        android:allowBackup="true"
-        android:supportsRtl="true">
+    <application>
         <activity
             android:name=".view.OSBARCScannerActivity"
             android:exported="false" />
