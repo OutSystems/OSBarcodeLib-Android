@@ -5,5 +5,7 @@ import org.junit.Test
 class ScanCodeTests {
 
     @Test
-    fun scanCodeTest() { }
+    fun scanCodeTest() {
+        // TODO implement unit tests
+    }
 }
