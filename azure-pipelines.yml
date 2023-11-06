@@ -35,19 +35,6 @@ steps:
     testResultsFiles: '**/TEST-*.xml'
     tasks: 'clean build'
 - task: CmdLine@2
-  displayName: Tests
-  inputs:
-    script: |
-      ./gradlew jacocoTestReport
-- task: PublishCodeCoverageResults@1
-  inputs:
-    codeCoverageTool: "JaCoCo"
-    summaryFileLocation: $(System.DefaultWorkingDirectory)/**/jacocoTestReport/jacocoTestReport.xml
-    pathToSources: $(System.DefaultWorkingDirectory)/src/main/kotlin
-    reportDirectory: $(System.DefaultWorkingDirectory)/**/jacocoTestReport/html/
-    additionalCodeCoverageFiles: $(System.DefaultWorkingDirectory)/**/jacoco/*.exec
-    failIfCoverageEmpty: true
-- task: CmdLine@2
   displayName: Validate pom.xml
   inputs:
     script: |
