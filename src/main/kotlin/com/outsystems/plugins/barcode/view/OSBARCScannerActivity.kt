@@ -87,7 +87,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                     val previewView = PreviewView(context)
                     val preview = Preview.Builder().build()
                     val selector = CameraSelector.Builder()
-                        .requireLensFacing(CameraSelector.LENS_FACING_BACK)
+                        .requireLensFacing(CameraSelector.LENS_FACING_BACK) // temporary
                         .build()
                     preview.setSurfaceProvider(previewView.surfaceProvider)
                     val imageAnalysis = ImageAnalysis.Builder()

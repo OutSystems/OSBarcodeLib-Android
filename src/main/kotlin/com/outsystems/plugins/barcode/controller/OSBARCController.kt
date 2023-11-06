@@ -17,6 +17,7 @@ class OSBARCController {
         private const val SCAN_ORIENTATION = "SCAN_ORIENTATION"
         private const val SCAN_BUTTON = "SCAN_BUTTON"
         private const val SCAN_BUTTON_TEXT = "SCAN_BUTTON_TEXT"
+        private const val SCAN_HINT = "SCAN_HINT"
         private const val SCAN_LIBRARY = "SCAN_LIBRARY"
         private const val SCAN_RESULT = "scanResult"
         private const val CAMERA_PERMISSION_DENIED_RESULT_CODE = 1
@@ -30,6 +31,7 @@ class OSBARCController {
             putExtra(SCAN_ORIENTATION, parameters.scanOrientation)
             putExtra(SCAN_BUTTON, parameters.scanButton)
             putExtra(SCAN_BUTTON_TEXT, parameters.scanText)
+            putExtra(SCAN_HINT, parameters.hint)
             putExtra(SCAN_LIBRARY, parameters.androidScanningLibrary)
         }
         activity.startActivityForResult(scanningIntent, SCAN_REQUEST_CODE)

@@ -23,20 +23,20 @@ class OSBARCBarcodeAnalyzer(
 
     override fun analyze(image: ImageProxy) {
         try {
-            // calculate rotation (necessary for 1D barcodes)
-            val rotationDegrees = image.imageInfo.rotationDegrees
             var imageBitmap = image.toBitmap()
 
-            // Rotate the image if it's in portrait mode (rotation = 90 or 270 degrees)
+            // rotate the image if it's in portrait mode (rotation = 90 or 270 degrees)
+            val rotationDegrees = image.imageInfo.rotationDegrees
             if (rotationDegrees == 90 || rotationDegrees == 270) {
-                // Create a matrix for rotation
+                // create a matrix for rotation
                 val matrix = Matrix()
                 matrix.postRotate(rotationDegrees.toFloat())
 
-                // Rotate the image
+                // actually rotate the image
                 imageBitmap = Bitmap.createBitmap(imageBitmap, 0, 0, imageBitmap.width, imageBitmap.height, matrix, true)
             }
 
+            // scan image using zxing
             val width = imageBitmap.width
             val height = imageBitmap.height
             val pixels = IntArray(width * height)
