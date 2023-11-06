@@ -5,6 +5,7 @@ data class OSBARCScanParameters(
     val cameraDirection: Int?,
     val scanOrientation: Int?,
     val scanButton: Boolean?,
-    val scanButtonText: String?,
-    val scanningLibrary: String?
+    val scanText: String?,
+    val hint: Int?,
+    val androidScanningLibrary: String?
 )
