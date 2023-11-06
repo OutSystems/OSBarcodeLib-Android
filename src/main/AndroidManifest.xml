@@ -9,5 +9,4 @@
             android:name=".view.OSBARCScannerActivity"
             android:exported="false" />
     </application>
-
 </manifest>
