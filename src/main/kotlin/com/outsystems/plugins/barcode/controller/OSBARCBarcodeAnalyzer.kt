@@ -2,6 +2,7 @@ package com.outsystems.plugins.barcode.controller
 
 import android.graphics.Bitmap
 import android.graphics.Matrix
+import android.util.Log
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import com.google.zxing.BinaryBitmap
@@ -12,8 +13,13 @@ import com.google.zxing.common.HybridBinarizer
 import java.lang.Exception
 
 class OSBARCBarcodeAnalyzer(
-    private val onBarcodeScanned: (String) -> Unit
+    private val onBarcodeScanned: (String) -> Unit,
+    private val onScanningError: () -> Unit
 ): ImageAnalysis.Analyzer {
+
+    companion object {
+        private const val LOG_TAG = "OSBARCBarcodeAnalyzer"
+    }
 
     override fun analyze(image: ImageProxy) {
         try {
@@ -47,7 +53,8 @@ class OSBARCBarcodeAnalyzer(
             }.decode(binaryBitmap)
             onBarcodeScanned(result.text)
         } catch (e: Exception) {
-            e.printStackTrace()
+            e.message?.let { Log.e(LOG_TAG, it) }
+            onScanningError
         } finally {
             image.close()
         }
