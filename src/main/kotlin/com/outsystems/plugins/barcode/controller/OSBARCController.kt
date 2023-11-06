@@ -9,8 +9,6 @@ import com.outsystems.plugins.barcode.view.OSBARCScannerActivity
 class OSBARCController {
 
     companion object {
-        private const val BACK_CAMERA = 1
-        private const val FRONT_CAMERA = 2
         private const val SCAN_REQUEST_CODE = 112
         private const val SCAN_INSTRUCTIONS = "SCAN_INSTRUCTIONS"
         private const val CAMERA_DIRECTION = "CAMERA_DIRECTION"
