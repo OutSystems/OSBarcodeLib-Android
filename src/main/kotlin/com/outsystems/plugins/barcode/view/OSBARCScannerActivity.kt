@@ -96,6 +96,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                     imageAnalysis.setAnalyzer(
                         ContextCompat.getMainExecutor(context),
                         OSBARCBarcodeAnalyzer(
+                            "zxing", // temporary
                             { result ->
                                 barcode = result
                                 val resultIntent = Intent()
