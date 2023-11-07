@@ -12,12 +12,22 @@ import com.google.zxing.RGBLuminanceSource
 import com.google.zxing.common.HybridBinarizer
 import com.outsystems.plugins.barcode.model.OSBARCError
 
+/**
+ * Helper class that implements the OSBARCScanLibraryInterface
+ * to scan an image using the ZXing library.
+ */
 class OSBARCZXingWrapper: OSBARCScanLibraryInterface {
 
     companion object {
         private const val LOG_TAG = "OSBARCZXingWrapper"
     }
 
+    /**
+     * Scans an image looking for barcodes, using the ZXing library.
+     * @param imageProxy - ImageProxy object that represents the image to be analyzed.
+     * @param onSuccess - The code to be executed if the operation was successful.
+     * @param onError - The code to be executed if the operation was not successful.
+     */
     override fun scanBarcode(
         imageProxy: ImageProxy,
         onSuccess: (String) -> Unit,

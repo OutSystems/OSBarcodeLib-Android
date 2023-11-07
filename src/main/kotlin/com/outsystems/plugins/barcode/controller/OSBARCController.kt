@@ -6,6 +6,10 @@ import com.outsystems.plugins.barcode.model.OSBARCError
 import com.outsystems.plugins.barcode.model.OSBARCScanParameters
 import com.outsystems.plugins.barcode.view.OSBARCScannerActivity
 
+/**
+ * This class is responsible for implementing the Controller
+ * of the library, following the MVC pattern
+ */
 class OSBARCController {
 
     companion object {
@@ -20,6 +24,12 @@ class OSBARCController {
         private const val SCAN_RESULT = "scanResult"
     }
 
+    /**
+     * Scans barcodes, opening the device's camera and using scanning libraries.
+     * To do that, it launches the OSBARCScannerActivity activity.
+     * @param activity - used to open the scanner activity, its onActivityResult() will be called after scanning the barcode.
+     * @param parameters - object that contains all the barcode parameters to be used when scanning.
+     */
     fun scanCode(activity: Activity, parameters: OSBARCScanParameters) {
         val scanningIntent = Intent(activity, OSBARCScannerActivity::class.java).apply {
             putExtra(SCAN_INSTRUCTIONS, parameters.scanInstructions)
@@ -33,6 +43,14 @@ class OSBARCController {
         activity.startActivityForResult(scanningIntent, SCAN_REQUEST_CODE)
     }
 
+    /**
+     * Handles the result of calling the scanCode feature.
+     * @param requestCode - the code identifying the request.
+     * @param resultCode - the code identifying the result of the request.
+     * @param intent - the resulting intent from the operation.
+     * @param onSuccess - The code to be executed if the operation was successful.
+     * @param onError - The code to be executed if the operation was not successful.
+     */
     fun handleActivityResult(
         requestCode: Int,
         resultCode: Int,

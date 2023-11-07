@@ -32,6 +32,11 @@ import com.outsystems.plugins.barcode.model.OSBARCError
 import com.outsystems.plugins.barcode.view.ui.theme.BarcodeScannerTheme
 import java.lang.Exception
 
+/**
+ * This class is responsible for implementing the UI of the scanning screen using Jetpack Compose.
+ * It is also responsible for opening a camera stream using CameraX, and calling the class that
+ * implements the ImageAnalysis.Analyzer interface.
+ */
 class OSBARCScannerActivity : ComponentActivity() {
 
     companion object {
@@ -40,6 +45,9 @@ class OSBARCScannerActivity : ComponentActivity() {
         private const val LOG_TAG = "OSBARCScannerActivity"
     }
 
+    /**
+     * Overrides the onCreate method from Activity, setting the UI of the screen
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -50,6 +58,10 @@ class OSBARCScannerActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * Composable function, responsible for declaring the UI of the screen,
+     * as well as creating an instance of OSBARCBarcodeAnalyzer for image analysis.
+     */
     @Composable
     fun ScanScreen() {
         val lifecycleOwner = LocalLifecycleOwner.current

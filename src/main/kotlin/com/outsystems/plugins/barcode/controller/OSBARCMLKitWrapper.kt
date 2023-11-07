@@ -10,12 +10,22 @@ import com.google.mlkit.vision.common.InputImage
 import com.outsystems.plugins.barcode.model.OSBARCError
 import kotlinx.coroutines.runBlocking
 
+/**
+ * Helper class that implements the OSBARCScanLibraryInterface
+ * to scan an image using the ML Kit library.
+ */
 class OSBARCMLKitWrapper: OSBARCScanLibraryInterface {
 
     companion object {
         private const val LOG_TAG = "OSBARCMLKitWrapper"
     }
 
+    /**
+     * Scans an image looking for barcodes, using the ML Kit library.
+     * @param imageProxy - ImageProxy object that represents the image to be analyzed.
+     * @param onSuccess - The code to be executed if the operation was successful.
+     * @param onError - The code to be executed if the operation was not successful.
+     */
     @OptIn(ExperimentalGetImage::class) override fun scanBarcode(
         imageProxy: ImageProxy,
         onSuccess: (String) -> Unit,
