@@ -46,13 +46,14 @@ class OSBARCMLKitWrapper: OSBARCScanLibraryInterface {
                             e.message?.let { Log.e(LOG_TAG, it) }
                             onError(OSBARCError.MLKIT_LIBRARY_ERROR)
                         }
+                        .addOnCompleteListener {
+                            imageProxy.close()
+                        }
                 }
             }
         } catch (e: Exception) {
             e.message?.let { Log.e(LOG_TAG, it) }
             onError(OSBARCError.MLKIT_LIBRARY_ERROR)
-        } finally {
-            imageProxy.close()
         }
     }
 

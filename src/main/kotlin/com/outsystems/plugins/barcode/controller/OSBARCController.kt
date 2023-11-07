@@ -18,8 +18,6 @@ class OSBARCController {
         private const val SCAN_HINT = "SCAN_HINT"
         private const val SCAN_LIBRARY = "SCAN_LIBRARY"
         private const val SCAN_RESULT = "scanResult"
-        private const val CAMERA_PERMISSION_DENIED_RESULT_CODE = 1
-        private const val SCANNING_EXCEPTION_RESULT_CODE = 2
     }
 
     fun scanCode(activity: Activity, parameters: OSBARCScanParameters) {
@@ -55,10 +53,14 @@ class OSBARCController {
                     }
                     Activity.RESULT_CANCELED ->
                         onError(OSBARCError.SCAN_CANCELLED_ERROR)
-                    CAMERA_PERMISSION_DENIED_RESULT_CODE ->
+                    OSBARCError.CAMERA_PERMISSION_DENIED_ERROR.code ->
                         onError(OSBARCError.CAMERA_PERMISSION_DENIED_ERROR)
-                    SCANNING_EXCEPTION_RESULT_CODE ->
+                    OSBARCError.SCANNING_GENERAL_ERROR.code ->
                         onError(OSBARCError.SCANNING_GENERAL_ERROR)
+                    OSBARCError.ZXING_LIBRARY_ERROR.code ->
+                        onError(OSBARCError.ZXING_LIBRARY_ERROR)
+                    OSBARCError.MLKIT_LIBRARY_ERROR.code ->
+                        onError(OSBARCError.MLKIT_LIBRARY_ERROR)
                 }
             }
         }

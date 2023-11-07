@@ -3,12 +3,13 @@ package com.outsystems.plugins.barcode.controller
 import android.util.Log
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
+import com.outsystems.plugins.barcode.model.OSBARCError
 import java.lang.Exception
 
 class OSBARCBarcodeAnalyzer(
     private val scanLibrary: String,
     private val onBarcodeScanned: (String) -> Unit,
-    private val onScanningError: () -> Unit
+    private val onScanningError: (OSBARCError) -> Unit
 ): ImageAnalysis.Analyzer {
 
     companion object {
@@ -24,7 +25,7 @@ class OSBARCBarcodeAnalyzer(
                     onBarcodeScanned(it)
                 },
                 {
-                    onScanningError
+                    onScanningError(it)
                 }
             )
         } catch (e: Exception) {

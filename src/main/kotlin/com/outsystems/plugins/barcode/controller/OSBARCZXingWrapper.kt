@@ -7,6 +7,7 @@ import androidx.camera.core.ImageProxy
 import com.google.zxing.BinaryBitmap
 import com.google.zxing.DecodeHintType
 import com.google.zxing.MultiFormatReader
+import com.google.zxing.NotFoundException
 import com.google.zxing.RGBLuminanceSource
 import com.google.zxing.common.HybridBinarizer
 import com.outsystems.plugins.barcode.model.OSBARCError
@@ -33,7 +34,15 @@ class OSBARCZXingWrapper: OSBARCScanLibraryInterface {
                 matrix.postRotate(rotationDegrees.toFloat())
 
                 // actually rotate the image
-                imageBitmap = Bitmap.createBitmap(imageBitmap, 0, 0, imageBitmap.width, imageBitmap.height, matrix, true)
+                imageBitmap = Bitmap.createBitmap(
+                    imageBitmap,
+                    0,
+                    0,
+                    imageBitmap.width,
+                    imageBitmap.height,
+                    matrix,
+                    true
+                )
             }
 
             // scan image using zxing
@@ -52,6 +61,9 @@ class OSBARCZXingWrapper: OSBARCScanLibraryInterface {
                 )
             }.decode(binaryBitmap)
             onSuccess(result.text)
+        } catch (e: NotFoundException) {
+            // keep trying
+            e.message?.let { Log.d(LOG_TAG, it) }
         } catch (e: Exception) {
             e.message?.let { Log.e(LOG_TAG, it) }
             onError(OSBARCError.ZXING_LIBRARY_ERROR)
