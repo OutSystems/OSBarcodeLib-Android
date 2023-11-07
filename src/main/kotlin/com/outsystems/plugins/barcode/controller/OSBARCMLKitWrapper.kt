@@ -1,6 +1,8 @@
 package com.outsystems.plugins.barcode.controller
 
 import android.util.Log
+import androidx.annotation.OptIn
+import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageProxy
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
@@ -14,7 +16,7 @@ class OSBARCMLKitWrapper: OSBARCScanLibraryInterface {
         private const val LOG_TAG = "OSBARCMLKitWrapper"
     }
 
-    override fun scanBarcode(
+    @OptIn(ExperimentalGetImage::class) override fun scanBarcode(
         imageProxy: ImageProxy,
         onSuccess: (String) -> Unit,
         onError: (OSBARCError) -> Unit
