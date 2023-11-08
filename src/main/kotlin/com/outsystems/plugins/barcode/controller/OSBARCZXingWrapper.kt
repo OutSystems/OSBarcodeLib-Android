@@ -1,7 +1,11 @@
 package com.outsystems.plugins.barcode.controller
 
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.ImageFormat
 import android.graphics.Matrix
+import android.graphics.Rect
+import android.graphics.YuvImage
 import android.util.Log
 import androidx.camera.core.ImageProxy
 import com.google.zxing.BinaryBitmap
@@ -11,6 +15,8 @@ import com.google.zxing.NotFoundException
 import com.google.zxing.RGBLuminanceSource
 import com.google.zxing.common.HybridBinarizer
 import com.outsystems.plugins.barcode.model.OSBARCError
+import java.io.ByteArrayOutputStream
+import java.nio.ByteBuffer
 
 /**
  * Helper class that implements the OSBARCScanLibraryInterface
@@ -33,8 +39,9 @@ class OSBARCZXingWrapper: OSBARCScanLibraryInterface {
         onSuccess: (String) -> Unit,
         onError: (OSBARCError) -> Unit
     ) {
+
         try {
-            var imageBitmap = imageProxy.toBitmap()
+            var imageBitmap = imageProxyToBitmap(imageProxy)
 
             // rotate the image if it's in portrait mode (rotation = 90 or 270 degrees)
             val rotationDegrees = imageProxy.imageInfo.rotationDegrees
@@ -80,6 +87,39 @@ class OSBARCZXingWrapper: OSBARCScanLibraryInterface {
         } finally {
             imageProxy.close()
         }
+
+    }
+
+    // Function to convert ImageProxy to Bitmap
+    private fun imageProxyToBitmap(image: ImageProxy): Bitmap {
+
+        // get image data
+        val planes = image.planes
+        val yBuffer: ByteBuffer = planes[0].buffer
+        val uBuffer: ByteBuffer = planes[1].buffer
+        val vBuffer: ByteBuffer = planes[2].buffer
+
+        val imageWidth = image.width
+        val imageHeight = image.height
+
+        val ySize = yBuffer.remaining()
+        val uSize = uBuffer.remaining()
+        val vSize = vBuffer.remaining()
+
+        // use byte arrays for image data
+        val data = ByteArray(ySize + uSize + vSize)
+        yBuffer.get(data, 0, ySize)
+        uBuffer.get(data, ySize, uSize)
+        vBuffer.get(data, ySize + uSize, vSize)
+
+        // Create a YUV image
+        val yuvImage = YuvImage(data, ImageFormat.NV21, imageWidth, imageHeight, null)
+
+        // Convert YUV to Bitmap
+        val out = ByteArrayOutputStream()
+        yuvImage.compressToJpeg(Rect(0, 0, imageWidth, imageHeight), 100, out)
+        val imageBytes = out.toByteArray()
+        return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
     }
 
 }

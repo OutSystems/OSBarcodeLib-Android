@@ -8,4 +8,24 @@ class ScanCodeTests {
     fun scanCodeTest() {
         // temporarily empty
     }
+
+    @Test
+    fun givenZXingParamWhenScanBarcodeThenZXingWrapperCalled() {
+        // temporarily empty
+    }
+
+    @Test
+    fun givenMLKitParamWhenScanBarcodeThenMLKitWrapperCalled() {
+        // temporarily empty
+    }
+
+    @Test
+    fun givenLibParamEmptyWhenScanBarcodeThenZXingWrapperCalled() {
+        // temporarily empty
+    }
+
+    @Test
+    fun givenAnyOtherLibWhenScanBarcodeThenZXingWrapperCalled() {
+        // temporarily empty
+    }
 }
