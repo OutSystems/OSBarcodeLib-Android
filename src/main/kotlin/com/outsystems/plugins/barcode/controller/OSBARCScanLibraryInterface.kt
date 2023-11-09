@@ -6,7 +6,7 @@ import com.outsystems.plugins.barcode.model.OSBARCError
 /**
  * Interface that provides the signature of the scanBarcode method
  */
-interface OSBARCScanLibraryInterface {
+fun interface OSBARCScanLibraryInterface {
     fun scanBarcode(
         imageProxy: ImageProxy,
         onSuccess: (String) -> Unit,
