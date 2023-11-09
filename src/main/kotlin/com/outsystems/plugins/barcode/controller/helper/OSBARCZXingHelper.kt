@@ -80,7 +80,7 @@ class OSBARCZXingHelper: OSBARCZXingHelperInterface {
             // keep trying
             e.message?.let { Log.d(LOG_TAG, it) }
         } catch (e: Exception) {
-            e.message?.let { Log.d(LOG_TAG, it) }
+            e.message?.let { Log.e(LOG_TAG, it) }
             onError()
         }
 

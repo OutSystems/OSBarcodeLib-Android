@@ -31,7 +31,6 @@ class ScanCodeTests {
     private lateinit var mockByteBuffer: ByteBuffer
     private lateinit var mockImageInfo: ImageInfo
     private lateinit var planes: Array<ImageProxy.PlaneProxy>
-    private lateinit var mockException: Exception
 
     companion object {
         private const val SCAN_REQUEST_CODE = 112
@@ -51,14 +50,12 @@ class ScanCodeTests {
         mockByteBuffer = Mockito.mock(ByteBuffer::class.java)
         mockImageInfo = Mockito.mock(ImageInfo::class.java)
         planes = arrayOf(mockPlaneProxy, mockPlaneProxy, mockPlaneProxy)
-        mockException = Mockito.mock(Exception::class.java)
         Mockito.doReturn(planes).`when`(mockImageProxy).planes
         Mockito.doReturn(mockByteBuffer).`when`(mockPlaneProxy).buffer
         Mockito.doReturn(30).`when`(mockImageProxy).width
         Mockito.doReturn(30).`when`(mockImageProxy).height
         Mockito.doReturn(30).`when`(mockByteBuffer).remaining()
         Mockito.doReturn(mockImageInfo).`when`(mockImageProxy).imageInfo
-        Mockito.doReturn("errorMessage").`when`(mockException).message
     }
 
     @Test
