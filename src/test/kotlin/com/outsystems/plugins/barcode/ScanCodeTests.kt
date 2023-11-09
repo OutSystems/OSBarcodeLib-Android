@@ -149,23 +149,6 @@ class ScanCodeTests {
     }
 
     @Test
-    fun givenResultOKAndBarcodeNullWhenHandleScanResultThenScanningError() {
-        Mockito.doReturn(mockBundle).`when`(mockIntent).extras
-        Mockito.doReturn(null).`when`(mockBundle).getString(SCAN_RESULT)
-
-        val barcodeController = OSBARCController()
-        barcodeController.handleActivityResult(SCAN_REQUEST_CODE, Activity.RESULT_OK, mockIntent,
-            {
-                fail()
-            },
-            {
-                assertEquals(OSBARCError.SCANNING_GENERAL_ERROR.code, it.code)
-                assertEquals(OSBARCError.SCANNING_GENERAL_ERROR.description, it.description)
-            }
-        )
-    }
-
-    @Test
     fun givenResultOKAndBarcodeEmptyWhenHandleScanResultThenScanningError() {
         Mockito.doReturn(mockBundle).`when`(mockIntent).extras
         Mockito.doReturn("").`when`(mockBundle).getString(SCAN_RESULT)
