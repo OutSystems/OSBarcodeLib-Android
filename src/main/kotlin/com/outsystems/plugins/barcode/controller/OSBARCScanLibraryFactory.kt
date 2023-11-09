@@ -26,11 +26,9 @@ class OSBARCScanLibraryFactory {
                 LIBRARY_ZXING -> {
                     createZXingWrapper(zxingHelper)
                 }
-
                 LIBRARY_MLKIT -> {
                     createMLKitWrapper(mlkitHelper)
                 }
-
                 else -> {
                     createZXingWrapper(zxingHelper)
                 }
