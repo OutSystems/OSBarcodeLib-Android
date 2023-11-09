@@ -92,7 +92,6 @@ class OSBARCZXingWrapper(private val helper: OSBARCZXingHelperInterface) : OSBAR
         val out = ByteArrayOutputStream()
         yuvImage.compressToJpeg(Rect(0, 0, imageWidth, imageHeight), 100, out)
         val imageBytes = out.toByteArray()
-        //return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
         return helper.bitmapFromImageBytes(imageBytes)
     }
 

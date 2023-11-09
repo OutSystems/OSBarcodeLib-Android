@@ -9,7 +9,6 @@ import androidx.camera.core.ImageProxy
 import com.outsystems.plugins.barcode.controller.OSBARCBarcodeAnalyzer
 import com.outsystems.plugins.barcode.controller.OSBARCController
 import com.outsystems.plugins.barcode.controller.OSBARCScanLibraryFactory
-import com.outsystems.plugins.barcode.controller.helper.OSBARCMLKitHelperInterface
 import com.outsystems.plugins.barcode.mocks.OSBARCMLKitHelperMock
 import com.outsystems.plugins.barcode.mocks.OSBARCZXingHelperMock
 import com.outsystems.plugins.barcode.mocks.OSBARCScanLibraryMock
@@ -32,6 +31,7 @@ class ScanCodeTests {
     private lateinit var mockByteBuffer: ByteBuffer
     private lateinit var mockImageInfo: ImageInfo
     private lateinit var planes: Array<ImageProxy.PlaneProxy>
+    private lateinit var mockException: Exception
 
     companion object {
         private const val SCAN_REQUEST_CODE = 112
@@ -51,12 +51,14 @@ class ScanCodeTests {
         mockByteBuffer = Mockito.mock(ByteBuffer::class.java)
         mockImageInfo = Mockito.mock(ImageInfo::class.java)
         planes = arrayOf(mockPlaneProxy, mockPlaneProxy, mockPlaneProxy)
+        mockException = Mockito.mock(Exception::class.java)
         Mockito.doReturn(planes).`when`(mockImageProxy).planes
         Mockito.doReturn(mockByteBuffer).`when`(mockPlaneProxy).buffer
         Mockito.doReturn(30).`when`(mockImageProxy).width
         Mockito.doReturn(30).`when`(mockImageProxy).height
         Mockito.doReturn(30).`when`(mockByteBuffer).remaining()
         Mockito.doReturn(mockImageInfo).`when`(mockImageProxy).imageInfo
+        Mockito.doReturn("errorMessage").`when`(mockException).message
     }
 
     @Test
@@ -575,6 +577,26 @@ class ScanCodeTests {
             {
                 assertEquals(OSBARCError.ZXING_LIBRARY_ERROR.code, it.code)
                 assertEquals(OSBARCError.ZXING_LIBRARY_ERROR.description, it.description)
+            }
+        )
+    }
+
+    @Test
+    fun givenMediaImageNullWhenMLKitScanThenDoNothing() {
+        val wrapper = OSBARCScanLibraryFactory.createScanLibraryWrapper(
+            "mlkit",
+            OSBARCZXingHelperMock(),
+            OSBARCMLKitHelperMock()
+        )
+
+        Mockito.doReturn(null).`when`(mockImageProxy).image
+
+        wrapper.scanBarcode(mockImageProxy,
+            {
+                // do nothing
+            },
+            {
+                // do nothing
             }
         )
     }
