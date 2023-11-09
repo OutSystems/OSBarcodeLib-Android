@@ -554,4 +554,29 @@ class ScanCodeTests {
         )
     }
 
+    @Test
+    fun givenWrongLibraryWhenScanThenZXingIsUsed() {
+        val wrapper = OSBARCScanLibraryFactory.createScanLibraryWrapper(
+            "wrongLibrary",
+            OSBARCZXingHelperMock().apply {
+                success = false
+                exception = false
+            },
+            OSBARCMLKitHelperMock()
+        )
+
+        val mockMediaImage = Mockito.mock(Image::class.java)
+        Mockito.doReturn(mockMediaImage).`when`(mockImageProxy).image
+
+        wrapper.scanBarcode(mockImageProxy,
+            {
+                fail()
+            },
+            {
+                assertEquals(OSBARCError.ZXING_LIBRARY_ERROR.code, it.code)
+                assertEquals(OSBARCError.ZXING_LIBRARY_ERROR.description, it.description)
+            }
+        )
+    }
+
 }
