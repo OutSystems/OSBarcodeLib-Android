@@ -66,6 +66,53 @@ class ScanCodeTests {
     }
 
     @Test
+    fun givenIntentNullWhenHandleScanResultThenSuccess() {
+        val barcodeController = OSBARCController()
+        barcodeController.handleActivityResult(SCAN_REQUEST_CODE, Activity.RESULT_OK, null,
+            {
+                fail()
+            },
+            {
+                assertEquals(OSBARCError.SCANNING_GENERAL_ERROR.code, it.code)
+                assertEquals(OSBARCError.SCANNING_GENERAL_ERROR.description, it.description)
+            }
+        )
+    }
+
+    @Test
+    fun givenBundleNullWhenHandleScanResultThenSuccess() {
+        Mockito.doReturn(null).`when`(mockIntent).extras
+
+        val barcodeController = OSBARCController()
+        barcodeController.handleActivityResult(SCAN_REQUEST_CODE, Activity.RESULT_OK, mockIntent,
+            {
+                fail()
+            },
+            {
+                assertEquals(OSBARCError.SCANNING_GENERAL_ERROR.code, it.code)
+                assertEquals(OSBARCError.SCANNING_GENERAL_ERROR.description, it.description)
+            }
+        )
+    }
+
+    @Test
+    fun givenStringNullWhenHandleScanResultThenSuccess() {
+        Mockito.doReturn(mockBundle).`when`(mockIntent).extras
+        Mockito.doReturn(null).`when`(mockBundle).getString(SCAN_RESULT)
+
+        val barcodeController = OSBARCController()
+        barcodeController.handleActivityResult(SCAN_REQUEST_CODE, Activity.RESULT_OK, mockIntent,
+            {
+                fail()
+            },
+            {
+                assertEquals(OSBARCError.SCANNING_GENERAL_ERROR.code, it.code)
+                assertEquals(OSBARCError.SCANNING_GENERAL_ERROR.description, it.description)
+            }
+        )
+    }
+
+    @Test
     fun givenResultOKAndBarcodeNullWhenHandleScanResultThenScanningError() {
         Mockito.doReturn(mockBundle).`when`(mockIntent).extras
         Mockito.doReturn(null).`when`(mockBundle).getString(SCAN_RESULT)
