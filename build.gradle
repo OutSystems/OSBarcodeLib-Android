@@ -6,7 +6,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.1.2'
+        classpath 'com.android.tools.build:gradle:8.1.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jacoco:org.jacoco.core:$jacocoVersion"
     }
@@ -80,6 +80,7 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion '1.2.0-alpha08'
     }
+
     packaging {
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
