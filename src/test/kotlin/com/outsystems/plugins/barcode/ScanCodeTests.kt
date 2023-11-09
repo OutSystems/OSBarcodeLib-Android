@@ -468,6 +468,7 @@ class ScanCodeTests {
             OSBARCMLKitHelperMock().apply {
                 scanResult = SCAN_RESULT
                 success = true
+                barcodesEmpty = false
             }
         )
 
@@ -480,6 +481,56 @@ class ScanCodeTests {
             },
             {
                 fail()
+            }
+        )
+    }
+
+    @Test
+    fun givenResultEmptyWhenMLKitScanThenDoNothing() {
+        val wrapper = OSBARCScanLibraryFactory.createScanLibraryWrapper(
+            "mlkit",
+            OSBARCZXingHelperMock(),
+            OSBARCMLKitHelperMock().apply {
+                scanResult = ""
+                success = true
+                barcodesEmpty = false
+            }
+        )
+
+        val mockMediaImage = Mockito.mock(Image::class.java)
+        Mockito.doReturn(mockMediaImage).`when`(mockImageProxy).image
+
+        wrapper.scanBarcode(mockImageProxy,
+            {
+                // do nothing
+            },
+            {
+                // do nothing
+            }
+        )
+    }
+
+    @Test
+    fun givenResultNullWhenMLKitScanThenDoNothing() {
+        val wrapper = OSBARCScanLibraryFactory.createScanLibraryWrapper(
+            "mlkit",
+            OSBARCZXingHelperMock(),
+            OSBARCMLKitHelperMock().apply {
+                scanResult = null
+                success = true
+                barcodesEmpty = false
+            }
+        )
+
+        val mockMediaImage = Mockito.mock(Image::class.java)
+        Mockito.doReturn(mockMediaImage).`when`(mockImageProxy).image
+
+        wrapper.scanBarcode(mockImageProxy,
+            {
+                // do nothing
+            },
+            {
+                // do nothing
             }
         )
     }

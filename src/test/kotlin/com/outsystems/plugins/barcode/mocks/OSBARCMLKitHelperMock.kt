@@ -10,7 +10,7 @@ import org.mockito.Mockito
 class OSBARCMLKitHelperMock: OSBARCMLKitHelperInterface {
 
     var success = true
-    var scanResult = ""
+    var scanResult: String? = null
     var exception = false
     var barcodesEmpty = true
     override fun decodeImage(
