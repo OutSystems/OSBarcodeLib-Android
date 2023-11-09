@@ -29,6 +29,8 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import com.outsystems.plugins.barcode.controller.OSBARCBarcodeAnalyzer
 import com.outsystems.plugins.barcode.controller.OSBARCScanLibraryFactory
+import com.outsystems.plugins.barcode.controller.helper.OSBARCMLKitHelper
+import com.outsystems.plugins.barcode.controller.helper.OSBARCZXingHelper
 import com.outsystems.plugins.barcode.model.OSBARCError
 import com.outsystems.plugins.barcode.view.ui.theme.BarcodeScannerTheme
 import java.lang.Exception
@@ -108,7 +110,11 @@ class OSBARCScannerActivity : ComponentActivity() {
                     imageAnalysis.setAnalyzer(
                         ContextCompat.getMainExecutor(context),
                         OSBARCBarcodeAnalyzer(
-                            OSBARCScanLibraryFactory.createScanLibraryWrapper("zxing"), // temporary
+                            OSBARCScanLibraryFactory.createScanLibraryWrapper(
+                                "zxing",
+                                OSBARCZXingHelper(),
+                                OSBARCMLKitHelper()
+                            ), // temporary
                             { result ->
                                 barcode = result
                                 val resultIntent = Intent()

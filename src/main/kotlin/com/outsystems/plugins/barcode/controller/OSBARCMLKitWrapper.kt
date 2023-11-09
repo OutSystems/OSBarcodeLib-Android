@@ -4,17 +4,14 @@ import android.util.Log
 import androidx.annotation.OptIn
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageProxy
-import com.google.mlkit.vision.barcode.BarcodeScannerOptions
-import com.google.mlkit.vision.barcode.BarcodeScanning
-import com.google.mlkit.vision.common.InputImage
+import com.outsystems.plugins.barcode.controller.helper.OSBARCMLKitHelperInterface
 import com.outsystems.plugins.barcode.model.OSBARCError
-import kotlinx.coroutines.runBlocking
 
 /**
- * Helper class that implements the OSBARCScanLibraryInterface
+ * Wrapper class that implements the OSBARCScanLibraryInterface
  * to scan an image using the ML Kit library.
  */
-class OSBARCMLKitWrapper: OSBARCScanLibraryInterface {
+class OSBARCMLKitWrapper(private val helper: OSBARCMLKitHelperInterface): OSBARCScanLibraryInterface {
 
     companion object {
         private const val LOG_TAG = "OSBARCMLKitWrapper"
@@ -32,36 +29,22 @@ class OSBARCMLKitWrapper: OSBARCScanLibraryInterface {
         onError: (OSBARCError) -> Unit
     ) {
         try {
-            val options = BarcodeScannerOptions.Builder()
-                .enableAllPotentialBarcodes()
-                .build()
-            val scanner = BarcodeScanning.getClient(options)
             val mediaImage = imageProxy.image
-
             if (mediaImage != null) {
-                val image = InputImage.fromMediaImage(
-                    mediaImage,
-                    imageProxy.imageInfo.rotationDegrees
+                helper.decodeImage(imageProxy, mediaImage,
+                    { barcodes ->
+                        var result: String? = null
+                        if (barcodes.isNotEmpty()) {
+                            result = barcodes.first().rawValue
+                        }
+                        if (!result.isNullOrEmpty()) {
+                            onSuccess(result)
+                        }
+                    },
+                    {
+                        onError(OSBARCError.MLKIT_LIBRARY_ERROR)
+                    }
                 )
-                runBlocking {
-                    scanner.process(image)
-                        .addOnSuccessListener { barcodes ->
-                            var result: String? = null
-                            if (barcodes.isNotEmpty()) {
-                                result = barcodes.first().rawValue
-                            }
-                            if (!result.isNullOrEmpty()) {
-                                onSuccess(result)
-                            }
-                        }
-                        .addOnFailureListener { e ->
-                            e.message?.let { Log.e(LOG_TAG, it) }
-                            onError(OSBARCError.MLKIT_LIBRARY_ERROR)
-                        }
-                        .addOnCompleteListener {
-                            imageProxy.close()
-                        }
-                }
             }
         } catch (e: Exception) {
             e.message?.let { Log.e(LOG_TAG, it) }
