@@ -565,6 +565,7 @@ class ScanCodeTests {
             OSBARCZXingHelperMock(),
             OSBARCMLKitHelperMock().apply {
                 success = false
+                barcodesEmpty = false
             }
         )
 
@@ -590,6 +591,7 @@ class ScanCodeTests {
             OSBARCMLKitHelperMock().apply {
                 success = false
                 exception = true
+                barcodesEmpty = false
             }
         )
 
@@ -615,7 +617,9 @@ class ScanCodeTests {
                 success = false
                 exception = false
             },
-            OSBARCMLKitHelperMock()
+            OSBARCMLKitHelperMock().apply {
+                barcodesEmpty = false
+            }
         )
 
         val mockMediaImage = Mockito.mock(Image::class.java)
@@ -637,7 +641,9 @@ class ScanCodeTests {
         val wrapper = OSBARCScanLibraryFactory.createScanLibraryWrapper(
             "mlkit",
             OSBARCZXingHelperMock(),
-            OSBARCMLKitHelperMock()
+            OSBARCMLKitHelperMock().apply {
+                barcodesEmpty = false
+            }
         )
 
         Mockito.doReturn(null).`when`(mockImageProxy).image

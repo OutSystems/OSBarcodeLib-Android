@@ -4,7 +4,6 @@ import android.media.Image
 import androidx.camera.core.ImageProxy
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.outsystems.plugins.barcode.controller.helper.OSBARCMLKitHelperInterface
-import com.outsystems.plugins.barcode.model.OSBARCError
 import org.mockito.Mockito
 
 class OSBARCMLKitHelperMock: OSBARCMLKitHelperInterface {

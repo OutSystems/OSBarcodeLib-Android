@@ -2,7 +2,6 @@ package com.outsystems.plugins.barcode.mocks
 
 import android.graphics.Bitmap
 import com.outsystems.plugins.barcode.controller.helper.OSBARCZXingHelperInterface
-import com.outsystems.plugins.barcode.model.OSBARCError
 import org.mockito.Mockito
 
 class OSBARCZXingHelperMock: OSBARCZXingHelperInterface {
