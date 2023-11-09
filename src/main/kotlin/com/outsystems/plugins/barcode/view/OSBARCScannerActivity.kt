@@ -111,7 +111,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                         ContextCompat.getMainExecutor(context),
                         OSBARCBarcodeAnalyzer(
                             OSBARCScanLibraryFactory.createScanLibraryWrapper(
-                                "zxing",
+                                "mlkit",
                                 OSBARCZXingHelper(),
                                 OSBARCMLKitHelper()
                             ), // temporary
