@@ -11,7 +11,7 @@ import java.lang.Exception
  * and overriding its analyze() method to scan for barcodes in the image frames.
  */
 class OSBARCBarcodeAnalyzer(
-    private val scanLibrary: String,
+    private val scanLibrary: OSBARCScanLibraryInterface,
     private val onBarcodeScanned: (String) -> Unit,
     private val onScanningError: (OSBARCError) -> Unit
 ): ImageAnalysis.Analyzer {
@@ -28,8 +28,7 @@ class OSBARCBarcodeAnalyzer(
      */
     override fun analyze(image: ImageProxy) {
         try {
-            val scanningLib : OSBARCScanLibraryInterface = OSBARCScanLibraryFactory.createScanLibraryWrapper(scanLibrary)
-            scanningLib.scanBarcode(
+            scanLibrary.scanBarcode(
                 image,
                 {
                     onBarcodeScanned(it)
@@ -40,7 +39,7 @@ class OSBARCBarcodeAnalyzer(
             )
         } catch (e: Exception) {
             e.message?.let { Log.e(LOG_TAG, it) }
-            onScanningError
+            onScanningError(OSBARCError.SCANNING_GENERAL_ERROR)
         }
     }
 

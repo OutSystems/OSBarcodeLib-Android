@@ -3,7 +3,11 @@ package com.outsystems.plugins.barcode
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import androidx.camera.core.ImageProxy
+import com.outsystems.plugins.barcode.controller.OSBARCBarcodeAnalyzer
 import com.outsystems.plugins.barcode.controller.OSBARCController
+import com.outsystems.plugins.barcode.controller.OSBARCScanLibraryFactory
+import com.outsystems.plugins.barcode.mocks.OSBARCScanLibraryMock
 import com.outsystems.plugins.barcode.model.OSBARCError
 import com.outsystems.plugins.barcode.model.OSBARCScanParameters
 import org.junit.Assert.assertEquals
@@ -167,17 +171,95 @@ class ScanCodeTests {
     }
 
     @Test
-    fun givenMLKitParamWhenScanBarcodeThenMLKitWrapperCalled() {
-        // temporarily empty
+    fun givenScanLibrarySuccessWhenScanBarcodeThenSuccess() {
+        val mockImageProxy = Mockito.mock(ImageProxy::class.java)
+        val scanLibMock = OSBARCScanLibraryMock().apply {
+            success = true
+            resultCode = RESULT_CODE
+        }
+        OSBARCBarcodeAnalyzer(scanLibMock,
+            {
+                assertEquals(RESULT_CODE, it)
+            },
+            {
+                fail()
+            }
+        ).analyze(mockImageProxy)
     }
 
     @Test
-    fun givenLibParamEmptyWhenScanBarcodeThenZXingWrapperCalled() {
-        // temporarily empty
+    fun givenScanLibraryGeneralErrorWhenScanBarcodeThenGeneralError() {
+        val mockImageProxy = Mockito.mock(ImageProxy::class.java)
+        val scanLibMock = OSBARCScanLibraryMock().apply {
+            success = false
+            exception = false
+            error = OSBARCError.SCANNING_GENERAL_ERROR
+        }
+        OSBARCBarcodeAnalyzer(scanLibMock,
+            {
+                fail()
+            },
+            {
+                assertEquals(OSBARCError.SCANNING_GENERAL_ERROR.code, it.code)
+                assertEquals(OSBARCError.SCANNING_GENERAL_ERROR.description, it.description)
+            }
+        ).analyze(mockImageProxy)
     }
 
     @Test
-    fun givenAnyOtherLibWhenScanBarcodeThenZXingWrapperCalled() {
-        // temporarily empty
+    fun givenScanLibraryZXingErrorWhenScanBarcodeThenZxingError() {
+        val mockImageProxy = Mockito.mock(ImageProxy::class.java)
+        val scanLibMock = OSBARCScanLibraryMock().apply {
+            success = false
+            exception = false
+            error = OSBARCError.ZXING_LIBRARY_ERROR
+        }
+        OSBARCBarcodeAnalyzer(scanLibMock,
+            {
+                fail()
+            },
+            {
+                assertEquals(OSBARCError.ZXING_LIBRARY_ERROR.code, it.code)
+                assertEquals(OSBARCError.ZXING_LIBRARY_ERROR.description, it.description)
+            }
+        ).analyze(mockImageProxy)
     }
+
+    @Test
+    fun givenScanLibraryMLKitErrorWhenScanBarcodeThenMLKitError() {
+        val mockImageProxy = Mockito.mock(ImageProxy::class.java)
+        val scanLibMock = OSBARCScanLibraryMock().apply {
+            success = false
+            exception = false
+            error = OSBARCError.MLKIT_LIBRARY_ERROR
+        }
+        OSBARCBarcodeAnalyzer(scanLibMock,
+            {
+                fail()
+            },
+            {
+                assertEquals(OSBARCError.MLKIT_LIBRARY_ERROR.code, it.code)
+                assertEquals(OSBARCError.MLKIT_LIBRARY_ERROR.description, it.description)
+            }
+        ).analyze(mockImageProxy)
+    }
+
+    @Test
+    fun givenScanLibraryExceptionWhenScanBarcodeThenGeneralError() {
+        val mockImageProxy = Mockito.mock(ImageProxy::class.java)
+        val scanLibMock = OSBARCScanLibraryMock().apply {
+            success = false
+            exception = true
+        }
+        OSBARCBarcodeAnalyzer(scanLibMock,
+            {
+                fail()
+            },
+            {
+                assertEquals(OSBARCError.SCANNING_GENERAL_ERROR.code, it.code)
+                assertEquals(OSBARCError.SCANNING_GENERAL_ERROR.description, it.description)
+            }
+        ).analyze(mockImageProxy)
+    }
+
 }
