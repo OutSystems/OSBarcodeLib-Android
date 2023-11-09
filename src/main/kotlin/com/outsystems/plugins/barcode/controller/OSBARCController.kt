@@ -2,6 +2,7 @@ package com.outsystems.plugins.barcode.controller
 
 import android.app.Activity
 import android.content.Intent
+import android.util.Log
 import com.outsystems.plugins.barcode.model.OSBARCError
 import com.outsystems.plugins.barcode.model.OSBARCScanParameters
 import com.outsystems.plugins.barcode.view.OSBARCScannerActivity
@@ -22,6 +23,7 @@ class OSBARCController {
         private const val SCAN_HINT = "SCAN_HINT"
         private const val SCAN_LIBRARY = "SCAN_LIBRARY"
         private const val SCAN_RESULT = "scanResult"
+        private const val LOG_TAG = "OSBARCController"
     }
 
     /**
@@ -79,7 +81,15 @@ class OSBARCController {
                         onError(OSBARCError.ZXING_LIBRARY_ERROR)
                     OSBARCError.MLKIT_LIBRARY_ERROR.code ->
                         onError(OSBARCError.MLKIT_LIBRARY_ERROR)
+                    else -> {
+                        Log.d(LOG_TAG, "Invalid result code")
+                        onError(OSBARCError.SCANNING_GENERAL_ERROR)
+                    }
                 }
+            }
+            else -> {
+                Log.d(LOG_TAG, "Invalid request code")
+                onError(OSBARCError.SCANNING_GENERAL_ERROR)
             }
         }
     }
