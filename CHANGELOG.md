@@ -8,6 +8,9 @@ The changes documented here do not include those from the original repository.
 
 ## [Unreleased]
 
+### 10-11-2023
+Android - Use both libraries dynamically (https://outsystemsrd.atlassian.net/browse/RMET-2895)
+
 ### 09-11-2023
 Android - Scan barcode feature using ML Kit (https://outsystemsrd.atlassian.net/browse/RMET-2894)
 

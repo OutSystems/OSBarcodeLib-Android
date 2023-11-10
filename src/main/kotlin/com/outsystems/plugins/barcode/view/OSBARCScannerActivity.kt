@@ -46,6 +46,7 @@ class OSBARCScannerActivity : ComponentActivity() {
         private const val SCAN_SUCCESS_RESULT_CODE = -1
         private const val SCAN_RESULT = "scanResult"
         private const val LOG_TAG = "OSBARCScannerActivity"
+        private const val SCAN_LIBRARY = "SCAN_LIBRARY"
     }
 
     /**
@@ -111,7 +112,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                         ContextCompat.getMainExecutor(context),
                         OSBARCBarcodeAnalyzer(
                             OSBARCScanLibraryFactory.createScanLibraryWrapper(
-                                "mlkit",
+                                intent.extras?.getString(SCAN_LIBRARY) ?: "",
                                 OSBARCZXingHelper(),
                                 OSBARCMLKitHelper()
                             ), // temporary
