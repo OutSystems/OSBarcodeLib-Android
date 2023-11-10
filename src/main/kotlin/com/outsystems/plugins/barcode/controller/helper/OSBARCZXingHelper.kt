@@ -28,7 +28,11 @@ class OSBARCZXingHelper: OSBARCZXingHelperInterface {
      * @return the resulting bitmap.
      */
     override fun bitmapFromImageBytes(imageBytes: ByteArray): Bitmap {
-        return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+        return BitmapFactory.decodeByteArray(
+            imageBytes,
+            0, // use 0 in the offset to decode from the beginning of imageBytes
+            imageBytes.size // use byte array size as length because we want to decode the whole image
+        )
     }
 
     /**
@@ -45,12 +49,12 @@ class OSBARCZXingHelper: OSBARCZXingHelperInterface {
         // actually rotate the image
         return Bitmap.createBitmap(
             bitmap,
-            0,
-            0,
-            bitmap.width,
-            bitmap.height,
-            matrix,
-            true
+            0, // 0 is the x coordinate of the first pixel in source bitmap
+            0, // 0 is the y coordinate of the first pixel in source bitmap
+            bitmap.width, // number of pixels in each row
+            bitmap.height, // number of rows
+            matrix, // matrix to be used for rotation
+            true // true states that source bitmap should be filtered using matrix (rotation)
         )
     }
 
@@ -77,7 +81,7 @@ class OSBARCZXingHelper: OSBARCZXingHelperInterface {
             }.decode(binaryBitmap)
             onSuccess(result.text)
         } catch (e: NotFoundException) {
-            // keep trying
+            // keep trying, no barcode was found in this camera frame
             e.message?.let { Log.d(LOG_TAG, it) }
         } catch (e: Exception) {
             e.message?.let { Log.e(LOG_TAG, it) }

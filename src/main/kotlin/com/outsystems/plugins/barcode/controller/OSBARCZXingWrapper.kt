@@ -45,7 +45,15 @@ class OSBARCZXingWrapper(private val helper: OSBARCZXingHelperInterface) : OSBAR
             val width = imageBitmap.width
             val height = imageBitmap.height
             val pixels = IntArray(width * height)
-            imageBitmap.getPixels(pixels, 0, width, 0, 0, width, height)
+            imageBitmap.getPixels(
+                pixels,
+                0, // first index to write into pixels
+                width,
+                0, // x coordinate of the first pixel to read
+                0, // y coordinate of the first pixel to read
+                width,
+                height
+            )
 
             helper.decodeImage(pixels, width, height,
                 {
@@ -72,9 +80,11 @@ class OSBARCZXingWrapper(private val helper: OSBARCZXingHelperInterface) : OSBAR
         val uBuffer: ByteBuffer = planes[1].buffer
         val vBuffer: ByteBuffer = planes[2].buffer
 
+        // get image width and height
         val imageWidth = image.width
         val imageHeight = image.height
 
+        // calculate image data size
         val ySize = yBuffer.remaining()
         val uSize = uBuffer.remaining()
         val vSize = vBuffer.remaining()
@@ -85,10 +95,11 @@ class OSBARCZXingWrapper(private val helper: OSBARCZXingHelperInterface) : OSBAR
         uBuffer.get(data, ySize, uSize)
         vBuffer.get(data, ySize + uSize, vSize)
 
-        // Create a YUV image
+        // create a YUV image
+        // ImageFormat.NV21 used because it's efficient and widely supported
         val yuvImage = YuvImage(data, ImageFormat.NV21, imageWidth, imageHeight, null)
 
-        // Convert YUV to Bitmap
+        // convert YUV to Bitmap
         val out = ByteArrayOutputStream()
         yuvImage.compressToJpeg(Rect(0, 0, imageWidth, imageHeight), 100, out)
         val imageBytes = out.toByteArray()
