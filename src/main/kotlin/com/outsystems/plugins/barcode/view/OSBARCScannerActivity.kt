@@ -28,19 +28,29 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import com.outsystems.plugins.barcode.controller.OSBARCBarcodeAnalyzer
+import com.outsystems.plugins.barcode.controller.OSBARCScanLibraryFactory
+import com.outsystems.plugins.barcode.controller.helper.OSBARCMLKitHelper
+import com.outsystems.plugins.barcode.controller.helper.OSBARCZXingHelper
+import com.outsystems.plugins.barcode.model.OSBARCError
 import com.outsystems.plugins.barcode.view.ui.theme.BarcodeScannerTheme
 import java.lang.Exception
 
+/**
+ * This class is responsible for implementing the UI of the scanning screen using Jetpack Compose.
+ * It is also responsible for opening a camera stream using CameraX, and calling the class that
+ * implements the ImageAnalysis.Analyzer interface.
+ */
 class OSBARCScannerActivity : ComponentActivity() {
 
     companion object {
         private const val SCAN_SUCCESS_RESULT_CODE = -1
-        private const val CAMERA_PERMISSION_DENIED_RESULT_CODE = 1
-        private const val SCANNING_EXCEPTION_RESULT_CODE = 2
         private const val SCAN_RESULT = "scanResult"
         private const val LOG_TAG = "OSBARCScannerActivity"
     }
 
+    /**
+     * Overrides the onCreate method from Activity, setting the UI of the screen
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -51,6 +61,10 @@ class OSBARCScannerActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * Composable function, responsible for declaring the UI of the screen,
+     * as well as creating an instance of OSBARCBarcodeAnalyzer for image analysis.
+     */
     @Composable
     fun ScanScreen() {
         val lifecycleOwner = LocalLifecycleOwner.current
@@ -63,7 +77,7 @@ class OSBARCScannerActivity : ComponentActivity() {
             if (isGranted) {
                 // do nothing, continue
             } else {
-                this.setResult(CAMERA_PERMISSION_DENIED_RESULT_CODE)
+                this.setResult(OSBARCError.CAMERA_PERMISSION_DENIED_ERROR.code)
                 this.finish()
             }
         }
@@ -96,6 +110,11 @@ class OSBARCScannerActivity : ComponentActivity() {
                     imageAnalysis.setAnalyzer(
                         ContextCompat.getMainExecutor(context),
                         OSBARCBarcodeAnalyzer(
+                            OSBARCScanLibraryFactory.createScanLibraryWrapper(
+                                "mlkit",
+                                OSBARCZXingHelper(),
+                                OSBARCMLKitHelper()
+                            ), // temporary
                             { result ->
                                 barcode = result
                                 val resultIntent = Intent()
@@ -104,7 +123,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                                 finish()
                             },
                             {
-                                setResult(SCANNING_EXCEPTION_RESULT_CODE)
+                                setResult(it.code)
                                 finish()
                             }
                         )
@@ -118,7 +137,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                         )
                     } catch (e: Exception) {
                         e.message?.let { Log.e(LOG_TAG, it) }
-                        setResult(SCANNING_EXCEPTION_RESULT_CODE)
+                        setResult(OSBARCError.SCANNING_GENERAL_ERROR.code)
                         finish()
                     }
                     previewView
