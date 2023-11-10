@@ -22,35 +22,11 @@ class OSBARCScanLibraryFactory {
             zxingHelper: OSBARCZXingHelperInterface,
             mlkitHelper: OSBARCMLKitHelperInterface
         ): OSBARCScanLibraryInterface {
-            return when (scanLibrary) {
-                LIBRARY_ZXING -> {
-                    createZXingWrapper(zxingHelper)
-                }
-
-                LIBRARY_MLKIT -> {
-                    createMLKitWrapper(mlkitHelper)
-                }
-
-                else -> {
-                    createZXingWrapper(zxingHelper)
-                }
+            return if (scanLibrary == LIBRARY_MLKIT) {
+                OSBARCMLKitWrapper(mlkitHelper)
+            } else {
+                OSBARCZXingWrapper(zxingHelper)
             }
-        }
-
-        /**
-         * Creates and returns a OSBARCZXingWrapper instance.
-         * @return the newly created OSBARCZXingWrapper instance.
-         */
-        private fun createZXingWrapper(helper: OSBARCZXingHelperInterface): OSBARCZXingWrapper {
-            return OSBARCZXingWrapper(helper)
-        }
-
-        /**
-         * Creates and returns a OSBARCMLKitWrapper instance.
-         * @return the newly created OSBARCMLKitWrapper instance.
-         */
-        private fun createMLKitWrapper(helper: OSBARCMLKitHelperInterface): OSBARCMLKitWrapper {
-            return OSBARCMLKitWrapper(helper)
         }
     }
 }
