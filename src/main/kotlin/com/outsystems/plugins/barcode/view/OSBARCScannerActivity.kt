@@ -51,8 +51,6 @@ class OSBARCScannerActivity : ComponentActivity() {
         private const val CAM_DIRECTION_FRONT = 2
     }
 
-    private lateinit var parameters: OSBARCScanParameters
-
     /**
      * Overrides the onCreate method from Activity, setting the UI of the screen
      */
