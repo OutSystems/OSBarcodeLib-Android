@@ -1,5 +1,7 @@
 package com.outsystems.plugins.barcode.model
 
+import java.io.Serializable
+
 /**
  * Data class that represents the object with the scan parameters.
  */
@@ -11,4 +13,4 @@ data class OSBARCScanParameters(
     val scanText: String?,
     val hint: Int?,
     val androidScanningLibrary: String?
-)
+) : Serializable

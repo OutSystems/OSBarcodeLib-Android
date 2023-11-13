@@ -32,6 +32,7 @@ import com.outsystems.plugins.barcode.controller.OSBARCScanLibraryFactory
 import com.outsystems.plugins.barcode.controller.helper.OSBARCMLKitHelper
 import com.outsystems.plugins.barcode.controller.helper.OSBARCZXingHelper
 import com.outsystems.plugins.barcode.model.OSBARCError
+import com.outsystems.plugins.barcode.model.OSBARCScanParameters
 import com.outsystems.plugins.barcode.view.ui.theme.BarcodeScannerTheme
 import java.lang.Exception
 
@@ -46,8 +47,10 @@ class OSBARCScannerActivity : ComponentActivity() {
         private const val SCAN_SUCCESS_RESULT_CODE = -1
         private const val SCAN_RESULT = "scanResult"
         private const val LOG_TAG = "OSBARCScannerActivity"
-        private const val SCAN_LIBRARY = "SCAN_LIBRARY"
+        private const val SCAN_PARAMETERS = "SCAN_PARAMETERS"
     }
+
+    private lateinit var parameters: OSBARCScanParameters
 
     /**
      * Overrides the onCreate method from Activity, setting the UI of the screen
@@ -57,7 +60,7 @@ class OSBARCScannerActivity : ComponentActivity() {
 
         setContent {
             BarcodeScannerTheme {
-                ScanScreen()
+                ScanScreen(intent.extras?.getSerializable(SCAN_PARAMETERS) as OSBARCScanParameters)
             }
         }
     }
@@ -67,7 +70,7 @@ class OSBARCScannerActivity : ComponentActivity() {
      * as well as creating an instance of OSBARCBarcodeAnalyzer for image analysis.
      */
     @Composable
-    fun ScanScreen() {
+    fun ScanScreen(parameters: OSBARCScanParameters) {
         val lifecycleOwner = LocalLifecycleOwner.current
         val context = LocalContext.current
 
@@ -102,7 +105,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                     val previewView = PreviewView(context)
                     val preview = Preview.Builder().build()
                     val selector = CameraSelector.Builder()
-                        .requireLensFacing(CameraSelector.LENS_FACING_BACK) // temporary
+                        .requireLensFacing(if (parameters.cameraDirection == 2) CameraSelector.LENS_FACING_FRONT else CameraSelector.LENS_FACING_BACK)
                         .build()
                     preview.setSurfaceProvider(previewView.surfaceProvider)
                     val imageAnalysis = ImageAnalysis.Builder()
@@ -112,7 +115,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                         ContextCompat.getMainExecutor(context),
                         OSBARCBarcodeAnalyzer(
                             OSBARCScanLibraryFactory.createScanLibraryWrapper(
-                                intent.extras?.getString(SCAN_LIBRARY) ?: "",
+                                parameters.androidScanningLibrary ?: "",
                                 OSBARCZXingHelper(),
                                 OSBARCMLKitHelper()
                             ), // temporary
