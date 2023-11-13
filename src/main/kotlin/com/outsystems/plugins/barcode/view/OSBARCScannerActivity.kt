@@ -128,9 +128,6 @@ class OSBARCScannerActivity : ComponentActivity() {
         val cameraProviderFuture = remember {
             ProcessCameraProvider.getInstance(context)
         }
-        var barcode by remember {
-            mutableStateOf("")
-        }
 
         Column (
             modifier = Modifier.fillMaxSize()
@@ -155,7 +152,6 @@ class OSBARCScannerActivity : ComponentActivity() {
                                 OSBARCMLKitHelper()
                             ), // temporary
                             { result ->
-                                barcode = result
                                 val resultIntent = Intent()
                                 resultIntent.putExtra(SCAN_RESULT, result)
                                 setResult(SCAN_SUCCESS_RESULT_CODE, resultIntent)
