@@ -48,6 +48,7 @@ class OSBARCScannerActivity : ComponentActivity() {
         private const val SCAN_RESULT = "scanResult"
         private const val LOG_TAG = "OSBARCScannerActivity"
         private const val SCAN_PARAMETERS = "SCAN_PARAMETERS"
+        private const val CAM_DIRECTION_FRONT = 2
     }
 
     private lateinit var parameters: OSBARCScanParameters
@@ -105,7 +106,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                     val previewView = PreviewView(context)
                     val preview = Preview.Builder().build()
                     val selector = CameraSelector.Builder()
-                        .requireLensFacing(if (parameters.cameraDirection == 2) CameraSelector.LENS_FACING_FRONT else CameraSelector.LENS_FACING_BACK)
+                        .requireLensFacing(if (parameters.cameraDirection == CAM_DIRECTION_FRONT) CameraSelector.LENS_FACING_FRONT else CameraSelector.LENS_FACING_BACK)
                         .build()
                     preview.setSurfaceProvider(previewView.surfaceProvider)
                     val imageAnalysis = ImageAnalysis.Builder()
