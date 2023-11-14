@@ -4,29 +4,37 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.hardware.camera2.CameraAccessException
+import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.camera.core.ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST
 import androidx.compose.ui.Modifier
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.viewinterop.AndroidView
@@ -38,7 +46,6 @@ import com.outsystems.plugins.barcode.controller.helper.OSBARCZXingHelper
 import com.outsystems.plugins.barcode.model.OSBARCError
 import com.outsystems.plugins.barcode.model.OSBARCScanParameters
 import com.outsystems.plugins.barcode.view.ui.theme.BarcodeScannerTheme
-import java.lang.Exception
 
 /**
  * This class is responsible for implementing the UI of the scanning screen using Jetpack Compose.
@@ -46,7 +53,8 @@ import java.lang.Exception
  * implements the ImageAnalysis.Analyzer interface.
  */
 class OSBARCScannerActivity : ComponentActivity() {
-
+    private lateinit var camera: Camera
+    private lateinit var selector: CameraSelector
     private var permissionRequestCount = 0
     private var showDialog by mutableStateOf(false)
 
@@ -64,9 +72,14 @@ class OSBARCScannerActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val parameters = intent.extras?.getSerializable(SCAN_PARAMETERS) as OSBARCScanParameters
+        selector = CameraSelector.Builder()
+            .requireLensFacing(if (parameters.cameraDirection == CAM_DIRECTION_FRONT) CameraSelector.LENS_FACING_FRONT else CameraSelector.LENS_FACING_BACK)
+            .build()
+
         setContent {
             BarcodeScannerTheme {
-                ScanScreen(intent.extras?.getSerializable(SCAN_PARAMETERS) as OSBARCScanParameters)
+                ScanScreen(parameters)
             }
         }
     }
@@ -138,9 +151,6 @@ class OSBARCScannerActivity : ComponentActivity() {
                 factory = { context ->
                     val previewView = PreviewView(context)
                     val preview = Preview.Builder().build()
-                    val selector = CameraSelector.Builder()
-                        .requireLensFacing(if (parameters.cameraDirection == CAM_DIRECTION_FRONT) CameraSelector.LENS_FACING_FRONT else CameraSelector.LENS_FACING_BACK)
-                        .build()
                     preview.setSurfaceProvider(previewView.surfaceProvider)
                     val imageAnalysis = ImageAnalysis.Builder()
                         .setBackpressureStrategy(STRATEGY_KEEP_ONLY_LATEST)
@@ -166,7 +176,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                         )
                     )
                     try {
-                        cameraProviderFuture.get().bindToLifecycle(
+                        camera = cameraProviderFuture.get().bindToLifecycle(
                             lifecycleOwner,
                             selector,
                             preview,
@@ -181,6 +191,28 @@ class OSBARCScannerActivity : ComponentActivity() {
                 },
                 modifier = Modifier.weight(1f)
             )
+
+            if (isFlashAvailable(context)) {
+                TorchButton()
+            }
+        }
+    }
+
+    @Composable
+    fun TorchButton() {
+        var isFlashlightOn by remember { mutableStateOf(false) }
+
+        Button(
+            onClick = {
+                toggleFlashlight(isFlashlightOn)
+                isFlashlightOn = !isFlashlightOn
+            },
+            modifier = Modifier,
+        ) {
+            Icon(
+                imageVector = Icons.Default.Info,
+                contentDescription = "Torch"
+            )
         }
     }
 
@@ -189,6 +221,27 @@ class OSBARCScannerActivity : ComponentActivity() {
             context,
             Manifest.permission.CAMERA
         ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun toggleFlashlight(isFlashlightOn: Boolean) {
+        try {
+            camera.cameraControl.enableTorch(!isFlashlightOn)
+        } catch (e: CameraAccessException) {
+            e.message?.let { Log.e(LOG_TAG, it) }
+        } catch (e: Exception) {
+            e.message?.let { Log.e(LOG_TAG, it) }
+        }
+    }
+
+    private fun isFlashAvailable(context: Context): Boolean {
+        val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        val cameraId = cameraManager.cameraIdList.find {
+            val characteristics = cameraManager.getCameraCharacteristics(it)
+            val facing = characteristics.get(CameraCharacteristics.LENS_FACING)
+            facing == selector.lensFacing
+        }
+        if (cameraId.isNullOrEmpty()) return false
+        return cameraManager.getCameraCharacteristics(cameraId).get(CameraCharacteristics.FLASH_INFO_AVAILABLE) == true
     }
 
 }
