@@ -13,6 +13,8 @@ fun CameraPermissionRequiredDialog(
     shouldShowDialog: Boolean,
     dialogTitle: String,
     dialogText: String,
+    confirmButtonText: String,
+    dismissButtonText: String
 ) {
     if (shouldShowDialog) {
         AlertDialog(
@@ -34,7 +36,7 @@ fun CameraPermissionRequiredDialog(
                         onConfirmation()
                     }
                 ) {
-                    Text("Settings")
+                    Text(confirmButtonText)
                 }
             },
             dismissButton = {
@@ -43,7 +45,7 @@ fun CameraPermissionRequiredDialog(
                         onDismissRequest()
                     }
                 ) {
-                    Text("Ok")
+                    Text(dismissButtonText)
                 }
             }
         )

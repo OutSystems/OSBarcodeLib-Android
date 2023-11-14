@@ -120,7 +120,9 @@ class OSBARCScannerActivity : ComponentActivity() {
                 },
                 showDialog,
                 dialogTitle = "Camera Access Not Enabled",
-                dialogText = "To continue, please go to the Settings app and enable it."
+                dialogText = "To continue, please go to the Settings app and enable it.",
+                "Settings",
+                "Ok"
             )
         }
 
