@@ -5,7 +5,6 @@
     <application>
         <activity
             android:name=".view.OSBARCScannerActivity"
-            android:exported="false"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:exported="false" />
     </application>
 </manifest>
