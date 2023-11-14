@@ -15,13 +15,7 @@ class OSBARCController {
 
     companion object {
         private const val SCAN_REQUEST_CODE = 112
-        private const val SCAN_INSTRUCTIONS = "SCAN_INSTRUCTIONS"
-        private const val CAMERA_DIRECTION = "CAMERA_DIRECTION"
-        private const val SCAN_ORIENTATION = "SCAN_ORIENTATION"
-        private const val SCAN_BUTTON = "SCAN_BUTTON"
-        private const val SCAN_BUTTON_TEXT = "SCAN_BUTTON_TEXT"
-        private const val SCAN_HINT = "SCAN_HINT"
-        private const val SCAN_LIBRARY = "SCAN_LIBRARY"
+        private const val SCAN_PARAMETERS = "SCAN_PARAMETERS"
         private const val SCAN_RESULT = "scanResult"
         private const val LOG_TAG = "OSBARCController"
     }
@@ -33,16 +27,11 @@ class OSBARCController {
      * @param parameters - object that contains all the barcode parameters to be used when scanning.
      */
     fun scanCode(activity: Activity, parameters: OSBARCScanParameters) {
-        val scanningIntent = Intent(activity, OSBARCScannerActivity::class.java).apply {
-            putExtra(SCAN_INSTRUCTIONS, parameters.scanInstructions)
-            putExtra(CAMERA_DIRECTION, parameters.cameraDirection)
-            putExtra(SCAN_ORIENTATION, parameters.scanOrientation)
-            putExtra(SCAN_BUTTON, parameters.scanButton)
-            putExtra(SCAN_BUTTON_TEXT, parameters.scanText)
-            putExtra(SCAN_HINT, parameters.hint)
-            putExtra(SCAN_LIBRARY, parameters.androidScanningLibrary)
-        }
-        activity.startActivityForResult(scanningIntent, SCAN_REQUEST_CODE)
+        activity.startActivityForResult(
+            Intent(
+                activity, OSBARCScannerActivity::class.java
+            ).putExtra(SCAN_PARAMETERS, parameters), SCAN_REQUEST_CODE
+        )
     }
 
     /**
