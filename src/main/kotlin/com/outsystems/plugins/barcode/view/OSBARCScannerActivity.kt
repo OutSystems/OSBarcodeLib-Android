@@ -1,8 +1,12 @@
 package com.outsystems.plugins.barcode.view
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -43,6 +47,9 @@ import java.lang.Exception
  */
 class OSBARCScannerActivity : ComponentActivity() {
 
+    private var permissionRequestCount = 0
+    private var showDialog by mutableStateOf(false)
+
     companion object {
         private const val SCAN_SUCCESS_RESULT_CODE = -1
         private const val SCAN_RESULT = "scanResult"
@@ -64,6 +71,11 @@ class OSBARCScannerActivity : ComponentActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        showDialog = !hasCameraPermission(this.applicationContext)
+    }
+
     /**
      * Composable function, responsible for declaring the UI of the screen,
      * as well as creating an instance of OSBARCBarcodeAnalyzer for image analysis.
@@ -72,28 +84,51 @@ class OSBARCScannerActivity : ComponentActivity() {
     fun ScanScreen(parameters: OSBARCScanParameters) {
         val lifecycleOwner = LocalLifecycleOwner.current
         val context = LocalContext.current
+        var permissionGiven by remember { mutableStateOf(true) }
 
         // permissions
         val requestPermissionLauncher = rememberLauncherForActivityResult(
             ActivityResultContracts.RequestPermission()
         ) { isGranted: Boolean ->
             if (isGranted) {
-                // do nothing, continue
+                permissionGiven = true
+                showDialog = false
             } else {
-                this.setResult(OSBARCError.CAMERA_PERMISSION_DENIED_ERROR.code)
-                this.finish()
+                permissionGiven = false
+                showDialog = true
             }
         }
         SideEffect {
-            requestPermissionLauncher.launch(Manifest.permission.CAMERA)
+            if (permissionRequestCount == 0) {
+                permissionRequestCount++
+                requestPermissionLauncher.launch(Manifest.permission.CAMERA)
+            }
+        }
+
+        if (!permissionGiven) {
+            CameraPermissionRequiredDialog(
+                onDismissRequest = {
+                    this.setResult(OSBARCError.CAMERA_PERMISSION_DENIED_ERROR.code)
+                    this.finish()
+                },
+                onConfirmation = {
+                    val intent = Intent().apply {
+                        action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                        data = Uri.fromParts("package", context.packageName, null)
+                    }
+                    context.startActivity(intent)
+                },
+                shouldShowDialog = showDialog,
+                dialogTitle = "Camera Access Not Enabled",
+                dialogText = "To continue, please go to the Settings app and enable it.",
+                confirmButtonText = "Settings",
+                dismissButtonText = "Ok"
+            )
         }
 
         // rest of the UI
         val cameraProviderFuture = remember {
             ProcessCameraProvider.getInstance(context)
-        }
-        var barcode by remember {
-            mutableStateOf("")
         }
 
         Column (
@@ -117,9 +152,8 @@ class OSBARCScannerActivity : ComponentActivity() {
                                 parameters.androidScanningLibrary ?: "",
                                 OSBARCZXingHelper(),
                                 OSBARCMLKitHelper()
-                            ), // temporary
+                            ),
                             { result ->
-                                barcode = result
                                 val resultIntent = Intent()
                                 resultIntent.putExtra(SCAN_RESULT, result)
                                 setResult(SCAN_SUCCESS_RESULT_CODE, resultIntent)
@@ -148,6 +182,13 @@ class OSBARCScannerActivity : ComponentActivity() {
                 modifier = Modifier.weight(1f)
             )
         }
+    }
+
+    private fun hasCameraPermission(context: Context): Boolean {
+        return ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.CAMERA
+        ) == PackageManager.PERMISSION_GRANTED
     }
 
 }

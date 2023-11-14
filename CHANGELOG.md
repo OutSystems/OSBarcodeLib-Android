@@ -9,6 +9,9 @@ The changes documented here do not include those from the original repository.
 ## [Unreleased]
 
 ### 13-11-2023
+Android - Implement AlertDialog to settings (https://outsystemsrd.atlassian.net/browse/RMET-2764)
+
+### 13-11-2023
 Android - Select Camera (Back or Front) (https://outsystemsrd.atlassian.net/browse/RMET-2764)
 
 ### 10-11-2023
