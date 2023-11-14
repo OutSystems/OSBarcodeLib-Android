@@ -210,7 +210,6 @@ class OSBARCScannerActivity : ComponentActivity() {
     @Composable
     fun TorchButton() {
         var isFlashlightOn by remember { mutableStateOf(false) }
-
         Button(
             onClick = {
                 toggleFlashlight(isFlashlightOn)
