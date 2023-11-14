@@ -206,6 +206,7 @@ class OSBARCScannerActivity : ComponentActivity() {
             if (camera.cameraInfo.hasFlashUnit()) {
                 TorchButton()
             }
+
         }
 
     }
