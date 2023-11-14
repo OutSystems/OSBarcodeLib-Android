@@ -72,6 +72,7 @@ class OSBARCScannerActivity : ComponentActivity() {
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        actionBar?.hide()
 
         val parameters = intent.extras?.getSerializable(SCAN_PARAMETERS) as OSBARCScanParameters
         selector = CameraSelector.Builder()
@@ -198,7 +199,8 @@ class OSBARCScannerActivity : ComponentActivity() {
                         finish()
                     }
                     previewView
-                }
+                },
+                modifier = Modifier.fillMaxSize()
             )
 
             if (camera.cameraInfo.hasFlashUnit()) {
