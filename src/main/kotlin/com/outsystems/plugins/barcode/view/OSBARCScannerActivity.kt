@@ -21,7 +21,7 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
@@ -32,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -39,7 +40,6 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
-import com.outsystems.plugins.barcode.R
 import com.outsystems.plugins.barcode.controller.OSBARCBarcodeAnalyzer
 import com.outsystems.plugins.barcode.controller.OSBARCScanLibraryFactory
 import com.outsystems.plugins.barcode.controller.helper.OSBARCMLKitHelper
@@ -47,6 +47,7 @@ import com.outsystems.plugins.barcode.controller.helper.OSBARCZXingHelper
 import com.outsystems.plugins.barcode.model.OSBARCError
 import com.outsystems.plugins.barcode.model.OSBARCScanParameters
 import com.outsystems.plugins.barcode.view.ui.theme.BarcodeScannerTheme
+import com.outsystemsenterprise.enmobile11dev.BarcodeSampleAppNew.R
 
 /**
  * This class is responsible for implementing the UI of the scanning screen using Jetpack Compose.
@@ -156,9 +157,7 @@ class OSBARCScannerActivity : ComponentActivity() {
             finish()
         }
 
-        Column (
-            modifier = Modifier.fillMaxSize()
-        ) {
+        Box(modifier = Modifier.fillMaxSize()) {
             AndroidView(
                 factory = { context ->
                     val previewView = PreviewView(context)
@@ -200,38 +199,32 @@ class OSBARCScannerActivity : ComponentActivity() {
                         finish()
                     }
                     previewView
-                },
-                modifier = Modifier.weight(1f)
+                }
             )
 
             if (camera.cameraInfo.hasFlashUnit()) {
-                TorchButton()
+                var isFlashlightOn by remember { mutableStateOf(false) }
+                val onIcon = painterResource(id = R.drawable.flash_on)
+                val offIcon = painterResource(id = R.drawable.flash_off)
+                
+                Button(
+                    onClick = {
+                        toggleFlashlight(isFlashlightOn)
+                        isFlashlightOn = !isFlashlightOn
+                    },
+                    modifier = Modifier.align(Alignment.BottomEnd),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (isFlashlightOn) Color.White else Color.Black
+                    ),
+                    shape = CircleShape
+                ) {
+                    val icon = if (isFlashlightOn) onIcon else offIcon
+                    Image(
+                        painter = icon,
+                        contentDescription = null
+                    )
+                }
             }
-        }
-    }
-
-    @Composable
-    fun TorchButton() {
-        var isFlashlightOn by remember { mutableStateOf(false) }
-        val onIcon = painterResource(id = R.drawable.flash_on)
-        val offIcon = painterResource(id = R.drawable.flash_off)
-
-        Button(
-            onClick = {
-                toggleFlashlight(isFlashlightOn)
-                isFlashlightOn = !isFlashlightOn
-            },
-            modifier = Modifier,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = if (isFlashlightOn) Color.White else Color.Black
-            ),
-            shape = CircleShape
-        ) {
-            val icon = if (isFlashlightOn) onIcon else offIcon
-            Image(
-                painter = icon,
-                contentDescription = null
-            )
         }
 
     }
