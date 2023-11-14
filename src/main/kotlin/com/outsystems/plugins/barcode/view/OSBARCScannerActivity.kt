@@ -5,8 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.hardware.camera2.CameraAccessException
-import android.hardware.camera2.CameraCharacteristics
-import android.hardware.camera2.CameraManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
@@ -144,6 +142,17 @@ class OSBARCScannerActivity : ComponentActivity() {
             ProcessCameraProvider.getInstance(context)
         }
 
+        try {
+            camera = cameraProviderFuture.get().bindToLifecycle(
+                lifecycleOwner,
+                selector
+            )
+        } catch (e: Exception) {
+            e.message?.let { Log.e(LOG_TAG, it) }
+            setResult(OSBARCError.SCANNING_GENERAL_ERROR.code)
+            finish()
+        }
+
         Column (
             modifier = Modifier.fillMaxSize()
         ) {
@@ -192,7 +201,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                 modifier = Modifier.weight(1f)
             )
 
-            if (isFlashAvailable(context)) {
+            if (camera.cameraInfo.hasFlashUnit()) {
                 TorchButton()
             }
         }
@@ -231,17 +240,6 @@ class OSBARCScannerActivity : ComponentActivity() {
         } catch (e: Exception) {
             e.message?.let { Log.e(LOG_TAG, it) }
         }
-    }
-
-    private fun isFlashAvailable(context: Context): Boolean {
-        val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
-        val cameraId = cameraManager.cameraIdList.find {
-            val characteristics = cameraManager.getCameraCharacteristics(it)
-            val facing = characteristics.get(CameraCharacteristics.LENS_FACING)
-            facing == selector.lensFacing
-        }
-        if (cameraId.isNullOrEmpty()) return false
-        return cameraManager.getCameraCharacteristics(cameraId).get(CameraCharacteristics.FLASH_INFO_AVAILABLE) == true
     }
 
 }
