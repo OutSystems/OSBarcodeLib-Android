@@ -32,7 +32,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -203,30 +202,34 @@ class OSBARCScannerActivity : ComponentActivity() {
             )
 
             if (camera.cameraInfo.hasFlashUnit()) {
-                var isFlashlightOn by remember { mutableStateOf(false) }
-                val onIcon = painterResource(id = R.drawable.flash_on)
-                val offIcon = painterResource(id = R.drawable.flash_off)
-
-                Button(
-                    onClick = {
-                        toggleFlashlight(isFlashlightOn)
-                        isFlashlightOn = !isFlashlightOn
-                    },
-                    modifier = Modifier.align(Alignment.BottomEnd),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (isFlashlightOn) Color.White else Color.Black
-                    ),
-                    shape = CircleShape
-                ) {
-                    val icon = if (isFlashlightOn) onIcon else offIcon
-                    Image(
-                        painter = icon,
-                        contentDescription = null
-                    )
-                }
+                TorchButton()
             }
         }
 
+    }
+
+    @Composable
+    fun TorchButton() {
+        var isFlashlightOn by remember { mutableStateOf(false) }
+        val onIcon = painterResource(id = R.drawable.flash_on)
+        val offIcon = painterResource(id = R.drawable.flash_off)
+
+        Button(
+            onClick = {
+                toggleFlashlight(isFlashlightOn)
+                isFlashlightOn = !isFlashlightOn
+            },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (isFlashlightOn) Color.White else Color.Black
+            ),
+            shape = CircleShape
+        ) {
+            val icon = if (isFlashlightOn) onIcon else offIcon
+            Image(
+                painter = icon,
+                contentDescription = null
+            )
+        }
     }
 
     private fun hasCameraPermission(context: Context): Boolean {
