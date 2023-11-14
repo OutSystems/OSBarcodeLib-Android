@@ -40,6 +40,7 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import com.outsystems.plugins.barcode.R
 import com.outsystems.plugins.barcode.controller.OSBARCBarcodeAnalyzer
 import com.outsystems.plugins.barcode.controller.OSBARCScanLibraryFactory
 import com.outsystems.plugins.barcode.controller.helper.OSBARCMLKitHelper
@@ -47,7 +48,6 @@ import com.outsystems.plugins.barcode.controller.helper.OSBARCZXingHelper
 import com.outsystems.plugins.barcode.model.OSBARCError
 import com.outsystems.plugins.barcode.model.OSBARCScanParameters
 import com.outsystems.plugins.barcode.view.ui.theme.BarcodeScannerTheme
-import com.outsystemsenterprise.enmobile11dev.BarcodeSampleAppNew.R
 
 /**
  * This class is responsible for implementing the UI of the scanning screen using Jetpack Compose.
@@ -206,7 +206,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                 var isFlashlightOn by remember { mutableStateOf(false) }
                 val onIcon = painterResource(id = R.drawable.flash_on)
                 val offIcon = painterResource(id = R.drawable.flash_off)
-                
+
                 Button(
                     onClick = {
                         toggleFlashlight(isFlashlightOn)
