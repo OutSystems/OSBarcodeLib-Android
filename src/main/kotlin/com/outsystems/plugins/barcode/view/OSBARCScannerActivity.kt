@@ -152,7 +152,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                                 parameters.androidScanningLibrary ?: "",
                                 OSBARCZXingHelper(),
                                 OSBARCMLKitHelper()
-                            ), // temporary
+                            ),
                             { result ->
                                 val resultIntent = Intent()
                                 resultIntent.putExtra(SCAN_RESULT, result)
