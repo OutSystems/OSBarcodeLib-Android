@@ -23,8 +23,11 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
@@ -35,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
@@ -49,6 +53,7 @@ import com.outsystems.plugins.barcode.controller.helper.OSBARCZXingHelper
 import com.outsystems.plugins.barcode.model.OSBARCError
 import com.outsystems.plugins.barcode.model.OSBARCScanParameters
 import com.outsystems.plugins.barcode.view.ui.theme.BarcodeScannerTheme
+import com.outsystems.plugins.barcode.view.ui.theme.CustomGray
 
 /**
  * This class is responsible for implementing the UI of the scanning screen using Jetpack Compose.
@@ -205,10 +210,30 @@ class OSBARCScannerActivity : ComponentActivity() {
                 modifier = Modifier.fillMaxSize()
             )
 
+            // close button
+            Button(
+                onClick = {
+                    //setResult(OSBARCError.SCAN_CANCELLED_ERROR.code)
+                    //finish()
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent
+                ),
+                modifier = Modifier.align(Alignment.TopEnd)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Clear,
+                    contentDescription = null,
+                    tint = CustomGray
+                )
+            }
+
+            // flashlight button
             if (camera.cameraInfo.hasFlashUnit()) {
                 TorchButton()
             }
 
+            // text with scan instructions
             if (!parameters.scanInstructions.isNullOrEmpty()) {
                 Text(
                     text = parameters.scanInstructions,
@@ -217,6 +242,28 @@ class OSBARCScannerActivity : ComponentActivity() {
                     textAlign = TextAlign.Center
                 )
             }
+
+            // scan button to turn on scanning when used
+            if (parameters.scanButton) {
+                Button(
+                    onClick = {
+                        // turn on scanning, which should be disabled
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.DarkGray
+                    ),
+                    shape = RectangleShape,
+                    modifier = Modifier.align(Alignment.BottomCenter)
+                ) {
+                    Text(
+                        text = parameters.scanText,
+                        color = Color.White,
+                        textAlign = TextAlign.Center
+
+                    )
+                }
+            }
+
         }
     }
 
