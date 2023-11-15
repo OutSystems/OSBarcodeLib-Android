@@ -243,8 +243,6 @@ class OSBARCScannerActivity : ComponentActivity() {
     private fun toggleFlashlight(isFlashlightOn: Boolean) {
         try {
             camera.cameraControl.enableTorch(!isFlashlightOn)
-        } catch (e: CameraAccessException) {
-            e.message?.let { Log.e(LOG_TAG, it) }
         } catch (e: Exception) {
             e.message?.let { Log.e(LOG_TAG, it) }
         }
