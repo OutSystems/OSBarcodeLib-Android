@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import com.outsystems.plugins.barcode.R
@@ -212,7 +213,8 @@ class OSBARCScannerActivity : ComponentActivity() {
                 Text(
                     text = parameters.scanInstructions,
                     modifier = Modifier.align(Alignment.Center),
-                    color = Color.White
+                    color = Color.White,
+                    textAlign = TextAlign.Center
                 )
             }
         }
