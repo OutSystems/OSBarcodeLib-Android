@@ -216,8 +216,12 @@ class OSBARCScannerActivity : ComponentActivity() {
 
         Button(
             onClick = {
-                toggleFlashlight(isFlashlightOn)
-                isFlashlightOn = !isFlashlightOn
+                try {
+                    camera.cameraControl.enableTorch(!isFlashlightOn)
+                    isFlashlightOn = !isFlashlightOn
+                } catch (e: Exception) {
+                    e.message?.let { Log.e(LOG_TAG, it) }
+                }
             },
             colors = ButtonDefaults.buttonColors(
                 containerColor = if (isFlashlightOn) Color.White else Color.Black
@@ -237,14 +241,6 @@ class OSBARCScannerActivity : ComponentActivity() {
             context,
             Manifest.permission.CAMERA
         ) == PackageManager.PERMISSION_GRANTED
-    }
-
-    private fun toggleFlashlight(isFlashlightOn: Boolean) {
-        try {
-            camera.cameraControl.enableTorch(!isFlashlightOn)
-        } catch (e: Exception) {
-            e.message?.let { Log.e(LOG_TAG, it) }
-        }
     }
 
 }
