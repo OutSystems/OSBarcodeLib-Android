@@ -8,6 +8,9 @@ The changes documented here do not include those from the original repository.
 
 ## [Unreleased]
 
+### 14-11-2023
+Android - Implement Torch Button to settings (https://outsystemsrd.atlassian.net/browse/RMET-2759)
+
 ### 13-11-2023
 Android - Implement AlertDialog to settings (https://outsystemsrd.atlassian.net/browse/RMET-2764)
 

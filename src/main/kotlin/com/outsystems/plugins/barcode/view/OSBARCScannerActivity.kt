@@ -9,28 +9,36 @@ import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.camera.core.ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST
 import androidx.compose.ui.Modifier
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import com.outsystems.plugins.barcode.R
 import com.outsystems.plugins.barcode.controller.OSBARCBarcodeAnalyzer
 import com.outsystems.plugins.barcode.controller.OSBARCScanLibraryFactory
 import com.outsystems.plugins.barcode.controller.helper.OSBARCMLKitHelper
@@ -38,7 +46,6 @@ import com.outsystems.plugins.barcode.controller.helper.OSBARCZXingHelper
 import com.outsystems.plugins.barcode.model.OSBARCError
 import com.outsystems.plugins.barcode.model.OSBARCScanParameters
 import com.outsystems.plugins.barcode.view.ui.theme.BarcodeScannerTheme
-import java.lang.Exception
 
 /**
  * This class is responsible for implementing the UI of the scanning screen using Jetpack Compose.
@@ -46,7 +53,8 @@ import java.lang.Exception
  * implements the ImageAnalysis.Analyzer interface.
  */
 class OSBARCScannerActivity : ComponentActivity() {
-
+    private lateinit var camera: Camera
+    private lateinit var selector: CameraSelector
     private var permissionRequestCount = 0
     private var showDialog by mutableStateOf(false)
 
@@ -63,10 +71,16 @@ class OSBARCScannerActivity : ComponentActivity() {
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        actionBar?.hide()
+
+        val parameters = intent.extras?.getSerializable(SCAN_PARAMETERS) as OSBARCScanParameters
+        selector = CameraSelector.Builder()
+            .requireLensFacing(if (parameters.cameraDirection == CAM_DIRECTION_FRONT) CameraSelector.LENS_FACING_FRONT else CameraSelector.LENS_FACING_BACK)
+            .build()
 
         setContent {
             BarcodeScannerTheme {
-                ScanScreen(intent.extras?.getSerializable(SCAN_PARAMETERS) as OSBARCScanParameters)
+                ScanScreen(parameters)
             }
         }
     }
@@ -131,16 +145,22 @@ class OSBARCScannerActivity : ComponentActivity() {
             ProcessCameraProvider.getInstance(context)
         }
 
-        Column (
-            modifier = Modifier.fillMaxSize()
-        ) {
+        try {
+            camera = cameraProviderFuture.get().bindToLifecycle(
+                lifecycleOwner,
+                selector
+            )
+        } catch (e: Exception) {
+            e.message?.let { Log.e(LOG_TAG, it) }
+            setResult(OSBARCError.SCANNING_GENERAL_ERROR.code)
+            finish()
+        }
+
+        Box(modifier = Modifier.fillMaxSize()) {
             AndroidView(
                 factory = { context ->
                     val previewView = PreviewView(context)
                     val preview = Preview.Builder().build()
-                    val selector = CameraSelector.Builder()
-                        .requireLensFacing(if (parameters.cameraDirection == CAM_DIRECTION_FRONT) CameraSelector.LENS_FACING_FRONT else CameraSelector.LENS_FACING_BACK)
-                        .build()
                     preview.setSurfaceProvider(previewView.surfaceProvider)
                     val imageAnalysis = ImageAnalysis.Builder()
                         .setBackpressureStrategy(STRATEGY_KEEP_ONLY_LATEST)
@@ -166,7 +186,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                         )
                     )
                     try {
-                        cameraProviderFuture.get().bindToLifecycle(
+                        camera = cameraProviderFuture.get().bindToLifecycle(
                             lifecycleOwner,
                             selector,
                             preview,
@@ -179,7 +199,39 @@ class OSBARCScannerActivity : ComponentActivity() {
                     }
                     previewView
                 },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.fillMaxSize()
+            )
+
+            if (camera.cameraInfo.hasFlashUnit()) {
+                TorchButton()
+            }
+        }
+    }
+
+    @Composable
+    fun TorchButton() {
+        var isFlashlightOn by remember { mutableStateOf(false) }
+        val onIcon = painterResource(id = R.drawable.flash_on)
+        val offIcon = painterResource(id = R.drawable.flash_off)
+
+        Button(
+            onClick = {
+                try {
+                    camera.cameraControl.enableTorch(!isFlashlightOn)
+                    isFlashlightOn = !isFlashlightOn
+                } catch (e: Exception) {
+                    e.message?.let { Log.e(LOG_TAG, it) }
+                }
+            },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (isFlashlightOn) Color.White else Color.Black
+            ),
+            shape = CircleShape
+        ) {
+            val icon = if (isFlashlightOn) onIcon else offIcon
+            Image(
+                painter = icon,
+                contentDescription = null
             )
         }
     }
