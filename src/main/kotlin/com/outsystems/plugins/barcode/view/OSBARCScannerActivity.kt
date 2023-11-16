@@ -186,6 +186,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                                 OSBARCMLKitHelper()
                             ),
                             { result ->
+                                // we only want to process the scan result if scanning is active
                                 if (scanning) {
                                     val resultIntent = Intent()
                                     resultIntent.putExtra(SCAN_RESULT, result)
@@ -194,6 +195,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                                 }
                             },
                             {
+                                // we only want to process the scan result if scanning is active
                                 if (scanning) {
                                     setResult(it.code)
                                     finish()
