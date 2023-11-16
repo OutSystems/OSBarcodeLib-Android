@@ -45,7 +45,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
-import com.outsystems.plugins.barcode.R
 import com.outsystems.plugins.barcode.controller.OSBARCBarcodeAnalyzer
 import com.outsystems.plugins.barcode.controller.OSBARCScanLibraryFactory
 import com.outsystems.plugins.barcode.controller.helper.OSBARCMLKitHelper
@@ -53,6 +52,7 @@ import com.outsystems.plugins.barcode.controller.helper.OSBARCZXingHelper
 import com.outsystems.plugins.barcode.model.OSBARCError
 import com.outsystems.plugins.barcode.model.OSBARCScanParameters
 import com.outsystems.plugins.barcode.view.ui.theme.BarcodeScannerTheme
+import com.outsystems.plugins.barcode.R
 import com.outsystems.plugins.barcode.view.ui.theme.CustomGray
 
 /**
@@ -65,6 +65,7 @@ class OSBARCScannerActivity : ComponentActivity() {
     private lateinit var selector: CameraSelector
     private var permissionRequestCount = 0
     private var showDialog by mutableStateOf(false)
+    private var scanning = true
 
     companion object {
         private const val SCAN_SUCCESS_RESULT_CODE = -1
@@ -82,6 +83,9 @@ class OSBARCScannerActivity : ComponentActivity() {
         actionBar?.hide()
 
         val parameters = intent.extras?.getSerializable(SCAN_PARAMETERS) as OSBARCScanParameters
+
+        scanning = !parameters.scanButton
+
         selector = CameraSelector.Builder()
             .requireLensFacing(if (parameters.cameraDirection == CAM_DIRECTION_FRONT) CameraSelector.LENS_FACING_FRONT else CameraSelector.LENS_FACING_BACK)
             .build()
@@ -182,14 +186,18 @@ class OSBARCScannerActivity : ComponentActivity() {
                                 OSBARCMLKitHelper()
                             ),
                             { result ->
-                                val resultIntent = Intent()
-                                resultIntent.putExtra(SCAN_RESULT, result)
-                                setResult(SCAN_SUCCESS_RESULT_CODE, resultIntent)
-                                finish()
+                                if (scanning) {
+                                    val resultIntent = Intent()
+                                    resultIntent.putExtra(SCAN_RESULT, result)
+                                    setResult(SCAN_SUCCESS_RESULT_CODE, resultIntent)
+                                    finish()
+                                }
                             },
                             {
-                                setResult(it.code)
-                                finish()
+                                if (scanning) {
+                                    setResult(it.code)
+                                    finish()
+                                }
                             }
                         )
                     )
@@ -247,7 +255,7 @@ class OSBARCScannerActivity : ComponentActivity() {
             if (parameters.scanButton) {
                 Button(
                     onClick = {
-                        // turn on scanning, which should be disabled
+                        scanning = true
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color.DarkGray
