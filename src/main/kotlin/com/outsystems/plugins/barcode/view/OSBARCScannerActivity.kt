@@ -213,8 +213,8 @@ class OSBARCScannerActivity : ComponentActivity() {
             // close button
             Button(
                 onClick = {
-                    //setResult(OSBARCError.SCAN_CANCELLED_ERROR.code)
-                    //finish()
+                    setResult(OSBARCError.SCAN_CANCELLED_ERROR.code)
+                    finish()
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Transparent
