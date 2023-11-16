@@ -83,9 +83,7 @@ class OSBARCScannerActivity : ComponentActivity() {
         actionBar?.hide()
 
         val parameters = intent.extras?.getSerializable(SCAN_PARAMETERS) as OSBARCScanParameters
-
         scanning = !parameters.scanButton
-
         selector = CameraSelector.Builder()
             .requireLensFacing(if (parameters.cameraDirection == CAM_DIRECTION_FRONT) CameraSelector.LENS_FACING_FRONT else CameraSelector.LENS_FACING_BACK)
             .build()
