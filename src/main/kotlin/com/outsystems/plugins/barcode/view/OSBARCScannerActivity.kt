@@ -269,7 +269,6 @@ class OSBARCScannerActivity : ComponentActivity() {
                         text = parameters.scanText,
                         color = Color.White,
                         textAlign = TextAlign.Center
-
                     )
                 }
             }
