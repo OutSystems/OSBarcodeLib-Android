@@ -309,7 +309,7 @@ class OSBARCScannerActivity : ComponentActivity() {
     }
 
     private fun processReadError(error: OSBARCError) {
-        // we only want to process the scan result if scanning is active
+        // we only want to process the scan error if scanning is active
         if (scanning) {
             setResult(error.code)
             finish()
