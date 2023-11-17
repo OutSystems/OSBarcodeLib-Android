@@ -129,26 +129,25 @@ class OSBARCScannerActivity : ComponentActivity() {
             }
         }
 
-        if (!permissionGiven) {
-            CameraPermissionRequiredDialog(
-                onDismissRequest = {
-                    this.setResult(OSBARCError.CAMERA_PERMISSION_DENIED_ERROR.code)
-                    this.finish()
-                },
-                onConfirmation = {
-                    val intent = Intent().apply {
-                        action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-                        data = Uri.fromParts("package", context.packageName, null)
-                    }
-                    context.startActivity(intent)
-                },
-                shouldShowDialog = showDialog,
-                dialogTitle = "Camera Access Not Enabled",
-                dialogText = "To continue, please go to the Settings app and enable it.",
-                confirmButtonText = "Settings",
-                dismissButtonText = "Ok"
-            )
-        }
+        CameraPermissionRequiredDialog(
+            onDismissRequest = {
+                this.setResult(OSBARCError.CAMERA_PERMISSION_DENIED_ERROR.code)
+                this.finish()
+            },
+            onConfirmation = {
+                val intent = Intent().apply {
+                    action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                    data = Uri.fromParts("package", context.packageName, null)
+                }
+                context.startActivity(intent)
+            },
+            permissionGiven = permissionGiven,
+            shouldShowDialog = showDialog,
+            dialogTitle = "Camera Access Not Enabled",
+            dialogText = "To continue, please go to the Settings app and enable it.",
+            confirmButtonText = "Settings",
+            dismissButtonText = "Ok"
+        )
 
         // rest of the UI
         val cameraProviderFuture = remember {

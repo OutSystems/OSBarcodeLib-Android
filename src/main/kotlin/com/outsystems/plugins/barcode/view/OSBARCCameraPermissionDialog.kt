@@ -10,13 +10,14 @@ import androidx.compose.ui.unit.sp
 fun CameraPermissionRequiredDialog(
     onDismissRequest: () -> Unit,
     onConfirmation: () -> Unit,
+    permissionGiven: Boolean,
     shouldShowDialog: Boolean,
     dialogTitle: String,
     dialogText: String,
     confirmButtonText: String,
     dismissButtonText: String
 ) {
-    if (shouldShowDialog) {
+    if (!permissionGiven && shouldShowDialog) {
         AlertDialog(
             title = {
                 Text(
