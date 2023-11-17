@@ -23,22 +23,28 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
-import com.outsystems.plugins.barcode.R
 import com.outsystems.plugins.barcode.controller.OSBARCBarcodeAnalyzer
 import com.outsystems.plugins.barcode.controller.OSBARCScanLibraryFactory
 import com.outsystems.plugins.barcode.controller.helper.OSBARCMLKitHelper
@@ -46,6 +52,8 @@ import com.outsystems.plugins.barcode.controller.helper.OSBARCZXingHelper
 import com.outsystems.plugins.barcode.model.OSBARCError
 import com.outsystems.plugins.barcode.model.OSBARCScanParameters
 import com.outsystems.plugins.barcode.view.ui.theme.BarcodeScannerTheme
+import com.outsystems.plugins.barcode.view.ui.theme.CustomGray
+import com.outsystems.plugins.barcode.R
 
 /**
  * This class is responsible for implementing the UI of the scanning screen using Jetpack Compose.
@@ -57,6 +65,7 @@ class OSBARCScannerActivity : ComponentActivity() {
     private lateinit var selector: CameraSelector
     private var permissionRequestCount = 0
     private var showDialog by mutableStateOf(false)
+    private var scanning = true
 
     companion object {
         private const val SCAN_SUCCESS_RESULT_CODE = -1
@@ -74,6 +83,7 @@ class OSBARCScannerActivity : ComponentActivity() {
         actionBar?.hide()
 
         val parameters = intent.extras?.getSerializable(SCAN_PARAMETERS) as OSBARCScanParameters
+        scanning = !parameters.scanButton
         selector = CameraSelector.Builder()
             .requireLensFacing(if (parameters.cameraDirection == CAM_DIRECTION_FRONT) CameraSelector.LENS_FACING_FRONT else CameraSelector.LENS_FACING_BACK)
             .build()
@@ -119,26 +129,25 @@ class OSBARCScannerActivity : ComponentActivity() {
             }
         }
 
-        if (!permissionGiven) {
-            CameraPermissionRequiredDialog(
-                onDismissRequest = {
-                    this.setResult(OSBARCError.CAMERA_PERMISSION_DENIED_ERROR.code)
-                    this.finish()
-                },
-                onConfirmation = {
-                    val intent = Intent().apply {
-                        action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-                        data = Uri.fromParts("package", context.packageName, null)
-                    }
-                    context.startActivity(intent)
-                },
-                shouldShowDialog = showDialog,
-                dialogTitle = "Camera Access Not Enabled",
-                dialogText = "To continue, please go to the Settings app and enable it.",
-                confirmButtonText = "Settings",
-                dismissButtonText = "Ok"
-            )
-        }
+        CameraPermissionRequiredDialog(
+            onDismissRequest = {
+                this.setResult(OSBARCError.CAMERA_PERMISSION_DENIED_ERROR.code)
+                this.finish()
+            },
+            onConfirmation = {
+                val intent = Intent().apply {
+                    action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                    data = Uri.fromParts("package", context.packageName, null)
+                }
+                context.startActivity(intent)
+            },
+            permissionGiven = permissionGiven,
+            shouldShowDialog = showDialog,
+            dialogTitle = "Camera Access Not Enabled",
+            dialogText = "To continue, please go to the Settings app and enable it.",
+            confirmButtonText = "Settings",
+            dismissButtonText = "Ok"
+        )
 
         // rest of the UI
         val cameraProviderFuture = remember {
@@ -174,14 +183,10 @@ class OSBARCScannerActivity : ComponentActivity() {
                                 OSBARCMLKitHelper()
                             ),
                             { result ->
-                                val resultIntent = Intent()
-                                resultIntent.putExtra(SCAN_RESULT, result)
-                                setResult(SCAN_SUCCESS_RESULT_CODE, resultIntent)
-                                finish()
+                                processReadSuccess(result)
                             },
                             {
-                                setResult(it.code)
-                                finish()
+                                processReadError(it)
                             }
                         )
                     )
@@ -202,9 +207,59 @@ class OSBARCScannerActivity : ComponentActivity() {
                 modifier = Modifier.fillMaxSize()
             )
 
+            // close button
+            Button(
+                onClick = {
+                    setResult(OSBARCError.SCAN_CANCELLED_ERROR.code)
+                    finish()
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent
+                ),
+                modifier = Modifier.align(Alignment.TopEnd)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Clear,
+                    contentDescription = null,
+                    tint = CustomGray
+                )
+            }
+
+            // flashlight button
             if (camera.cameraInfo.hasFlashUnit()) {
                 TorchButton()
             }
+
+            // text with scan instructions
+            if (!parameters.scanInstructions.isNullOrEmpty()) {
+                Text(
+                    text = parameters.scanInstructions,
+                    modifier = Modifier.align(Alignment.Center),
+                    color = Color.White,
+                    textAlign = TextAlign.Center
+                )
+            }
+
+            // scan button to turn on scanning when used
+            if (parameters.scanButton) {
+                Button(
+                    onClick = {
+                        scanning = true
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.DarkGray
+                    ),
+                    shape = RectangleShape,
+                    modifier = Modifier.align(Alignment.BottomCenter)
+                ) {
+                    Text(
+                        text = parameters.scanText,
+                        color = Color.White,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+
         }
     }
 
@@ -241,6 +296,24 @@ class OSBARCScannerActivity : ComponentActivity() {
             context,
             Manifest.permission.CAMERA
         ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun processReadSuccess(result: String) {
+        // we only want to process the scan result if scanning is active
+        if (scanning) {
+            val resultIntent = Intent()
+            resultIntent.putExtra(SCAN_RESULT, result)
+            setResult(SCAN_SUCCESS_RESULT_CODE, resultIntent)
+            finish()
+        }
+    }
+
+    private fun processReadError(error: OSBARCError) {
+        // we only want to process the scan error if scanning is active
+        if (scanning) {
+            setResult(error.code)
+            finish()
+        }
     }
 
 }

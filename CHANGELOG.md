@@ -8,6 +8,12 @@ The changes documented here do not include those from the original repository.
 
 ## [Unreleased]
 
+### 16-11-2023
+Android - Implement Scan Button (https://outsystemsrd.atlassian.net/browse/RMET-2762)
+
+### 15-11-2023
+Android - Implement Scan Instructions (https://outsystemsrd.atlassian.net/browse/RMET-2761)
+
 ### 14-11-2023
 Android - Implement Torch Button to settings (https://outsystemsrd.atlassian.net/browse/RMET-2759)
 
