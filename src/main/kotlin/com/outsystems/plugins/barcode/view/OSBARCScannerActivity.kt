@@ -52,8 +52,8 @@ import com.outsystems.plugins.barcode.controller.helper.OSBARCZXingHelper
 import com.outsystems.plugins.barcode.model.OSBARCError
 import com.outsystems.plugins.barcode.model.OSBARCScanParameters
 import com.outsystems.plugins.barcode.view.ui.theme.BarcodeScannerTheme
-import com.outsystems.plugins.barcode.R
 import com.outsystems.plugins.barcode.view.ui.theme.CustomGray
+import com.outsystems.plugins.barcode.R
 
 /**
  * This class is responsible for implementing the UI of the scanning screen using Jetpack Compose.
@@ -184,20 +184,10 @@ class OSBARCScannerActivity : ComponentActivity() {
                                 OSBARCMLKitHelper()
                             ),
                             { result ->
-                                // we only want to process the scan result if scanning is active
-                                if (scanning) {
-                                    val resultIntent = Intent()
-                                    resultIntent.putExtra(SCAN_RESULT, result)
-                                    setResult(SCAN_SUCCESS_RESULT_CODE, resultIntent)
-                                    finish()
-                                }
+                                processReadSuccess(result)
                             },
                             {
-                                // we only want to process the scan result if scanning is active
-                                if (scanning) {
-                                    setResult(it.code)
-                                    finish()
-                                }
+                                processReadError(it)
                             }
                         )
                     )
@@ -307,6 +297,24 @@ class OSBARCScannerActivity : ComponentActivity() {
             context,
             Manifest.permission.CAMERA
         ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun processReadSuccess(result: String) {
+        // we only want to process the scan result if scanning is active
+        if (scanning) {
+            val resultIntent = Intent()
+            resultIntent.putExtra(SCAN_RESULT, result)
+            setResult(SCAN_SUCCESS_RESULT_CODE, resultIntent)
+            finish()
+        }
+    }
+
+    private fun processReadError(error: OSBARCError) {
+        // we only want to process the scan result if scanning is active
+        if (scanning) {
+            setResult(error.code)
+            finish()
+        }
     }
 
 }
