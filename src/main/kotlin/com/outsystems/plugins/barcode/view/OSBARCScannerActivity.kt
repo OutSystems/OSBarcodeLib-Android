@@ -243,11 +243,11 @@ class OSBARCScannerActivity : ComponentActivity() {
             ) {
                 // scan button to turn on scanning when used
                 if (parameters.scanButton) {
-                    ScanButton(modifier = Modifier.align(Alignment.Center)/*.align(Alignment.BottomCenter)*/, scanButtonText = parameters.scanText)
+                    ScanButton(modifier = Modifier.align(Alignment.Center), scanButtonText = parameters.scanText)
                 }
                 // flashlight button
                 if (camera.cameraInfo.hasFlashUnit()) {
-                    TorchButton(modifier = Modifier.align(Alignment.CenterEnd)/*.align(Alignment.BottomEnd)*/)
+                    TorchButton(modifier = Modifier.align(Alignment.CenterEnd))
                 }
             }
         }
