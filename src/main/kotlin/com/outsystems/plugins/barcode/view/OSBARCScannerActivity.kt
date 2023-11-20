@@ -24,10 +24,10 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -48,6 +48,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import com.outsystems.plugins.barcode.R
 import com.outsystems.plugins.barcode.controller.OSBARCBarcodeAnalyzer
 import com.outsystems.plugins.barcode.controller.OSBARCScanLibraryFactory
 import com.outsystems.plugins.barcode.controller.helper.OSBARCMLKitHelper
@@ -55,9 +56,9 @@ import com.outsystems.plugins.barcode.controller.helper.OSBARCZXingHelper
 import com.outsystems.plugins.barcode.model.OSBARCError
 import com.outsystems.plugins.barcode.model.OSBARCScanParameters
 import com.outsystems.plugins.barcode.view.ui.theme.BarcodeScannerTheme
-import com.outsystems.plugins.barcode.view.ui.theme.CustomGray
 import com.outsystems.plugins.barcode.view.ui.theme.ButtonsBackground
 import com.outsystems.plugins.barcode.view.ui.theme.ButtonsBorder
+import com.outsystems.plugins.barcode.view.ui.theme.CustomGray
 
 /**
  * This class is responsible for implementing the UI of the scanning screen using Jetpack Compose.
@@ -178,7 +179,9 @@ class OSBARCScannerActivity : ComponentActivity() {
             finish()
         }
 
-        Box(modifier = Modifier.fillMaxSize()) {
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ) {
             AndroidView(
                 factory = { context ->
                     val previewView = PreviewView(context)
@@ -221,23 +224,32 @@ class OSBARCScannerActivity : ComponentActivity() {
             )
 
             // close button
-            CloseButton(modifier = Modifier.align(Alignment.TopEnd))
-
-            // flashlight button
-            if (camera.cameraInfo.hasFlashUnit()) {
-                TorchButton(modifier = Modifier.align(Alignment.BottomEnd))
-            }
+            CloseButton(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(top = 16.dp, end = 16.dp)
+            )
 
             // text with scan instructions
             if (!parameters.scanInstructions.isNullOrEmpty()) {
                 ScanInstructions(modifier = Modifier.align(Alignment.Center), scanInstructions = parameters.scanInstructions)
             }
 
-            // scan button to turn on scanning when used
-            if (parameters.scanButton) {
-                ScanButton(modifier = Modifier.align(Alignment.BottomCenter), scanButtonText = parameters.scanText)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.BottomCenter)
+                    .padding(start = 16.dp, top = 32.dp, end = 16.dp, bottom = 32.dp)
+            ) {
+                // scan button to turn on scanning when used
+                if (parameters.scanButton) {
+                    ScanButton(modifier = Modifier.align(Alignment.Center)/*.align(Alignment.BottomCenter)*/, scanButtonText = parameters.scanText)
+                }
+                // flashlight button
+                if (camera.cameraInfo.hasFlashUnit()) {
+                    TorchButton(modifier = Modifier.align(Alignment.CenterEnd)/*.align(Alignment.BottomEnd)*/)
+                }
             }
-
         }
     }
 
@@ -254,7 +266,7 @@ class OSBARCScannerActivity : ComponentActivity() {
             modifier = modifier
         ) {
             Icon(
-                imageVector = Icons.Default.Clear,
+                painter = painterResource(id = R.drawable.close),
                 contentDescription = null,
                 tint = CustomGray
             )
