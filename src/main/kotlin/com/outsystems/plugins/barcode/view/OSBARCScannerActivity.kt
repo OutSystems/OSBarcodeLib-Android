@@ -3,6 +3,7 @@ package com.outsystems.plugins.barcode.view
 import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
@@ -73,6 +74,8 @@ class OSBARCScannerActivity : ComponentActivity() {
         private const val LOG_TAG = "OSBARCScannerActivity"
         private const val SCAN_PARAMETERS = "SCAN_PARAMETERS"
         private const val CAM_DIRECTION_FRONT = 2
+        private const val ORIENTATION_PORTRAIT = 1
+        private const val ORIENTATION_LANDSCAPE = 2
     }
 
     /**
@@ -81,8 +84,15 @@ class OSBARCScannerActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         actionBar?.hide()
-
         val parameters = intent.extras?.getSerializable(SCAN_PARAMETERS) as OSBARCScanParameters
+
+        // possibly lock orientation, the screen is adaptive by default
+        if (parameters.scanOrientation == ORIENTATION_PORTRAIT) {
+            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        } else if (parameters.scanOrientation == ORIENTATION_LANDSCAPE) {
+            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        }
+
         scanning = !parameters.scanButton
         selector = CameraSelector.Builder()
             .requireLensFacing(if (parameters.cameraDirection == CAM_DIRECTION_FRONT) CameraSelector.LENS_FACING_FRONT else CameraSelector.LENS_FACING_BACK)
