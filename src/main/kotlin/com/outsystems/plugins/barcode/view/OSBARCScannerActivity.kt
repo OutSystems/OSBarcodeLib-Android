@@ -20,10 +20,12 @@ import androidx.camera.core.ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.Button
@@ -39,11 +41,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import com.outsystems.plugins.barcode.controller.OSBARCBarcodeAnalyzer
@@ -54,7 +56,8 @@ import com.outsystems.plugins.barcode.model.OSBARCError
 import com.outsystems.plugins.barcode.model.OSBARCScanParameters
 import com.outsystems.plugins.barcode.view.ui.theme.BarcodeScannerTheme
 import com.outsystems.plugins.barcode.view.ui.theme.CustomGray
-import com.outsystems.plugins.barcode.R
+import com.outsystems.plugins.barcode.view.ui.theme.ButtonsBackground
+import com.outsystems.plugins.barcode.view.ui.theme.ButtonsBorder
 
 /**
  * This class is responsible for implementing the UI of the scanning screen using Jetpack Compose.
@@ -218,63 +221,48 @@ class OSBARCScannerActivity : ComponentActivity() {
             )
 
             // close button
-            Button(
-                onClick = {
-                    setResult(OSBARCError.SCAN_CANCELLED_ERROR.code)
-                    finish()
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent
-                ),
-                modifier = Modifier.align(Alignment.TopEnd)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Clear,
-                    contentDescription = null,
-                    tint = CustomGray
-                )
-            }
+            CloseButton(modifier = Modifier.align(Alignment.TopEnd))
 
             // flashlight button
             if (camera.cameraInfo.hasFlashUnit()) {
-                TorchButton()
+                TorchButton(modifier = Modifier.align(Alignment.BottomEnd))
             }
 
             // text with scan instructions
             if (!parameters.scanInstructions.isNullOrEmpty()) {
-                Text(
-                    text = parameters.scanInstructions,
-                    modifier = Modifier.align(Alignment.Center),
-                    color = Color.White,
-                    textAlign = TextAlign.Center
-                )
+                ScanInstructions(modifier = Modifier.align(Alignment.Center), scanInstructions = parameters.scanInstructions)
             }
 
             // scan button to turn on scanning when used
             if (parameters.scanButton) {
-                Button(
-                    onClick = {
-                        scanning = true
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.DarkGray
-                    ),
-                    shape = RectangleShape,
-                    modifier = Modifier.align(Alignment.BottomCenter)
-                ) {
-                    Text(
-                        text = parameters.scanText,
-                        color = Color.White,
-                        textAlign = TextAlign.Center
-                    )
-                }
+                ScanButton(modifier = Modifier.align(Alignment.BottomCenter), scanButtonText = parameters.scanText)
             }
 
         }
     }
 
     @Composable
-    fun TorchButton() {
+    fun CloseButton(modifier: Modifier) {
+        Button(
+            onClick = {
+                setResult(OSBARCError.SCAN_CANCELLED_ERROR.code)
+                finish()
+            },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.Transparent
+            ),
+            modifier = modifier
+        ) {
+            Icon(
+                imageVector = Icons.Default.Clear,
+                contentDescription = null,
+                tint = CustomGray
+            )
+        }
+    }
+
+    @Composable
+    fun TorchButton(modifier: Modifier) {
         var isFlashlightOn by remember { mutableStateOf(false) }
         val onIcon = painterResource(id = R.drawable.flash_on)
         val offIcon = painterResource(id = R.drawable.flash_off)
@@ -289,14 +277,46 @@ class OSBARCScannerActivity : ComponentActivity() {
                 }
             },
             colors = ButtonDefaults.buttonColors(
-                containerColor = if (isFlashlightOn) Color.White else Color.Black
+                containerColor = Color.Transparent
             ),
-            shape = CircleShape
+            shape = CircleShape,
+            modifier = modifier
         ) {
             val icon = if (isFlashlightOn) onIcon else offIcon
             Image(
                 painter = icon,
                 contentDescription = null
+            )
+        }
+    }
+
+    @Composable
+    fun ScanInstructions(modifier: Modifier, scanInstructions: String) {
+        Text(
+            text = scanInstructions,
+            modifier = modifier,
+            color = Color.White,
+            textAlign = TextAlign.Center
+        )
+    }
+
+    @Composable
+    fun ScanButton(modifier: Modifier, scanButtonText: String) {
+        Button(
+            onClick = {
+                scanning = true
+            },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = ButtonsBackground
+            ),
+            shape = RoundedCornerShape(4.dp),
+            border = BorderStroke(width = 1.dp, color = ButtonsBorder),
+            modifier = modifier
+        ) {
+            Text(
+                text = scanButtonText,
+                color = Color.White,
+                textAlign = TextAlign.Center
             )
         }
     }
