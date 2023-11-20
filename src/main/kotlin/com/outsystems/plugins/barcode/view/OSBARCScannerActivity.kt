@@ -9,6 +9,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -48,6 +49,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.core.view.WindowCompat
 import com.outsystems.plugins.barcode.R
 import com.outsystems.plugins.barcode.controller.OSBARCBarcodeAnalyzer
 import com.outsystems.plugins.barcode.controller.OSBARCScanLibraryFactory
@@ -87,7 +89,6 @@ class OSBARCScannerActivity : ComponentActivity() {
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        actionBar?.hide()
         val parameters = intent.extras?.getSerializable(SCAN_PARAMETERS) as OSBARCScanParameters
 
         // possibly lock orientation, the screen is adaptive by default
@@ -107,6 +108,8 @@ class OSBARCScannerActivity : ComponentActivity() {
                 ScanScreen(parameters)
             }
         }
+
+        makeViewFullscreen()
     }
 
     override fun onResume() {
@@ -356,6 +359,14 @@ class OSBARCScannerActivity : ComponentActivity() {
             setResult(error.code)
             finish()
         }
+    }
+
+    private fun makeViewFullscreen() {
+        // hide the action bar
+        actionBar?.hide()
+        // set full screen
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
     }
 
 }
