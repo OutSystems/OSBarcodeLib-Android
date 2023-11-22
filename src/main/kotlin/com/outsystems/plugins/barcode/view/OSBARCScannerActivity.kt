@@ -47,7 +47,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
@@ -62,7 +64,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
-import com.outsystems.plugins.barcode.R
 import com.outsystems.plugins.barcode.controller.OSBARCBarcodeAnalyzer
 import com.outsystems.plugins.barcode.controller.OSBARCScanLibraryFactory
 import com.outsystems.plugins.barcode.controller.helper.OSBARCMLKitHelper
@@ -73,6 +74,7 @@ import com.outsystems.plugins.barcode.view.ui.theme.BarcodeScannerTheme
 import com.outsystems.plugins.barcode.view.ui.theme.ButtonsBackground
 import com.outsystems.plugins.barcode.view.ui.theme.ButtonsBorder
 import com.outsystems.plugins.barcode.view.ui.theme.CustomGray
+import com.outsystemsenterprise.enmobile11dev.BarcodeSampleAppNew.R
 
 /**
  * This class is responsible for implementing the UI of the scanning screen using Jetpack Compose.
@@ -242,11 +244,11 @@ class OSBARCScannerActivity : ComponentActivity() {
             val configuration = LocalConfiguration.current
             val screenHeight = configuration.screenHeightDp.dp
             val screenWidth = configuration.screenWidthDp.dp
+            val borderPadding = 32.dp
 
             Column(
                 modifier = Modifier
                     .fillMaxSize(),
-                //.background(Color.Black.copy(alpha = 0.6f)),
                 verticalArrangement = Arrangement.Center
             ) {
 
@@ -260,16 +262,9 @@ class OSBARCScannerActivity : ComponentActivity() {
                     // close button
                     CloseButton(
                         modifier = Modifier
-                            .padding(top = 16.dp, end = 16.dp)
+                            .padding(top = 32.dp, end = 32.dp)
                     )
                 }
-
-                Box(
-                    modifier = Modifier
-                        .background(Color.Black.copy(alpha = 0.6f))
-                        .height(screenHeight / 8)
-                        .fillMaxWidth()
-                )
 
                 Column(
                     modifier = Modifier
@@ -281,34 +276,105 @@ class OSBARCScannerActivity : ComponentActivity() {
                         ScanInstructions(modifier = Modifier
                             .align(Alignment.CenterHorizontally)
                             .background(Color.Black.copy(alpha = 0.6f))
-                            .padding(bottom = 32.dp)
+                            .padding(top = 32.dp, bottom = 32.dp)
+                            .fillMaxWidth()
                             ,scanInstructions = parameters.scanInstructions)
                     }
 
-                    // draw the rectangle for the frame
                     Canvas(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(screenHeight / 4),
+                            //.height((screenHeight / 3) + 32.dp),
+                            .height(screenWidth),
                         onDraw = {
+
+                            // padding from the rectangle to each corner
+                            val rectToCornerPadding = 16.dp
+
+                            val canvasWidth = size.width
+                            val canvasHeight = size.height
+
+                            // rectangle size is determined by removing the padding from the border of the screen
+                            // and the padding to the corners of the rectangle
+                            val rectWidth = canvasWidth - (borderPadding.toPx() * 2) - rectToCornerPadding.toPx()
+                            val rectHeight = canvasWidth - (borderPadding.toPx() * 2) - rectToCornerPadding.toPx()
+                            val rectLeft = (canvasWidth - rectWidth) / 2
+                            val rectTop = (canvasHeight - rectHeight) / 2
+
                             val circlePath = Path().apply {
                                 addRect(
-                                    Rect(center, size.width / 4)
+                                    Rect(Offset(rectLeft, rectTop), Size(rectWidth, rectHeight))
                                 )
                             }
                             clipPath(circlePath, clipOp = ClipOp.Difference) {
                                 drawRect(SolidColor(Color.Black.copy(alpha = 0.6f)))
                             }
+
+                            // drawing edges in each corner using lines
+                            val cornerLength = rectWidth / 12
+
+                            val strokeWidth = 3f // width of each border
+
+                            // top left corner
+                            drawLine(
+                                color = Color.White,
+                                start = Offset(rectLeft - rectToCornerPadding.toPx(), rectTop - rectToCornerPadding.toPx()),
+                                end = Offset(rectLeft + rectToCornerPadding.toPx() + cornerLength, rectTop - rectToCornerPadding.toPx()),
+                                strokeWidth = strokeWidth
+                            )
+                            drawLine(
+                                color = Color.White,
+                                start = Offset(rectLeft - rectToCornerPadding.toPx(), rectTop - rectToCornerPadding.toPx()),
+                                end = Offset(rectLeft - rectToCornerPadding.toPx(), rectTop + rectToCornerPadding.toPx() + cornerLength),
+                                strokeWidth = strokeWidth
+                            )
+
+                            // top right corner
+                            drawLine(
+                                color = Color.White,
+                                start = Offset(rectLeft + rectWidth - rectToCornerPadding.toPx() - cornerLength, rectTop - rectToCornerPadding.toPx()),
+                                end = Offset(rectLeft + rectWidth + rectToCornerPadding.toPx(), rectTop - rectToCornerPadding.toPx()),
+                                strokeWidth = strokeWidth
+                            )
+                            drawLine(
+                                color = Color.White,
+                                start = Offset(rectLeft + rectWidth + rectToCornerPadding.toPx(), rectTop - rectToCornerPadding.toPx()),
+                                end = Offset(rectLeft + rectWidth + rectToCornerPadding.toPx(), rectTop + rectToCornerPadding.toPx() + cornerLength),
+                                strokeWidth = strokeWidth
+                            )
+
+                            // bottom left corner
+                            drawLine(
+                                color = Color.White,
+                                start = Offset(rectLeft - rectToCornerPadding.toPx(), rectTop + rectHeight + rectToCornerPadding.toPx()),
+                                end = Offset(rectLeft + rectToCornerPadding.toPx() + cornerLength, rectTop + rectHeight + rectToCornerPadding.toPx()),
+                                strokeWidth = strokeWidth
+                            )
+                            drawLine(
+                                color = Color.White,
+                                start = Offset(rectLeft - rectToCornerPadding.toPx(), rectTop + rectHeight + rectToCornerPadding.toPx()),
+                                end = Offset(rectLeft - rectToCornerPadding.toPx(), rectTop + rectHeight - rectToCornerPadding.toPx() - cornerLength),
+                                strokeWidth = strokeWidth
+                            )
+
+                            // bottom right corner
+                            drawLine(
+                                color = Color.White,
+                                start = Offset(rectLeft + rectWidth + rectToCornerPadding.toPx(), rectTop + rectHeight + rectToCornerPadding.toPx()),
+                                end = Offset(rectLeft + rectWidth - rectToCornerPadding.toPx() - cornerLength, rectTop + rectHeight + rectToCornerPadding.toPx()),
+                                strokeWidth = strokeWidth
+                            )
+                            drawLine(
+                                color = Color.White,
+                                start = Offset(rectLeft + rectWidth + rectToCornerPadding.toPx(), rectTop + rectHeight + rectToCornerPadding.toPx()),
+                                end = Offset(rectLeft + rectWidth + rectToCornerPadding.toPx(), rectTop + rectHeight - rectToCornerPadding.toPx() - cornerLength),
+                                strokeWidth = strokeWidth
+                            )
+
                         }
                     )
-                }
 
-                Box(
-                    modifier = Modifier
-                        .background(Color.Black.copy(alpha = 0.6f))
-                        .height(screenHeight / 8)
-                        .fillMaxWidth()
-                )
+                }
 
                 Box(
                     modifier = Modifier
