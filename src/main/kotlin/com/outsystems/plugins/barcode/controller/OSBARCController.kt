@@ -62,6 +62,8 @@ class OSBARCController {
                     }
                     Activity.RESULT_CANCELED ->
                         onError(OSBARCError.SCAN_CANCELLED_ERROR)
+                    OSBARCError.SCAN_CANCELLED_ERROR.code ->
+                        onError(OSBARCError.SCAN_CANCELLED_ERROR)
                     OSBARCError.CAMERA_PERMISSION_DENIED_ERROR.code ->
                         onError(OSBARCError.CAMERA_PERMISSION_DENIED_ERROR)
                     OSBARCError.SCANNING_GENERAL_ERROR.code ->
