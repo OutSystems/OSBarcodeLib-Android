@@ -64,6 +64,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
+import com.outsystems.plugins.barcode.R
 import com.outsystems.plugins.barcode.controller.OSBARCBarcodeAnalyzer
 import com.outsystems.plugins.barcode.controller.OSBARCScanLibraryFactory
 import com.outsystems.plugins.barcode.controller.helper.OSBARCMLKitHelper
@@ -71,10 +72,10 @@ import com.outsystems.plugins.barcode.controller.helper.OSBARCZXingHelper
 import com.outsystems.plugins.barcode.model.OSBARCError
 import com.outsystems.plugins.barcode.model.OSBARCScanParameters
 import com.outsystems.plugins.barcode.view.ui.theme.BarcodeScannerTheme
-import com.outsystems.plugins.barcode.view.ui.theme.ButtonsBackground
-import com.outsystems.plugins.barcode.view.ui.theme.ButtonsBorder
+import com.outsystems.plugins.barcode.view.ui.theme.ButtonsBackgroundGray
+import com.outsystems.plugins.barcode.view.ui.theme.ButtonsBorderGray
 import com.outsystems.plugins.barcode.view.ui.theme.CustomGray
-import com.outsystemsenterprise.enmobile11dev.BarcodeSampleAppNew.R
+import com.outsystems.plugins.barcode.view.ui.theme.ScannerBackgroundBlack
 
 /**
  * This class is responsible for implementing the UI of the scanning screen using Jetpack Compose.
@@ -241,9 +242,12 @@ class OSBARCScannerActivity : ComponentActivity() {
                 modifier = Modifier.fillMaxSize()
             )
 
+            // actual UI on top of the camera stream
+
             val configuration = LocalConfiguration.current
             val screenHeight = configuration.screenHeightDp.dp
             val screenWidth = configuration.screenWidthDp.dp
+
             val borderPadding = 32.dp
 
             Column(
@@ -254,7 +258,7 @@ class OSBARCScannerActivity : ComponentActivity() {
 
                 Row(
                     modifier = Modifier
-                        .background(Color.Black.copy(alpha = 0.6f))
+                        .background(ScannerBackgroundBlack)
                         .align(Alignment.End)
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
@@ -275,7 +279,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                     if (!parameters.scanInstructions.isNullOrEmpty()) {
                         ScanInstructions(modifier = Modifier
                             .align(Alignment.CenterHorizontally)
-                            .background(Color.Black.copy(alpha = 0.6f))
+                            .background(ScannerBackgroundBlack)
                             .padding(top = 32.dp, bottom = 32.dp)
                             .fillMaxWidth()
                             ,scanInstructions = parameters.scanInstructions)
@@ -307,7 +311,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                                 )
                             }
                             clipPath(circlePath, clipOp = ClipOp.Difference) {
-                                drawRect(SolidColor(Color.Black.copy(alpha = 0.6f)))
+                                drawRect(SolidColor(ScannerBackgroundBlack))
                             }
 
                             // drawing edges in each corner using lines
@@ -379,7 +383,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(Color.Black.copy(alpha = 0.6f))
+                        .background(ScannerBackgroundBlack)
                         .padding(start = 32.dp, top = 32.dp, end = 32.dp, bottom = 32.dp)
                 ) {
                     // scan button to turn on scanning when used
@@ -463,10 +467,10 @@ class OSBARCScannerActivity : ComponentActivity() {
                 scanning = true
             },
             colors = ButtonDefaults.buttonColors(
-                containerColor = ButtonsBackground
+                containerColor = ButtonsBackgroundGray
             ),
             shape = RoundedCornerShape(4.dp),
-            border = BorderStroke(width = 1.dp, color = ButtonsBorder),
+            border = BorderStroke(width = 1.dp, color = ButtonsBorderGray),
             modifier = modifier
         ) {
             Text(
