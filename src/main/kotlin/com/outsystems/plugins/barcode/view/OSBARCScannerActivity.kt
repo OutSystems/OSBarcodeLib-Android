@@ -7,13 +7,17 @@ import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
+import android.view.WindowInsets
+import android.view.WindowInsetsController
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
@@ -26,22 +30,23 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
@@ -51,13 +56,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -104,11 +112,16 @@ class OSBARCScannerActivity : ComponentActivity() {
         private const val ORIENTATION_LANDSCAPE = 2
     }
 
+    private data class Point(val x: Int, val y: Int)
+
     /**
      * Overrides the onCreate method from Activity, setting the UI of the screen
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        enableEdgeToEdge()
+
         val parameters = intent.extras?.getSerializable(SCAN_PARAMETERS) as OSBARCScanParameters
 
         // possibly lock orientation, the screen is adaptive by default
@@ -204,7 +217,8 @@ class OSBARCScannerActivity : ComponentActivity() {
 
         Box(
             modifier = Modifier
-                .fillMaxSize(),
+                .fillMaxSize()
+                .safeDrawingPadding(),
         ) {
             AndroidView(
                 factory = { context ->
@@ -270,38 +284,46 @@ class OSBARCScannerActivity : ComponentActivity() {
     @Composable
     fun ScanScreenUIPortrait(parameters: OSBARCScanParameters, screenWidth: Dp, borderPadding: Dp) {
 
+        // padding from the rectangle to each corner
+        val rectToCornerPadding = 16.dp
+        // size of the scan and torch buttons
+        val actionButtonsHeight = 48.dp
+        // drawing edges in each corner using lines
+        val cornerLength = 50.dp
+        // width of each border
+        val strokeWidth = 3f
+
         Column(
             modifier = Modifier
                 .fillMaxSize(),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
 
-            Row(
+            Box(
                 modifier = Modifier
+                    .fillMaxWidth()
                     .background(ScannerBackgroundBlack)
-                    .align(Alignment.End)
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
+                    .weight(1f, fill = true),
             ) {
-                // close button
                 CloseButton(
                     modifier = Modifier
-                        .padding(top = 32.dp, end = 32.dp)
+                        .padding(top = borderPadding, end = borderPadding)
+                        .align(Alignment.TopEnd)
                 )
             }
 
             Column(
                 modifier = Modifier
-                    .fillMaxWidth(),
-                verticalArrangement = Arrangement.Center
+                    .fillMaxWidth()
             ) {
                 // text with scan instructions
                 if (!parameters.scanInstructions.isNullOrEmpty()) {
                     ScanInstructions(modifier = Modifier
                         .align(Alignment.CenterHorizontally)
                         .background(ScannerBackgroundBlack)
-                        .padding(top = 32.dp, bottom = 24.dp)
+                        //.padding(top = 32.dp)
                         .fillMaxWidth()
+                        .wrapContentHeight()
                         ,scanInstructions = parameters.scanInstructions)
                 }
 
@@ -312,110 +334,92 @@ class OSBARCScannerActivity : ComponentActivity() {
                         .height(screenWidth),
                     onDraw = {
 
-                        // padding from the rectangle to each corner
-                        val rectToCornerPadding = 16.dp
-
+                        val radius = 25f
                         val canvasWidth = size.width
                         val canvasHeight = size.height
 
                         // rectangle size is determined by removing the padding from the border of the screen
                         // and the padding to the corners of the rectangle
-                        val rectWidth = canvasWidth - (borderPadding.toPx() * 2) - rectToCornerPadding.toPx()
-                        val rectHeight = canvasWidth - (borderPadding.toPx() * 2) - rectToCornerPadding.toPx()
+                        val rectWidth = canvasWidth - (borderPadding.toPx() * 2) - (rectToCornerPadding.toPx() * 2)
+                        val rectHeight = canvasWidth - (borderPadding.toPx() * 2) - (rectToCornerPadding.toPx() * 2)
                         val rectLeft = (canvasWidth - rectWidth) / 2
                         val rectTop = (canvasHeight - rectHeight) / 2
 
                         val circlePath = Path().apply {
-                            addRect(
-                                Rect(Offset(rectLeft, rectTop), Size(rectWidth, rectHeight))
+                            addRoundRect(
+                                RoundRect(
+                                    rect = Rect(Offset(rectLeft, rectTop), Size(rectWidth, rectHeight)),
+                                    cornerRadius = CornerRadius(radius, radius)
+                                )
                             )
                         }
                         clipPath(circlePath, clipOp = ClipOp.Difference) {
-                            drawRect(SolidColor(ScannerBackgroundBlack))
+                            drawRect(color=ScannerBackgroundBlack)
                         }
 
-                        // drawing edges in each corner using lines
-                        val cornerLength = rectWidth / 12
+                        val top = rectTop - rectToCornerPadding.toPx()
+                        val left = rectLeft - rectToCornerPadding.toPx()
+                        val right = left + rectWidth + (rectToCornerPadding * 2).toPx()
+                        val bottom = top + rectHeight + (rectToCornerPadding * 2).toPx()
+                        val length = cornerLength.toPx()
 
-                        val strokeWidth = 3f // width of each border
+                        val aimPath = Path()
+                        // top left
+                        aimPath.moveTo(left + length, top)
+                        aimPath.lineTo(left + radius, top)
+                        aimPath.quadraticBezierTo(left, top, left, top + radius)
+                        aimPath.lineTo(left, top + length)
 
-                        // top left corner
-                        drawLine(
-                            color = Color.White,
-                            start = Offset(rectLeft - rectToCornerPadding.toPx(), rectTop - rectToCornerPadding.toPx()),
-                            end = Offset(rectLeft + rectToCornerPadding.toPx() + cornerLength, rectTop - rectToCornerPadding.toPx()),
-                            strokeWidth = strokeWidth
-                        )
-                        drawLine(
-                            color = Color.White,
-                            start = Offset(rectLeft - rectToCornerPadding.toPx(), rectTop - rectToCornerPadding.toPx()),
-                            end = Offset(rectLeft - rectToCornerPadding.toPx(), rectTop + rectToCornerPadding.toPx() + cornerLength),
-                            strokeWidth = strokeWidth
-                        )
+                        // bottom left
+                        aimPath.moveTo(left, bottom - length)
+                        aimPath.lineTo(left, bottom - radius)
+                        aimPath.quadraticBezierTo(left, bottom, left + radius, bottom)
+                        aimPath.lineTo(left + length, bottom)
 
-                        // top right corner
-                        drawLine(
-                            color = Color.White,
-                            start = Offset(rectLeft + rectWidth - rectToCornerPadding.toPx() - cornerLength, rectTop - rectToCornerPadding.toPx()),
-                            end = Offset(rectLeft + rectWidth + rectToCornerPadding.toPx(), rectTop - rectToCornerPadding.toPx()),
-                            strokeWidth = strokeWidth
-                        )
-                        drawLine(
-                            color = Color.White,
-                            start = Offset(rectLeft + rectWidth + rectToCornerPadding.toPx(), rectTop - rectToCornerPadding.toPx()),
-                            end = Offset(rectLeft + rectWidth + rectToCornerPadding.toPx(), rectTop + rectToCornerPadding.toPx() + cornerLength),
-                            strokeWidth = strokeWidth
-                        )
+                        // bottom right
+                        aimPath.moveTo(right - length, bottom)
+                        aimPath.lineTo(right - radius, bottom)
+                        aimPath.quadraticBezierTo(right, bottom, right, bottom - radius)
+                        aimPath.lineTo(right, bottom - length)
 
-                        // bottom left corner
-                        drawLine(
-                            color = Color.White,
-                            start = Offset(rectLeft - rectToCornerPadding.toPx(), rectTop + rectHeight + rectToCornerPadding.toPx()),
-                            end = Offset(rectLeft + rectToCornerPadding.toPx() + cornerLength, rectTop + rectHeight + rectToCornerPadding.toPx()),
-                            strokeWidth = strokeWidth
-                        )
-                        drawLine(
-                            color = Color.White,
-                            start = Offset(rectLeft - rectToCornerPadding.toPx(), rectTop + rectHeight + rectToCornerPadding.toPx()),
-                            end = Offset(rectLeft - rectToCornerPadding.toPx(), rectTop + rectHeight - rectToCornerPadding.toPx() - cornerLength),
-                            strokeWidth = strokeWidth
-                        )
+                        // top right
+                        aimPath.moveTo(right, top + length)
+                        aimPath.lineTo(right, top + radius)
+                        aimPath.quadraticBezierTo(right, top, right - radius, top)
+                        aimPath.lineTo(right - length, top)
 
-                        // bottom right corner
-                        drawLine(
-                            color = Color.White,
-                            start = Offset(rectLeft + rectWidth + rectToCornerPadding.toPx(), rectTop + rectHeight + rectToCornerPadding.toPx()),
-                            end = Offset(rectLeft + rectWidth - rectToCornerPadding.toPx() - cornerLength, rectTop + rectHeight + rectToCornerPadding.toPx()),
-                            strokeWidth = strokeWidth
-                        )
-                        drawLine(
-                            color = Color.White,
-                            start = Offset(rectLeft + rectWidth + rectToCornerPadding.toPx(), rectTop + rectHeight + rectToCornerPadding.toPx()),
-                            end = Offset(rectLeft + rectWidth + rectToCornerPadding.toPx(), rectTop + rectHeight - rectToCornerPadding.toPx() - cornerLength),
-                            strokeWidth = strokeWidth
-                        )
+                        drawPath(aimPath, color = Color.White, style = Stroke(width = strokeWidth))
 
                     }
                 )
-
             }
 
             Box(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .fillMaxWidth()
                     .background(ScannerBackgroundBlack)
-                    .padding(start = 32.dp, top = 32.dp, end = 32.dp, bottom = 32.dp)
+                    .weight(1f, fill = true),
             ) {
+
                 // scan button to turn on scanning when used
                 if (parameters.scanButton) {
-                    ScanButton(modifier = Modifier.align(Alignment.Center), scanButtonText = parameters.scanText)
+                    ScanButton(
+                        modifier = Modifier
+                            .padding(bottom = borderPadding)
+                            .align(Alignment.BottomCenter)
+                            .height(actionButtonsHeight),
+                        scanButtonText = parameters.scanText)
                 }
                 // flashlight button
                 if (camera.cameraInfo.hasFlashUnit()) {
-                    TorchButton(modifier = Modifier.align(Alignment.CenterEnd))
+                    TorchButton(
+                        modifier = Modifier
+                            .padding(bottom = borderPadding, end = borderPadding)
+                            .align(Alignment.BottomEnd)
+                            .size(actionButtonsHeight)
+                    )
                 }
             }
-
         }
     }
 
@@ -596,19 +600,16 @@ class OSBARCScannerActivity : ComponentActivity() {
 
     @Composable
     fun CloseButton(modifier: Modifier) {
-        IconButton(
-            onClick = {
-                setResult(OSBARCError.SCAN_CANCELLED_ERROR.code)
-                finish()
-            },
+        Icon(
+            painter = painterResource(id = R.drawable.close),
+            contentDescription = null,
+            tint = CustomGray,
             modifier = modifier
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.close),
-                contentDescription = null,
-                tint = CustomGray
-            )
-        }
+                .clickable {
+                    setResult(OSBARCError.SCAN_CANCELLED_ERROR.code)
+                    finish()
+                }
+        )
     }
 
     @Composable
@@ -616,24 +617,21 @@ class OSBARCScannerActivity : ComponentActivity() {
         var isFlashlightOn by remember { mutableStateOf(false) }
         val onIcon = painterResource(id = R.drawable.flash_on)
         val offIcon = painterResource(id = R.drawable.flash_off)
+        val icon = if (isFlashlightOn) onIcon else offIcon
 
-        IconButton(
-            onClick = {
-                try {
-                    camera.cameraControl.enableTorch(!isFlashlightOn)
-                    isFlashlightOn = !isFlashlightOn
-                } catch (e: Exception) {
-                    e.message?.let { Log.e(LOG_TAG, it) }
-                }
-            },
+        Image(
+            painter = icon,
+            contentDescription = null,
             modifier = modifier
-        ) {
-            val icon = if (isFlashlightOn) onIcon else offIcon
-            Image(
-                painter = icon,
-                contentDescription = null
-            )
-        }
+                .clickable {
+                    try {
+                        camera.cameraControl.enableTorch(!isFlashlightOn)
+                        isFlashlightOn = !isFlashlightOn
+                    } catch (e: Exception) {
+                        e.message?.let { Log.e(LOG_TAG, it) }
+                    }
+                }
+        )
     }
 
     @Composable
@@ -697,7 +695,14 @@ class OSBARCScannerActivity : ComponentActivity() {
         actionBar?.hide()
         // set full screen
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+        } else {
+            window.insetsController?.apply {
+                hide(WindowInsets.Type.statusBars())
+                systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
+        }
     }
 
 }
