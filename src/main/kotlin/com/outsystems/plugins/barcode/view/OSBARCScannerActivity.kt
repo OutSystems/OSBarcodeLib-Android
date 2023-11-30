@@ -39,11 +39,9 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -86,7 +84,10 @@ import com.outsystems.plugins.barcode.model.OSBARCError
 import com.outsystems.plugins.barcode.model.OSBARCScanParameters
 import com.outsystems.plugins.barcode.view.ui.theme.BarcodeScannerTheme
 import com.outsystems.plugins.barcode.view.ui.theme.ButtonsBackgroundGray
+import com.outsystems.plugins.barcode.view.ui.theme.ButtonsBackgroundWhite
 import com.outsystems.plugins.barcode.view.ui.theme.ButtonsBorderGray
+import com.outsystems.plugins.barcode.view.ui.theme.ButtonsTextGray
+import com.outsystems.plugins.barcode.view.ui.theme.ButtonsTextWhite
 import com.outsystems.plugins.barcode.view.ui.theme.CustomGray
 import com.outsystems.plugins.barcode.view.ui.theme.ScannerBackgroundBlack
 
@@ -100,7 +101,7 @@ class OSBARCScannerActivity : ComponentActivity() {
     private lateinit var selector: CameraSelector
     private var permissionRequestCount = 0
     private var showDialog by mutableStateOf(false)
-    private var scanning = true
+    private var isScanning = false
 
     companion object {
         private const val SCAN_SUCCESS_RESULT_CODE = -1
@@ -111,8 +112,6 @@ class OSBARCScannerActivity : ComponentActivity() {
         private const val ORIENTATION_PORTRAIT = 1
         private const val ORIENTATION_LANDSCAPE = 2
     }
-
-    private data class Point(val x: Int, val y: Int)
 
     /**
      * Overrides the onCreate method from Activity, setting the UI of the screen
@@ -131,7 +130,7 @@ class OSBARCScannerActivity : ComponentActivity() {
             requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         }
 
-        scanning = !parameters.scanButton
+        isScanning = !parameters.scanButton
         selector = CameraSelector.Builder()
             .requireLensFacing(if (parameters.cameraDirection == CAM_DIRECTION_FRONT) CameraSelector.LENS_FACING_FRONT else CameraSelector.LENS_FACING_BACK)
             .build()
@@ -280,38 +279,13 @@ class OSBARCScannerActivity : ComponentActivity() {
         }
     }
 
-    @Composable
-    fun ScanActionButtons(parameters: OSBARCScanParameters,
-                          verticalPadding: Dp,
-                          scanModifier: Modifier,
-                          torchModifier: Modifier) {
-
-        val actionButtonsHeight = 48.dp
-        val showTorch = camera.cameraInfo.hasFlashUnit()
-        val showScan = parameters.scanButton || true
-
-        val buttonSpacing = if(showTorch && showScan)
-        { verticalPadding.times(0.5f) } else { verticalPadding.times(0f) }
-
-        // flashlight button
-        if (showTorch) {
-            TorchButton(
-                torchModifier
-                    .padding(bottom = buttonSpacing)
-                    .size(actionButtonsHeight),
-            )
-        }
-
-        // scan button to turn on scanning when used
-        if (showScan) {
-            ScanButton(
-                scanModifier
-                    .padding(top = buttonSpacing)
-                    .height(actionButtonsHeight),
-                parameters.scanText)
-        }
-    }
-
+    /**
+     * Composable function, responsible rendering the main centered view with the transparent
+     * rectangle
+     * @param height the screen height
+     * @param horizontalPadding the horizontal padding for the whole view
+     * @param verticalPadding the vertical padding for the whole view
+     */
     @Composable
     fun ScanScreenAim(height: Dp, horizontalPadding: Dp, verticalPadding: Dp) {
 
@@ -389,6 +363,12 @@ class OSBARCScannerActivity : ComponentActivity() {
         )
     }
 
+    /**
+     * Composable function, responsible rendering the main UI in portrait mode
+     * @param parameters the scan parameters
+     * @param screenHeight the screen height
+     * @param borderPadding the value for the border padding
+     */
     @Composable
     fun ScanScreenUIPortrait(parameters: OSBARCScanParameters,
                              screenHeight:Dp,
@@ -450,6 +430,12 @@ class OSBARCScannerActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * Composable function, responsible rendering the main UI in landscape mode
+     * @param parameters the scan parameters
+     * @param screenHeight the screen height
+     * @param borderPadding the value for the border padding
+     */
     @Composable
     fun ScanScreenUILandscape(parameters: OSBARCScanParameters,
                               screenHeight:Dp,
@@ -518,6 +504,10 @@ class OSBARCScannerActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * Composable function, responsible rendering the close button
+     * @param modifier the custom modifier for the button
+     */
     @Composable
     fun CloseButton(modifier: Modifier) {
         Icon(
@@ -532,6 +522,10 @@ class OSBARCScannerActivity : ComponentActivity() {
         )
     }
 
+    /**
+     * Composable function, responsible rendering the torch button
+     * @param modifier the custom modifier for the button
+     */
     @Composable
     fun TorchButton(modifier: Modifier) {
         var isFlashlightOn by remember { mutableStateOf(false) }
@@ -554,6 +548,43 @@ class OSBARCScannerActivity : ComponentActivity() {
         )
     }
 
+    /**
+     * Composable function, responsible rendering the scan button
+     * @param modifier the custom modifier for the whole view
+     * @param scanButtonText the scan button text
+     */
+    @Composable
+    fun ScanButton(modifier: Modifier, scanButtonText: String) {
+        var scanning by remember { mutableStateOf(false) }
+        val backgroundColor = if (scanning) ButtonsBackgroundWhite else ButtonsBackgroundGray
+        val textColor = if (scanning) ButtonsTextGray else ButtonsTextWhite
+
+        Button(
+            onClick = {
+                isScanning = !isScanning
+                scanning = !scanning
+            },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = backgroundColor
+            ),
+            shape = RoundedCornerShape(4.dp),
+            border = BorderStroke(width = 1.dp, color = ButtonsBorderGray),
+            modifier = modifier
+        ) {
+            Text(
+                text = scanButtonText,
+                color = textColor,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+
+    /**
+     * Composable function, responsible rendering the scan instructions.
+     * This component will only be rendered if scan parameters instructs so.
+     * @param modifier the custom modifier for the whole view
+     * @param parameters the scan parameters
+     */
     @Composable
     fun ScanInstructions(modifier: Modifier, parameters: OSBARCScanParameters) {
         if (!parameters.scanInstructions.isNullOrEmpty()) {
@@ -571,24 +602,44 @@ class OSBARCScannerActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * Composable function, responsible for building the action buttons
+     * on the UI.
+     * This component will only be rendered if scan parameters instructs so.
+     * @param parameters the scan parameters
+     * @param verticalPadding the vertical spacing between buttons
+     * @param scanModifier the custom modifier for the scan button
+     * @param torchModifier the custom modifier for the torch button
+     */
     @Composable
-    fun ScanButton(modifier: Modifier, scanButtonText: String) {
-        Button(
-            onClick = {
-                scanning = true
-            },
-            colors = ButtonDefaults.buttonColors(
-                containerColor = ButtonsBackgroundGray
-            ),
-            shape = RoundedCornerShape(4.dp),
-            border = BorderStroke(width = 1.dp, color = ButtonsBorderGray),
-            modifier = modifier
-        ) {
-            Text(
-                text = scanButtonText,
-                color = Color.White,
-                textAlign = TextAlign.Center
+    fun ScanActionButtons(parameters: OSBARCScanParameters,
+                          verticalPadding: Dp,
+                          scanModifier: Modifier,
+                          torchModifier: Modifier) {
+
+        val actionButtonsHeight = 48.dp
+        val showTorch = camera.cameraInfo.hasFlashUnit()
+        val showScan = parameters.scanButton || true
+
+        val buttonSpacing = if(showTorch && showScan)
+        { verticalPadding.times(0.5f) } else { verticalPadding.times(0f) }
+
+        // flashlight button
+        if (showTorch) {
+            TorchButton(
+                torchModifier
+                    .padding(bottom = buttonSpacing)
+                    .size(actionButtonsHeight),
             )
+        }
+
+        // scan button to turn on scanning when used
+        if (showScan) {
+            ScanButton(
+                scanModifier
+                    .padding(top = buttonSpacing)
+                    .height(actionButtonsHeight),
+                parameters.scanText)
         }
     }
 
@@ -601,7 +652,7 @@ class OSBARCScannerActivity : ComponentActivity() {
 
     private fun processReadSuccess(result: String) {
         // we only want to process the scan result if scanning is active
-        if (scanning) {
+        if (isScanning) {
             val resultIntent = Intent()
             resultIntent.putExtra(SCAN_RESULT, result)
             setResult(SCAN_SUCCESS_RESULT_CODE, resultIntent)
@@ -611,7 +662,7 @@ class OSBARCScannerActivity : ComponentActivity() {
 
     private fun processReadError(error: OSBARCError) {
         // we only want to process the scan error if scanning is active
-        if (scanning) {
+        if (isScanning) {
             setResult(error.code)
             finish()
         }

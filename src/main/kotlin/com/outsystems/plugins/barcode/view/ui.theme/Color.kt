@@ -14,4 +14,9 @@ val CustomGray = Color(0xFFB3BAC4)
 
 val ButtonsBackgroundGray = Color(0x1AFFFFFF)
 val ButtonsBorderGray = Color(0xFF4F575E)
+
+val ButtonsBackgroundWhite = Color(0xFFFFFFD9)
+val ButtonsTextGray = Color(0xFF4F575E)
+val ButtonsTextWhite = Color(0xFFFFFFFF)
+
 val ScannerBackgroundBlack = Color.Black.copy(alpha = 0.6f)
