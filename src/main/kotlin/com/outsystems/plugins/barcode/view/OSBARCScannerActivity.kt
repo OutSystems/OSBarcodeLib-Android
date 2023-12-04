@@ -275,14 +275,28 @@ class OSBARCScannerActivity : ComponentActivity() {
             val screenWidth = configuration.screenWidthDp.dp
 
             val borderPadding = 32.dp
+            val textToRectPadding = 24.dp
 
             val isPortrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
 
             if (isPortrait) {
-                ScanScreenUIPortrait(parameters, screenWidth, borderPadding, windowSizeClass)
+                // determine if device is phone or tablet
+                val isPhone = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact
+                if (isPhone) {
+                    ScanScreenUIPortrait(parameters, screenWidth, borderPadding, textToRectPadding, true)
+                }
+                else {
+                    ScanScreenUILandscape(parameters, (screenWidth / 2), borderPadding, textToRectPadding, isPhone = false, isPortrait = true)
+                }
             }
             else {
-                ScanScreenUILandscape(parameters, screenHeight, borderPadding, windowSizeClass)
+                // determine if device is phone or tablet
+                val isPhone = windowSizeClass.heightSizeClass == WindowHeightSizeClass.Compact
+                if (isPhone) {
+                    ScanScreenUILandscape(parameters, screenHeight, borderPadding, textToRectPadding, isPhone = true, isPortrait = false)
+                } else {
+                    ScanScreenUILandscape(parameters, screenHeight / 2, borderPadding, textToRectPadding, isPhone = false, isPortrait = false)
+                }
             }
         }
     }
@@ -295,7 +309,11 @@ class OSBARCScannerActivity : ComponentActivity() {
      * @param verticalPadding the vertical padding for the whole view
      */
     @Composable
-    fun ScanScreenAim(height: Dp, horizontalPadding: Dp, verticalPadding: Dp) {
+    fun ScanScreenAim(
+        height: Dp, horizontalPadding: Dp, verticalPadding: Dp,
+        isPhone: Boolean,
+        isPortrait: Boolean
+    ) {
 
         // padding from the rectangle to each corner
         val rectToCornerPadding = 16.dp
@@ -318,8 +336,22 @@ class OSBARCScannerActivity : ComponentActivity() {
 
                 // rectangle size is determined by removing the padding from the border of the screen
                 // and the padding to the corners of the rectangle
-                val rectWidth = canvasWidth - (horizontalPadding.toPx() * 2) - (rectToCornerPadding.toPx() * 2)
-                val rectHeight = canvasHeight - (verticalPadding.toPx() * 2) - (rectToCornerPadding.toPx() * 2)
+                var rectWidth: Float
+                var rectHeight: Float
+
+                if (isPhone) { // for phones
+                    rectWidth = canvasWidth - (horizontalPadding.toPx() * 2) - (rectToCornerPadding.toPx() * 2)
+                    rectHeight = canvasHeight - (verticalPadding.toPx() * 2) - (rectToCornerPadding.toPx() * 2)
+                } else { // for tablets
+                    if (isPortrait) {
+                        rectWidth = (canvasWidth) - (horizontalPadding.toPx() * 2) - (rectToCornerPadding.toPx() * 2)
+                        rectHeight = rectWidth
+                    } else {
+                        rectWidth = canvasWidth - (horizontalPadding.toPx() * 2) - (rectToCornerPadding.toPx() * 2)
+                        rectHeight = canvasHeight - (rectToCornerPadding.toPx() * 2)
+                    }
+                }
+
                 val rectLeft = (canvasWidth - rectWidth) / 2
                 val rectTop = (canvasHeight - rectHeight) / 2
 
@@ -332,7 +364,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                     )
                 }
                 clipPath(circlePath, clipOp = ClipOp.Difference) {
-                    drawRect(color= ScannerBackgroundBlack)
+                    drawRect(color = ScannerBackgroundBlack)
                 }
 
                 val aimTop = rectTop - rectToCornerPadding.toPx()
@@ -381,11 +413,8 @@ class OSBARCScannerActivity : ComponentActivity() {
     fun ScanScreenUIPortrait(parameters: OSBARCScanParameters,
                              screenHeight:Dp,
                              borderPadding: Dp,
-                             windowSizeClass: WindowSizeClass) {
-
-        // determine if device is phone or tablet
-        val isPhone = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact
-
+                             textToRectPadding: Dp,
+                             isPhone: Boolean) {
         Column(
             modifier = Modifier
                 .fillMaxSize(),
@@ -415,11 +444,11 @@ class OSBARCScannerActivity : ComponentActivity() {
                 ScanInstructions(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = borderPadding),
+                        .padding(bottom = textToRectPadding),
                     parameters
                 )
 
-                ScanScreenAim(screenHeight, borderPadding, 0.dp)
+                ScanScreenAim(screenHeight, borderPadding, 0.dp, isPhone, true)
             }
 
             Box(
@@ -443,7 +472,9 @@ class OSBARCScannerActivity : ComponentActivity() {
     }
 
     /**
-     * Composable function, responsible rendering the main UI in landscape mode
+     * Composable function, responsible rendering the main UI in landscape mode.
+     * This will also be used to for the UI of tablets in portrait, since the
+     * orientation of elements in the screen is the same for both orientations.
      * @param parameters the scan parameters
      * @param screenHeight the screen height
      * @param borderPadding the value for the border padding
@@ -452,11 +483,9 @@ class OSBARCScannerActivity : ComponentActivity() {
     fun ScanScreenUILandscape(parameters: OSBARCScanParameters,
                               screenHeight:Dp,
                               borderPadding: Dp,
-                              windowSizeClass: WindowSizeClass) {
-
-        // determine if device is phone or tablet
-        val isPhone = windowSizeClass.heightSizeClass == WindowHeightSizeClass.Compact
-
+                              textToRectPadding: Dp,
+                              isPhone: Boolean,
+                              isPortrait: Boolean) {
         Row(
             modifier = Modifier
                 .fillMaxSize(),
@@ -477,14 +506,30 @@ class OSBARCScannerActivity : ComponentActivity() {
                 verticalArrangement = Arrangement.Center
             ) {
 
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f, fill = true)
+                        .background(ScannerBackgroundBlack)
+                )
+
                 ScanInstructions(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = borderPadding),
+                        .padding(top = borderPadding, bottom = if (isPhone) 0.dp else textToRectPadding),
                     parameters
                 )
 
-                ScanScreenAim(screenHeight, 0.dp, borderPadding)
+                ScanScreenAim(screenHeight, 0.dp, borderPadding, isPhone, isPortrait)
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f, fill = true)
+                        .background(ScannerBackgroundBlack)
+                )
+
+
             }
 
             Box(
