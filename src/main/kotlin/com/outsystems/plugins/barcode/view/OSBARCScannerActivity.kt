@@ -46,6 +46,11 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
@@ -115,6 +120,7 @@ class OSBARCScannerActivity : ComponentActivity() {
     /**
      * Overrides the onCreate method from Activity, setting the UI of the screen
      */
+    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -133,8 +139,13 @@ class OSBARCScannerActivity : ComponentActivity() {
             .build()
 
         setContent {
+
+            // to know if device is phone or tablet
+            // more info: https://developer.android.com/guide/topics/large-screens/support-different-screen-sizes#window_size_classes
+            val windowSizeClass = calculateWindowSizeClass(this)
+
             BarcodeScannerTheme {
-                ScanScreen(parameters)
+                ScanScreen(parameters, windowSizeClass)
             }
         }
 
@@ -151,7 +162,7 @@ class OSBARCScannerActivity : ComponentActivity() {
      * as well as creating an instance of OSBARCBarcodeAnalyzer for image analysis.
      */
     @Composable
-    fun ScanScreen(parameters: OSBARCScanParameters) {
+    fun ScanScreen(parameters: OSBARCScanParameters, windowSizeClass: WindowSizeClass) {
         val lifecycleOwner = LocalLifecycleOwner.current
         val context = LocalContext.current
         var permissionGiven by remember { mutableStateOf(true) }
@@ -268,10 +279,10 @@ class OSBARCScannerActivity : ComponentActivity() {
             val isPortrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
 
             if (isPortrait) {
-                ScanScreenUIPortrait(parameters, screenWidth, borderPadding)
+                ScanScreenUIPortrait(parameters, screenWidth, borderPadding, windowSizeClass)
             }
             else {
-                ScanScreenUILandscape(parameters, screenHeight, borderPadding)
+                ScanScreenUILandscape(parameters, screenHeight, borderPadding, windowSizeClass)
             }
         }
     }
@@ -369,7 +380,11 @@ class OSBARCScannerActivity : ComponentActivity() {
     @Composable
     fun ScanScreenUIPortrait(parameters: OSBARCScanParameters,
                              screenHeight:Dp,
-                             borderPadding: Dp) {
+                             borderPadding: Dp,
+                             windowSizeClass: WindowSizeClass) {
+
+        // determine if device is phone or tablet
+        val isPhone = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact
 
         Column(
             modifier = Modifier
@@ -436,7 +451,12 @@ class OSBARCScannerActivity : ComponentActivity() {
     @Composable
     fun ScanScreenUILandscape(parameters: OSBARCScanParameters,
                               screenHeight:Dp,
-                              borderPadding: Dp) {
+                              borderPadding: Dp,
+                              windowSizeClass: WindowSizeClass) {
+
+        // determine if device is phone or tablet
+        val isPhone = windowSizeClass.heightSizeClass == WindowHeightSizeClass.Compact
+
         Row(
             modifier = Modifier
                 .fillMaxSize(),
@@ -616,7 +636,7 @@ class OSBARCScannerActivity : ComponentActivity() {
 
         val actionButtonsHeight = 48.dp
         val showTorch = camera.cameraInfo.hasFlashUnit()
-        val showScan = parameters.scanButton || true
+        val showScan = parameters.scanButton
 
         val buttonSpacing = if(showTorch && showScan)
         { verticalPadding.times(0.5f) } else { verticalPadding.times(0f) }
