@@ -202,6 +202,20 @@ class ScanCodeTests {
     }
 
     @Test
+    fun givenScanCancelledAndBarcodeEmptyWhenHandleScanResultThenCancelledError() {
+        val barcodeController = OSBARCController()
+        barcodeController.handleActivityResult(SCAN_REQUEST_CODE, OSBARCError.SCAN_CANCELLED_ERROR.code, mockIntent,
+            {
+                fail()
+            },
+            {
+                assertEquals(OSBARCError.SCAN_CANCELLED_ERROR.code, it.code)
+                assertEquals(OSBARCError.SCAN_CANCELLED_ERROR.description, it.description)
+            }
+        )
+    }
+
+    @Test
     fun givenCameraPermissionDeniedWhenHandleScanResultThenPermissionDeniedError() {
         val barcodeController = OSBARCController()
         barcodeController.handleActivityResult(SCAN_REQUEST_CODE, OSBARCError.CAMERA_PERMISSION_DENIED_ERROR.code, mockIntent,
