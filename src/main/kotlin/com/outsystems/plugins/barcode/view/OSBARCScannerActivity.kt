@@ -344,15 +344,15 @@ class OSBARCScannerActivity : ComponentActivity() {
                 var rectHeight: Float
 
                 if (isPhone) { // for phones
-                    rectWidth = canvasWidth - (horizontalPadding.toPx() * 2) - (rectToCornerPadding.toPx() * 2)
-                    rectHeight = canvasHeight - (verticalPadding.toPx() * 2) - (rectToCornerPadding.toPx() * 2)
+                    rectWidth = canvasWidth - (horizontalPadding.toPx() * 2) - (ScannerAimRectCornerPadding.toPx() * 2)
+                    rectHeight = canvasHeight - (verticalPadding.toPx() * 2) - (ScannerAimRectCornerPadding.toPx() * 2)
                 } else { // for tablets
                     if (isPortrait) {
-                        rectWidth = (canvasWidth) - (horizontalPadding.toPx() * 2) - (rectToCornerPadding.toPx() * 2)
+                        rectWidth = (canvasWidth) - (horizontalPadding.toPx() * 2) - (ScannerAimRectCornerPadding.toPx() * 2)
                         rectHeight = rectWidth
                     } else {
-                        rectWidth = canvasWidth - (horizontalPadding.toPx() * 2) - (rectToCornerPadding.toPx() * 2)
-                        rectHeight = canvasHeight - (rectToCornerPadding.toPx() * 2)
+                        rectWidth = canvasWidth - (horizontalPadding.toPx() * 2) - (ScannerAimRectCornerPadding.toPx() * 2)
+                        rectHeight = canvasHeight - (ScannerAimRectCornerPadding.toPx() * 2)
                     }
                 }
 
@@ -700,7 +700,6 @@ class OSBARCScannerActivity : ComponentActivity() {
      */
     @Composable
     fun ScanActionButtons(parameters: OSBARCScanParameters,
-                          verticalPadding: Dp,
                           scanModifier: Modifier,
                           torchModifier: Modifier) {
         
