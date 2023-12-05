@@ -443,12 +443,11 @@ class OSBARCScannerActivity : ComponentActivity() {
 
                 ScanInstructions(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = textToRectPadding),
+                        .fillMaxWidth(),
                     parameters
                 )
 
-                ScanScreenAim(screenHeight, borderPadding, 0.dp, isPhone, true)
+                ScanScreenAim(screenHeight, borderPadding, borderPadding, isPhone, true)
             }
 
             Box(
