@@ -8,6 +8,9 @@ The changes documented here do not include those from the original repository.
 
 ## [Unreleased]
 
+### 30-11-2023
+Android - Implement Scanner screen for Phones (Portrait, Landscape, Adaptive) (https://outsystemsrd.atlassian.net/browse/RMET-2770)
+
 ### 17-11-2023
 Android - Implement Scan Orientation (Portrait, Landscape, Adaptive) (https://outsystemsrd.atlassian.net/browse/RMET-2763)
 
