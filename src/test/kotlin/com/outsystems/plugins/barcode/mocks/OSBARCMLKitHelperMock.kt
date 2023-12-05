@@ -1,6 +1,6 @@
 package com.outsystems.plugins.barcode.mocks
 
-import android.media.Image
+import android.graphics.Bitmap
 import androidx.camera.core.ImageProxy
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.outsystems.plugins.barcode.controller.helper.OSBARCMLKitHelperInterface
@@ -12,9 +12,10 @@ class OSBARCMLKitHelperMock: OSBARCMLKitHelperInterface {
     var scanResult: String? = null
     var exception = false
     var barcodesEmpty = true
+
     override fun decodeImage(
         imageProxy: ImageProxy,
-        mediaImage: Image,
+        imageBitmap: Bitmap,
         onSuccess: (MutableList<Barcode>) -> Unit,
         onError: () -> Unit
     ) {

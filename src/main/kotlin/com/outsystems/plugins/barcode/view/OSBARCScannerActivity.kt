@@ -81,6 +81,7 @@ import androidx.core.view.WindowCompat
 import com.outsystems.plugins.barcode.R
 import com.outsystems.plugins.barcode.controller.OSBARCBarcodeAnalyzer
 import com.outsystems.plugins.barcode.controller.OSBARCScanLibraryFactory
+import com.outsystems.plugins.barcode.controller.helper.OSBARCImageHelper
 import com.outsystems.plugins.barcode.controller.helper.OSBARCMLKitHelper
 import com.outsystems.plugins.barcode.controller.helper.OSBARCZXingHelper
 import com.outsystems.plugins.barcode.model.OSBARCError
@@ -254,6 +255,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                                 OSBARCZXingHelper(),
                                 OSBARCMLKitHelper()
                             ),
+                            OSBARCImageHelper(),
                             { result ->
                                 processReadSuccess(result)
                             },

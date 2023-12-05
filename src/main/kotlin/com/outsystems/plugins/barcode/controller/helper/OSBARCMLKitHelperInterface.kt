@@ -7,8 +7,7 @@ import com.google.mlkit.vision.barcode.common.Barcode
 /**
  * Interface that provides the signature of the type's methods.
  */
-interface OSBARCMLKitHelperInterface {
-    fun bitmapFromImageBytes(imageBytes: ByteArray): Bitmap
+fun interface OSBARCMLKitHelperInterface {
     fun decodeImage(
         imageProxy: ImageProxy,
         imageBitmap: Bitmap,

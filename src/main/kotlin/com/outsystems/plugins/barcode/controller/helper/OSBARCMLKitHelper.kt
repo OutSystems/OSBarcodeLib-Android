@@ -1,7 +1,6 @@
 package com.outsystems.plugins.barcode.controller.helper
 
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.camera.core.ImageProxy
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
@@ -18,19 +17,6 @@ import kotlinx.coroutines.runBlocking
 class OSBARCMLKitHelper: OSBARCMLKitHelperInterface {
     companion object {
         private const val LOG_TAG = "OSBARCMLKitHelper"
-    }
-
-    /**
-     * Converts a ByteArray into a Bitmap using BitmapFactory
-     * @param imageBytes - ByteArray to convert
-     * @return the resulting bitmap.
-     */
-    override fun bitmapFromImageBytes(imageBytes: ByteArray): Bitmap {
-        return BitmapFactory.decodeByteArray(
-            imageBytes,
-            0, // use 0 in the offset to decode from the beginning of imageBytes
-            imageBytes.size // use byte array size as length because we want to decode the whole image
-        )
     }
 
     /**

@@ -9,9 +9,6 @@ class OSBARCZXingHelperMock: OSBARCZXingHelperInterface {
     var scanResult = ""
     var success = true
     var exception = false
-    override fun bitmapFromImageBytes(imageBytes: ByteArray): Bitmap {
-        return Mockito.mock(Bitmap::class.java)
-    }
 
     override fun rotateBitmap(bitmap: Bitmap, rotationDegrees: Int): Bitmap {
         return Mockito.mock(Bitmap::class.java)
