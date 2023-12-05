@@ -700,22 +700,23 @@ class OSBARCScannerActivity : ComponentActivity() {
      */
     @Composable
     fun ScanActionButtons(parameters: OSBARCScanParameters,
+                          verticalPadding: Dp,
                           scanModifier: Modifier,
                           torchModifier: Modifier) {
-        
+
+        val actionButtonsHeight = 48.dp
         val showTorch = camera.cameraInfo.hasFlashUnit()
         val showScan = parameters.scanButton
 
-        val buttonsVerticalDistance = ActionButtonsDistance
         val buttonSpacing = if(showTorch && showScan)
-        { buttonsVerticalDistance.times(0.5f) } else { buttonsVerticalDistance.times(0f) }
+        { verticalPadding.times(0.5f) } else { verticalPadding.times(0f) }
 
         // flashlight button
         if (showTorch) {
             TorchButton(
                 torchModifier
                     .padding(bottom = buttonSpacing)
-                    .size(buttonsVerticalDistance),
+                    .size(actionButtonsHeight),
             )
         }
 
@@ -724,7 +725,7 @@ class OSBARCScannerActivity : ComponentActivity() {
             ScanButton(
                 scanModifier
                     .padding(top = buttonSpacing)
-                    .height(buttonsVerticalDistance),
+                    .height(actionButtonsHeight),
                 parameters.scanText)
         }
     }
