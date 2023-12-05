@@ -65,7 +65,6 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ClipOp
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
@@ -86,6 +85,7 @@ import com.outsystems.plugins.barcode.controller.helper.OSBARCMLKitHelper
 import com.outsystems.plugins.barcode.controller.helper.OSBARCZXingHelper
 import com.outsystems.plugins.barcode.model.OSBARCError
 import com.outsystems.plugins.barcode.model.OSBARCScanParameters
+import com.outsystems.plugins.barcode.view.ui.theme.ActionButtonsDistance
 import com.outsystems.plugins.barcode.view.ui.theme.BarcodeScannerTheme
 import com.outsystems.plugins.barcode.view.ui.theme.ButtonsBackgroundGray
 import com.outsystems.plugins.barcode.view.ui.theme.ButtonsBackgroundWhite
@@ -93,7 +93,16 @@ import com.outsystems.plugins.barcode.view.ui.theme.ButtonsBorderGray
 import com.outsystems.plugins.barcode.view.ui.theme.ButtonsTextGray
 import com.outsystems.plugins.barcode.view.ui.theme.ButtonsTextWhite
 import com.outsystems.plugins.barcode.view.ui.theme.CustomGray
+import com.outsystems.plugins.barcode.view.ui.theme.NoPadding
+import com.outsystems.plugins.barcode.view.ui.theme.ScanAimWhite
+import com.outsystems.plugins.barcode.view.ui.theme.ScanButtonCornerRadius
+import com.outsystems.plugins.barcode.view.ui.theme.ScanButtonStrokeWidth
+import com.outsystems.plugins.barcode.view.ui.theme.ScanInstructionsWhite
+import com.outsystems.plugins.barcode.view.ui.theme.ScannerAimCornerLength
+import com.outsystems.plugins.barcode.view.ui.theme.ScannerAimRectCornerPadding
+import com.outsystems.plugins.barcode.view.ui.theme.ScannerAimStrokeWidth
 import com.outsystems.plugins.barcode.view.ui.theme.ScannerBackgroundBlack
+import com.outsystems.plugins.barcode.view.ui.theme.ScannerBorderPadding
 
 /**
  * This class is responsible for implementing the UI of the scanning screen using Jetpack Compose.
@@ -106,6 +115,8 @@ class OSBARCScannerActivity : ComponentActivity() {
     private var permissionRequestCount = 0
     private var showDialog by mutableStateOf(false)
     private var isScanning = false
+
+    private data class Point(val x: Float, val y: Float)
 
     companion object {
         private const val SCAN_SUCCESS_RESULT_CODE = -1
@@ -225,7 +236,7 @@ class OSBARCScannerActivity : ComponentActivity() {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .safeDrawingPadding(),
+                .safeDrawingPadding()
         ) {
             AndroidView(
                 factory = { context ->
@@ -269,7 +280,6 @@ class OSBARCScannerActivity : ComponentActivity() {
             )
 
             // actual UI on top of the camera stream
-
             val configuration = LocalConfiguration.current
             val screenHeight = configuration.screenHeightDp.dp
             val screenWidth = configuration.screenWidthDp.dp
@@ -315,12 +325,6 @@ class OSBARCScannerActivity : ComponentActivity() {
         isPortrait: Boolean
     ) {
 
-        // padding from the rectangle to each corner
-        val rectToCornerPadding = 16.dp
-        // drawing edges in each corner using lines
-        val cornerLength = 50.dp
-        // width of each border
-        val strokeWidth = 3f
 
         // the canvas includes the rectangle and its edges
         Canvas(
@@ -367,40 +371,64 @@ class OSBARCScannerActivity : ComponentActivity() {
                     drawRect(color = ScannerBackgroundBlack)
                 }
 
-                val aimTop = rectTop - rectToCornerPadding.toPx()
-                val aimLeft = rectLeft - rectToCornerPadding.toPx()
-                val aimRight = aimLeft + rectWidth + (rectToCornerPadding * 2).toPx()
-                val aimBottom = aimTop + rectHeight + (rectToCornerPadding * 2).toPx()
-                val aimLength = cornerLength.toPx()
+                val aimTop = rectTop - ScannerAimRectCornerPadding.toPx()
+                val aimLeft = rectLeft - ScannerAimRectCornerPadding.toPx()
+                val aimRight = aimLeft + rectWidth + (ScannerAimRectCornerPadding * 2).toPx()
+                val aimBottom = aimTop + rectHeight + (ScannerAimRectCornerPadding * 2).toPx()
+                val aimLength = ScannerAimCornerLength.toPx()
 
                 val aimPath = Path()
                 // top left
-                aimPath.moveTo(aimLeft + aimLength, aimTop)
-                aimPath.lineTo(aimLeft + radius, aimTop)
-                aimPath.quadraticBezierTo(aimLeft, aimTop, aimLeft, aimTop + radius)
-                aimPath.lineTo(aimLeft, aimTop + aimLength)
-
+                AddCornerToAimPath(
+                    aimPath,
+                    Point(aimLeft + aimLength, aimTop),
+                    Point(aimLeft + radius, aimTop),
+                    Point(aimLeft, aimTop),
+                    Point(aimLeft, aimTop + radius),
+                    Point(aimLeft, aimTop + aimLength)
+                )
                 // bottom left
-                aimPath.moveTo(aimLeft, aimBottom - aimLength)
-                aimPath.lineTo(aimLeft, aimBottom - radius)
-                aimPath.quadraticBezierTo(aimLeft, aimBottom, aimLeft + radius, aimBottom)
-                aimPath.lineTo(aimLeft + aimLength, aimBottom)
-
+                AddCornerToAimPath(
+                    aimPath,
+                    Point(aimLeft, aimBottom - aimLength),
+                    Point(aimLeft, aimBottom - radius),
+                    Point(aimLeft, aimBottom),
+                    Point(aimLeft + radius, aimBottom),
+                    Point(aimLeft + aimLength, aimBottom)
+                )
                 // bottom right
-                aimPath.moveTo(aimRight - aimLength, aimBottom)
-                aimPath.lineTo(aimRight - radius, aimBottom)
-                aimPath.quadraticBezierTo(aimRight, aimBottom, aimRight, aimBottom - radius)
-                aimPath.lineTo(aimRight, aimBottom - aimLength)
-
+                AddCornerToAimPath(
+                    aimPath,
+                    Point(aimRight - aimLength, aimBottom),
+                    Point(aimRight - radius, aimBottom),
+                    Point(aimRight, aimBottom),
+                    Point(aimRight, aimBottom - radius),
+                    Point(aimRight, aimBottom - aimLength)
+                )
                 // top right
-                aimPath.moveTo(aimRight, aimTop + aimLength)
-                aimPath.lineTo(aimRight, aimTop + radius)
-                aimPath.quadraticBezierTo(aimRight, aimTop, aimRight - radius, aimTop)
-                aimPath.lineTo(aimRight - aimLength, aimTop)
-
-                drawPath(aimPath, color = Color.White, style = Stroke(width = strokeWidth))
+                AddCornerToAimPath(
+                    aimPath,
+                    Point(aimRight, aimTop + aimLength),
+                    Point(aimRight, aimTop + radius),
+                    Point(aimRight, aimTop),
+                    Point(aimRight - radius, aimTop),
+                    Point(aimRight - aimLength, aimTop)
+                )
+                drawPath(aimPath, color = ScanAimWhite, style = Stroke(width = ScannerAimStrokeWidth))
             }
         )
+    }
+
+    private fun AddCornerToAimPath(path: Path,
+                                   startPoint: Point,
+                                   startCornerPoint: Point,
+                                   controlPoint: Point,
+                                   endCornerPoint: Point,
+                                   endPoint: Point) {
+        path.moveTo(startPoint.x, startPoint.y)
+        path.lineTo(startCornerPoint.x, startCornerPoint.y)
+        path.quadraticBezierTo(controlPoint.x, controlPoint.y, endCornerPoint.x, endCornerPoint.y)
+        path.lineTo(endPoint.x, endPoint.y)
     }
 
     /**
@@ -428,7 +456,7 @@ class OSBARCScannerActivity : ComponentActivity() {
             ) {
                 CloseButton(
                     modifier = Modifier
-                        .padding(top = borderPadding, end = borderPadding)
+                        .padding(top = ScannerBorderPadding, end = ScannerBorderPadding)
                         .align(Alignment.TopEnd)
                 )
             }
@@ -457,12 +485,12 @@ class OSBARCScannerActivity : ComponentActivity() {
             ) {
                 ScanActionButtons(
                     parameters,
-                    0f.dp,
+                    NoPadding,
                     scanModifier = Modifier
-                        .padding(bottom = borderPadding)
+                        .padding(bottom = ScannerBorderPadding)
                         .align(Alignment.BottomCenter),
                     torchModifier = Modifier
-                        .padding(bottom = borderPadding, end = borderPadding)
+                        .padding(bottom = ScannerBorderPadding, end = ScannerBorderPadding)
                         .align(Alignment.BottomEnd)
                 )
             }
@@ -514,11 +542,11 @@ class OSBARCScannerActivity : ComponentActivity() {
                 ScanInstructions(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = borderPadding, bottom = if (isPhone) 0.dp else textToRectPadding),
+                        .padding(top = borderPadding, bottom = if (isPhone) NoPadding else textToRectPadding),
                     parameters
                 )
 
-                ScanScreenAim(screenHeight, 0.dp, borderPadding, isPhone, isPortrait)
+                ScanScreenAim(screenHeight, NoPadding, borderPadding, isPhone, isPortrait)
 
                 Box(
                     modifier = Modifier
@@ -526,7 +554,6 @@ class OSBARCScannerActivity : ComponentActivity() {
                         .weight(1f, fill = true)
                         .background(ScannerBackgroundBlack)
                 )
-
 
             }
 
@@ -539,19 +566,19 @@ class OSBARCScannerActivity : ComponentActivity() {
 
                 CloseButton(
                     modifier = Modifier
-                        .padding(top = borderPadding, end = borderPadding)
+                        .padding(top = ScannerBorderPadding, end = ScannerBorderPadding)
                         .align(Alignment.TopEnd)
                 )
 
                 Column(
                     modifier = Modifier
-                        .padding(end = borderPadding)
+                        .padding(end = ScannerBorderPadding)
                         .align(Alignment.CenterEnd),
                     verticalArrangement = Arrangement.Center
                 ) {
                     ScanActionButtons(
                         parameters,
-                        borderPadding,
+                        ScannerBorderPadding,
                         scanModifier = Modifier
                             .align(Alignment.End),
                         torchModifier = Modifier
@@ -627,8 +654,8 @@ class OSBARCScannerActivity : ComponentActivity() {
             colors = ButtonDefaults.buttonColors(
                 containerColor = backgroundColor
             ),
-            shape = RoundedCornerShape(4.dp),
-            border = BorderStroke(width = 1.dp, color = ButtonsBorderGray),
+            shape = RoundedCornerShape(ScanButtonCornerRadius),
+            border = BorderStroke(width = ScanButtonStrokeWidth, color = ButtonsBorderGray),
             modifier = modifier
         ) {
             Text(
@@ -655,7 +682,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                 Text(
                     text = parameters.scanInstructions,
                     modifier = modifier,
-                    color = Color.White,
+                    color = ScanInstructionsWhite,
                     textAlign = TextAlign.Center
                 )
             }
@@ -676,20 +703,20 @@ class OSBARCScannerActivity : ComponentActivity() {
                           verticalPadding: Dp,
                           scanModifier: Modifier,
                           torchModifier: Modifier) {
-
-        val actionButtonsHeight = 48.dp
+        
         val showTorch = camera.cameraInfo.hasFlashUnit()
         val showScan = parameters.scanButton
 
+        val buttonsVerticalDistance = ActionButtonsDistance
         val buttonSpacing = if(showTorch && showScan)
-        { verticalPadding.times(0.5f) } else { verticalPadding.times(0f) }
+        { buttonsVerticalDistance.times(0.5f) } else { buttonsVerticalDistance.times(0f) }
 
         // flashlight button
         if (showTorch) {
             TorchButton(
                 torchModifier
                     .padding(bottom = buttonSpacing)
-                    .size(actionButtonsHeight),
+                    .size(buttonsVerticalDistance),
             )
         }
 
@@ -698,7 +725,7 @@ class OSBARCScannerActivity : ComponentActivity() {
             ScanButton(
                 scanModifier
                     .padding(top = buttonSpacing)
-                    .height(actionButtonsHeight),
+                    .height(buttonsVerticalDistance),
                 parameters.scanText)
         }
     }
