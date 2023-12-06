@@ -9,8 +9,8 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import com.outsystems.plugins.barcode.controller.helper.OSBARCImageHelperInterface
 import com.outsystems.plugins.barcode.model.OSBARCError
-import com.outsystems.plugins.barcode.view.ui.theme.sizeRatioHeight
-import com.outsystems.plugins.barcode.view.ui.theme.sizeRatioWidth
+import com.outsystems.plugins.barcode.view.ui.theme.SizeRatioHeight
+import com.outsystems.plugins.barcode.view.ui.theme.SizeRatioWidth
 import java.io.ByteArrayOutputStream
 import java.lang.Exception
 import java.nio.ByteBuffer
@@ -120,11 +120,11 @@ class OSBARCBarcodeAnalyzer(
 
         if (isPortrait) {
             // for portrait, the image is rotated
-            rectWidth = (bitmap.height * sizeRatioWidth).toInt()
+            rectWidth = (bitmap.height * SizeRatioWidth).toInt()
             rectHeight = rectWidth
         } else {
-            rectWidth = (bitmap.width * sizeRatioWidth).toInt()
-            rectHeight = (bitmap.height * sizeRatioHeight).toInt()
+            rectWidth = (bitmap.width * SizeRatioWidth).toInt()
+            rectHeight = (bitmap.height * SizeRatioHeight).toInt()
         }
 
         val rectLeft = (bitmap.width - rectWidth) / 2
