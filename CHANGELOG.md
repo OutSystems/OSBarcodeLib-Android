@@ -8,6 +8,12 @@ The changes documented here do not include those from the original repository.
 
 ## [Unreleased]
 
+### 06-12-2023
+Android - Implement scanning only the frame area (Portrait, Landscape, Adaptive) (https://outsystemsrd.atlassian.net/browse/RMET-2912)
+
+### 06-12-2023
+Android - Implement Scanner screen for Tablets (Portrait, Landscape, Adaptive) (https://outsystemsrd.atlassian.net/browse/RMET-2912)
+
 ### 30-11-2023
 Android - Implement Scanner screen for Phones (Portrait, Landscape, Adaptive) (https://outsystemsrd.atlassian.net/browse/RMET-2770)
 
