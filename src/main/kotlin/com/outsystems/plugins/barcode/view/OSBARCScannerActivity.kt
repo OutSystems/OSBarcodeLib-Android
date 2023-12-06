@@ -288,34 +288,40 @@ class OSBARCScannerActivity : ComponentActivity() {
                 modifier = Modifier.fillMaxSize()
             )
 
-            // actual UI on top of the camera stream
-            val configuration = LocalConfiguration.current
-            screenHeight = configuration.screenHeightDp.dp
-            screenWidth = configuration.screenWidthDp.dp
+            ScanScreenUI(parameters, windowSizeClass)
 
-            val borderPadding = 32.dp
-            val textToRectPadding = 24.dp
+        }
+    }
 
-            val isPortrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
+    @Composable
+    fun ScanScreenUI(parameters: OSBARCScanParameters, windowSizeClass: WindowSizeClass) {
+        // actual UI on top of the camera stream
+        val configuration = LocalConfiguration.current
+        screenHeight = configuration.screenHeightDp.dp
+        screenWidth = configuration.screenWidthDp.dp
 
-            if (isPortrait) {
-                // determine if device is phone or tablet
-                val isPhone = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact
-                if (isPhone) {
-                    ScanScreenUIPortrait(parameters, screenWidth, borderPadding, true)
-                }
-                else {
-                    ScanScreenUILandscape(parameters, (screenWidth / 2), borderPadding, textToRectPadding, isPhone = false, isPortrait = true)
-                }
+        val borderPadding = 32.dp
+        val textToRectPadding = 24.dp
+
+        val isPortrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
+
+        if (isPortrait) {
+            // determine if device is phone or tablet
+            val isPhone = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact
+            if (isPhone) {
+                ScanScreenUIPortrait(parameters, screenWidth, borderPadding, true)
             }
             else {
-                // determine if device is phone or tablet
-                val isPhone = windowSizeClass.heightSizeClass == WindowHeightSizeClass.Compact
-                if (isPhone) {
-                    ScanScreenUILandscape(parameters, screenHeight, borderPadding, textToRectPadding, isPhone = true, isPortrait = false)
-                } else {
-                    ScanScreenUILandscape(parameters, screenHeight / 2, borderPadding, textToRectPadding, isPhone = false, isPortrait = false)
-                }
+                ScanScreenUILandscape(parameters, (screenWidth / 2), borderPadding, textToRectPadding, isPhone = false, isPortrait = true)
+            }
+        }
+        else {
+            // determine if device is phone or tablet
+            val isPhone = windowSizeClass.heightSizeClass == WindowHeightSizeClass.Compact
+            if (isPhone) {
+                ScanScreenUILandscape(parameters, screenHeight, borderPadding, textToRectPadding, isPhone = true, isPortrait = false)
+            } else {
+                ScanScreenUILandscape(parameters, screenHeight / 2, borderPadding, textToRectPadding, isPhone = false, isPortrait = false)
             }
         }
     }
