@@ -86,6 +86,7 @@ import com.outsystems.plugins.barcode.controller.helper.OSBARCMLKitHelper
 import com.outsystems.plugins.barcode.controller.helper.OSBARCZXingHelper
 import com.outsystems.plugins.barcode.model.OSBARCError
 import com.outsystems.plugins.barcode.model.OSBARCScanParameters
+import com.outsystems.plugins.barcode.view.ui.theme.ActionButtonsDistance
 import com.outsystems.plugins.barcode.view.ui.theme.BarcodeScannerTheme
 import com.outsystems.plugins.barcode.view.ui.theme.ButtonsBackgroundGray
 import com.outsystems.plugins.barcode.view.ui.theme.ButtonsBackgroundWhite
@@ -714,7 +715,6 @@ class OSBARCScannerActivity : ComponentActivity() {
                           scanModifier: Modifier,
                           torchModifier: Modifier) {
 
-        val actionButtonsHeight = 48.dp
         val showTorch = camera.cameraInfo.hasFlashUnit()
         val showScan = parameters.scanButton
 
@@ -726,7 +726,7 @@ class OSBARCScannerActivity : ComponentActivity() {
             TorchButton(
                 torchModifier
                     .padding(bottom = buttonSpacing)
-                    .size(actionButtonsHeight),
+                    .size(ActionButtonsDistance),
             )
         }
 
@@ -735,7 +735,7 @@ class OSBARCScannerActivity : ComponentActivity() {
             ScanButton(
                 scanModifier
                     .padding(top = buttonSpacing)
-                    .height(actionButtonsHeight),
+                    .height(ActionButtonsDistance),
                 parameters.scanText)
         }
     }
