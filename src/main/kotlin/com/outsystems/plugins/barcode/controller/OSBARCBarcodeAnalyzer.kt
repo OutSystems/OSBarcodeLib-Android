@@ -40,13 +40,9 @@ class OSBARCBarcodeAnalyzer(
      */
     override fun analyze(image: ImageProxy) {
         try {
-
-            val bitmap = imageProxyToBitmap(image)
-            val croppedBitmap = cropBitmap(bitmap)
-
             scanLibrary.scanBarcode(
                 image,
-                croppedBitmap,
+                cropBitmap(imageProxyToBitmap(image)),
                 {
                     onBarcodeScanned(it)
                 },
