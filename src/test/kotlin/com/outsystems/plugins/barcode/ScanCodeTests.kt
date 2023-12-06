@@ -380,6 +380,46 @@ class ScanCodeTests {
     }
 
     @Test
+    fun givenScanPhoneInPortraitWhenScanBarcodeThenSuccess() {
+        val scanLibMock = OSBARCScanLibraryMock().apply {
+            success = true
+            resultCode = RESULT_CODE
+        }
+        OSBARCBarcodeAnalyzer(
+            scanLibMock,
+            imageHelperMock,
+            {
+                assertEquals(RESULT_CODE, it)
+            },
+            {
+                fail()
+            }
+        ).apply {
+            isPortrait = true
+        }.analyze(mockImageProxy)
+    }
+
+    @Test
+    fun givenScanPhoneInLandscapeWhenScanBarcodeThenSuccess() {
+        val scanLibMock = OSBARCScanLibraryMock().apply {
+            success = true
+            resultCode = RESULT_CODE
+        }
+        OSBARCBarcodeAnalyzer(
+            scanLibMock,
+            imageHelperMock,
+            {
+                assertEquals(RESULT_CODE, it)
+            },
+            {
+                fail()
+            }
+        ).apply {
+            isPortrait = false
+        }.analyze(mockImageProxy)
+    }
+
+    @Test
     fun givenImage90DegreesWhenZXingScanThenSuccess() {
         val wrapper = OSBARCScanLibraryFactory.createScanLibraryWrapper(
             "zxing",
