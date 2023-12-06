@@ -86,7 +86,6 @@ import com.outsystems.plugins.barcode.controller.helper.OSBARCMLKitHelper
 import com.outsystems.plugins.barcode.controller.helper.OSBARCZXingHelper
 import com.outsystems.plugins.barcode.model.OSBARCError
 import com.outsystems.plugins.barcode.model.OSBARCScanParameters
-import com.outsystems.plugins.barcode.view.ui.theme.ActionButtonsDistance
 import com.outsystems.plugins.barcode.view.ui.theme.BarcodeScannerTheme
 import com.outsystems.plugins.barcode.view.ui.theme.ButtonsBackgroundGray
 import com.outsystems.plugins.barcode.view.ui.theme.ButtonsBackgroundWhite
@@ -116,6 +115,11 @@ class OSBARCScannerActivity : ComponentActivity() {
     private var permissionRequestCount = 0
     private var showDialog by mutableStateOf(false)
     private var isScanning = false
+
+    private lateinit var barcodeAnalyzer: OSBARCBarcodeAnalyzer
+
+    private var screenHeight: Dp = 0.dp
+    private var screenWidth: Dp = 0.dp
 
     private data class Point(val x: Float, val y: Float)
 
@@ -149,6 +153,21 @@ class OSBARCScannerActivity : ComponentActivity() {
         selector = CameraSelector.Builder()
             .requireLensFacing(if (parameters.cameraDirection == CAM_DIRECTION_FRONT) CameraSelector.LENS_FACING_FRONT else CameraSelector.LENS_FACING_BACK)
             .build()
+
+        barcodeAnalyzer = OSBARCBarcodeAnalyzer(
+            OSBARCScanLibraryFactory.createScanLibraryWrapper(
+                parameters.androidScanningLibrary ?: "",
+                OSBARCZXingHelper(),
+                OSBARCMLKitHelper()
+            ),
+            OSBARCImageHelper(),
+            { result ->
+                processReadSuccess(result)
+            },
+            {
+                processReadError(it)
+            }
+        )
 
         setContent {
 
@@ -249,20 +268,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                         .build()
                     imageAnalysis.setAnalyzer(
                         ContextCompat.getMainExecutor(context),
-                        OSBARCBarcodeAnalyzer(
-                            OSBARCScanLibraryFactory.createScanLibraryWrapper(
-                                parameters.androidScanningLibrary ?: "",
-                                OSBARCZXingHelper(),
-                                OSBARCMLKitHelper()
-                            ),
-                            OSBARCImageHelper(),
-                            { result ->
-                                processReadSuccess(result)
-                            },
-                            {
-                                processReadError(it)
-                            }
-                        )
+                        barcodeAnalyzer
                     )
                     try {
                         camera = cameraProviderFuture.get().bindToLifecycle(
@@ -283,8 +289,8 @@ class OSBARCScannerActivity : ComponentActivity() {
 
             // actual UI on top of the camera stream
             val configuration = LocalConfiguration.current
-            val screenHeight = configuration.screenHeightDp.dp
-            val screenWidth = configuration.screenWidthDp.dp
+            screenHeight = configuration.screenHeightDp.dp
+            screenWidth = configuration.screenWidthDp.dp
 
             val borderPadding = 32.dp
             val textToRectPadding = 24.dp
@@ -360,6 +366,8 @@ class OSBARCScannerActivity : ComponentActivity() {
 
                 val rectLeft = (canvasWidth - rectWidth) / 2
                 val rectTop = (canvasHeight - rectHeight) / 2
+
+                barcodeAnalyzer.isPortrait = isPortrait
 
                 val circlePath = Path().apply {
                     addRoundRect(
@@ -441,7 +449,7 @@ class OSBARCScannerActivity : ComponentActivity() {
      */
     @Composable
     fun ScanScreenUIPortrait(parameters: OSBARCScanParameters,
-                             screenHeight:Dp,
+                             screenHeight: Dp,
                              borderPadding: Dp,
                              isPhone: Boolean) {
         Column(

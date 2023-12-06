@@ -8,4 +8,14 @@ class OSBARCImageHelperMock: OSBARCImageHelperInterface {
     override fun bitmapFromImageBytes(imageBytes: ByteArray): Bitmap {
         return Mockito.mock(Bitmap::class.java)
     }
+
+    override fun createSubsetBitmapFromSource(
+        source: Bitmap,
+        rectLeft: Int,
+        rectTop: Int,
+        rectWidth: Int,
+        rectHeight: Int
+    ): Bitmap {
+        return Mockito.mock(Bitmap::class.java)
+    }
 }

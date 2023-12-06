@@ -21,4 +21,30 @@ class OSBARCImageHelper: OSBARCImageHelperInterface {
             imageBytes.size // use byte array size as length because we want to decode the whole image
         )
     }
+
+    /**
+     * Creates a bitmap that is a subset of the source bitmap,
+     * using the specified coordinates and size.
+     * @param source - Source bitmap to use.
+     * @param rectLeft - X coordinate where the bitmap starts.
+     * @param rectTop - Y coordinate where the bitmap starts.
+     * @param rectWidth - Width of the bitmap.
+     * @param rectHeight - Height of the bitmap.
+     * @return the resulting bitmap.
+     */
+    override fun createSubsetBitmapFromSource(
+        source: Bitmap,
+        rectLeft: Int,
+        rectTop: Int,
+        rectWidth: Int,
+        rectHeight: Int
+    ): Bitmap {
+        return Bitmap.createBitmap(
+            source,
+            rectLeft,
+            rectTop,
+            rectWidth,
+            rectHeight
+        )
+    }
 }
