@@ -40,19 +40,17 @@ class OSBARCMLKitHelper: OSBARCMLKitHelperInterface {
             imageBitmap,
             imageProxy.imageInfo.rotationDegrees
         )
-        runBlocking {
-            scanner.process(image)
-                .addOnSuccessListener { barcodes ->
-                    onSuccess(barcodes)
-                }
-                .addOnFailureListener { e ->
-                    e.message?.let { Log.e(LOG_TAG, it) }
-                    onError()
-                }
-                .addOnCompleteListener {
-                    imageProxy.close()
-                }
-        }
+        scanner.process(image)
+            .addOnSuccessListener { barcodes ->
+                onSuccess(barcodes)
+            }
+            .addOnFailureListener { e ->
+                e.message?.let { Log.e(LOG_TAG, it) }
+                onError()
+            }
+            .addOnCompleteListener {
+                imageProxy.close()
+            }
     }
 
 }
