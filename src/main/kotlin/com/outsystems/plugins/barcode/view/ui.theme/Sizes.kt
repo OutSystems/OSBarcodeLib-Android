@@ -14,5 +14,5 @@ val ScanButtonCornerRadius = 4f.dp
 val ScanButtonStrokeWidth = 1f.dp
 val ActionButtonsDistance = 48f.dp
 
-val SizeRatioWidth = 0.6
-val SizeRatioHeight = 0.5
+const val SizeRatioWidth = 0.6
+const val SizeRatioHeight = 0.5

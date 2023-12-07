@@ -193,6 +193,8 @@ class OSBARCScannerActivity : ComponentActivity() {
     /**
      * Composable function, responsible for declaring the UI of the screen,
      * as well as creating an instance of OSBARCBarcodeAnalyzer for image analysis.
+     * @param parameters the scan parameters
+     * @param windowSizeClass WindowSizeClass object to determine device type - phone or tablet
      */
     @Composable
     fun ScanScreen(parameters: OSBARCScanParameters, windowSizeClass: WindowSizeClass) {
@@ -294,6 +296,12 @@ class OSBARCScannerActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * Composable function, responsible for determining which UI
+     * should be rendered: portrait or landscape
+     * @param parameters the scan parameters
+     * @param windowSizeClass WindowSizeClass object to determine device type - phone or tablet
+     */
     @Composable
     fun ScanScreenUI(parameters: OSBARCScanParameters, windowSizeClass: WindowSizeClass) {
         // actual UI on top of the camera stream
