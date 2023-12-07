@@ -4,6 +4,7 @@ import androidx.compose.ui.unit.dp
 
 val NoPadding = 0f.dp
 val ScannerBorderPadding = 32f.dp
+val TextToRectPadding = 24f.dp
 
 val ScannerAimRectCornerPadding = 16f.dp
 val ScannerAimCornerLength = 50f.dp

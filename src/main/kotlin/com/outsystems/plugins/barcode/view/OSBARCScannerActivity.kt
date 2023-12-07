@@ -104,6 +104,7 @@ import com.outsystems.plugins.barcode.view.ui.theme.ScannerAimRectCornerPadding
 import com.outsystems.plugins.barcode.view.ui.theme.ScannerAimStrokeWidth
 import com.outsystems.plugins.barcode.view.ui.theme.ScannerBackgroundBlack
 import com.outsystems.plugins.barcode.view.ui.theme.ScannerBorderPadding
+import com.outsystems.plugins.barcode.view.ui.theme.TextToRectPadding
 
 /**
  * This class is responsible for implementing the UI of the scanning screen using Jetpack Compose.
@@ -300,28 +301,25 @@ class OSBARCScannerActivity : ComponentActivity() {
         screenHeight = configuration.screenHeightDp.dp
         screenWidth = configuration.screenWidthDp.dp
 
-        val borderPadding = 32.dp
-        val textToRectPadding = 24.dp
-
         val isPortrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
 
         if (isPortrait) {
             // determine if device is phone or tablet
             val isPhone = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact
             if (isPhone) {
-                ScanScreenUIPortrait(parameters, screenWidth, borderPadding, true)
+                ScanScreenUIPortrait(parameters, screenWidth, ScannerBorderPadding, true)
             }
             else {
-                ScanScreenUILandscape(parameters, (screenWidth / 2), borderPadding, textToRectPadding, isPhone = false, isPortrait = true)
+                ScanScreenUILandscape(parameters, (screenWidth / 2), ScannerBorderPadding, TextToRectPadding, isPhone = false, isPortrait = true)
             }
         }
         else {
             // determine if device is phone or tablet
             val isPhone = windowSizeClass.heightSizeClass == WindowHeightSizeClass.Compact
             if (isPhone) {
-                ScanScreenUILandscape(parameters, screenHeight, borderPadding, textToRectPadding, isPhone = true, isPortrait = false)
+                ScanScreenUILandscape(parameters, screenHeight, ScannerBorderPadding, TextToRectPadding, isPhone = true, isPortrait = false)
             } else {
-                ScanScreenUILandscape(parameters, screenHeight / 2, borderPadding, textToRectPadding, isPhone = false, isPortrait = false)
+                ScanScreenUILandscape(parameters, screenHeight / 2, ScannerBorderPadding, TextToRectPadding, isPhone = false, isPortrait = false)
             }
         }
     }
@@ -396,7 +394,7 @@ class OSBARCScannerActivity : ComponentActivity() {
 
                 val aimPath = Path()
                 // top left
-                AddCornerToAimPath(
+                addCornerToAimPath(
                     aimPath,
                     Point(aimLeft + aimLength, aimTop),
                     Point(aimLeft + radius, aimTop),
@@ -405,7 +403,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                     Point(aimLeft, aimTop + aimLength)
                 )
                 // bottom left
-                AddCornerToAimPath(
+                addCornerToAimPath(
                     aimPath,
                     Point(aimLeft, aimBottom - aimLength),
                     Point(aimLeft, aimBottom - radius),
@@ -414,7 +412,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                     Point(aimLeft + aimLength, aimBottom)
                 )
                 // bottom right
-                AddCornerToAimPath(
+                addCornerToAimPath(
                     aimPath,
                     Point(aimRight - aimLength, aimBottom),
                     Point(aimRight - radius, aimBottom),
@@ -423,7 +421,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                     Point(aimRight, aimBottom - aimLength)
                 )
                 // top right
-                AddCornerToAimPath(
+                addCornerToAimPath(
                     aimPath,
                     Point(aimRight, aimTop + aimLength),
                     Point(aimRight, aimTop + radius),
@@ -436,7 +434,7 @@ class OSBARCScannerActivity : ComponentActivity() {
         )
     }
 
-    private fun AddCornerToAimPath(path: Path,
+    private fun addCornerToAimPath(path: Path,
                                    startPoint: Point,
                                    startCornerPoint: Point,
                                    controlPoint: Point,
