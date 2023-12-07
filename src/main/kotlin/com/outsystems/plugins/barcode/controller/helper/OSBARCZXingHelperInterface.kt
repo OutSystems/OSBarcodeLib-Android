@@ -6,7 +6,6 @@ import android.graphics.Bitmap
  * Interface that provides the signature of the type's methods.
  */
 interface OSBARCZXingHelperInterface {
-    fun bitmapFromImageBytes(imageBytes: ByteArray): Bitmap
     fun rotateBitmap(bitmap: Bitmap, rotationDegrees: Int): Bitmap
     fun decodeImage(
         pixels: IntArray,

@@ -1,7 +1,6 @@
 package com.outsystems.plugins.barcode.controller.helper
 
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.util.Log
 import com.google.zxing.BinaryBitmap
@@ -20,19 +19,6 @@ class OSBARCZXingHelper: OSBARCZXingHelperInterface {
 
     companion object {
         private const val LOG_TAG = "OSBARCZXingHelper"
-    }
-
-    /**
-     * Converts a ByteArray into a Bitmap using BitmapFactory
-     * @param imageBytes - ByteArray to convert
-     * @return the resulting bitmap.
-     */
-    override fun bitmapFromImageBytes(imageBytes: ByteArray): Bitmap {
-        return BitmapFactory.decodeByteArray(
-            imageBytes,
-            0, // use 0 in the offset to decode from the beginning of imageBytes
-            imageBytes.size // use byte array size as length because we want to decode the whole image
-        )
     }
 
     /**

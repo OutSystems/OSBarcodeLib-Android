@@ -46,6 +46,11 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
@@ -76,6 +81,7 @@ import androidx.core.view.WindowCompat
 import com.outsystems.plugins.barcode.R
 import com.outsystems.plugins.barcode.controller.OSBARCBarcodeAnalyzer
 import com.outsystems.plugins.barcode.controller.OSBARCScanLibraryFactory
+import com.outsystems.plugins.barcode.controller.helper.OSBARCImageHelper
 import com.outsystems.plugins.barcode.controller.helper.OSBARCMLKitHelper
 import com.outsystems.plugins.barcode.controller.helper.OSBARCZXingHelper
 import com.outsystems.plugins.barcode.model.OSBARCError
@@ -98,6 +104,7 @@ import com.outsystems.plugins.barcode.view.ui.theme.ScannerAimRectCornerPadding
 import com.outsystems.plugins.barcode.view.ui.theme.ScannerAimStrokeWidth
 import com.outsystems.plugins.barcode.view.ui.theme.ScannerBackgroundBlack
 import com.outsystems.plugins.barcode.view.ui.theme.ScannerBorderPadding
+import com.outsystems.plugins.barcode.view.ui.theme.TextToRectPadding
 
 /**
  * This class is responsible for implementing the UI of the scanning screen using Jetpack Compose.
@@ -110,6 +117,11 @@ class OSBARCScannerActivity : ComponentActivity() {
     private var permissionRequestCount = 0
     private var showDialog by mutableStateOf(false)
     private var isScanning = false
+
+    private lateinit var barcodeAnalyzer: OSBARCBarcodeAnalyzer
+
+    private var screenHeight: Dp = 0.dp
+    private var screenWidth: Dp = 0.dp
 
     private data class Point(val x: Float, val y: Float)
 
@@ -126,6 +138,7 @@ class OSBARCScannerActivity : ComponentActivity() {
     /**
      * Overrides the onCreate method from Activity, setting the UI of the screen
      */
+    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -143,9 +156,29 @@ class OSBARCScannerActivity : ComponentActivity() {
             .requireLensFacing(if (parameters.cameraDirection == CAM_DIRECTION_FRONT) CameraSelector.LENS_FACING_FRONT else CameraSelector.LENS_FACING_BACK)
             .build()
 
+        barcodeAnalyzer = OSBARCBarcodeAnalyzer(
+            OSBARCScanLibraryFactory.createScanLibraryWrapper(
+                parameters.androidScanningLibrary ?: "",
+                OSBARCZXingHelper(),
+                OSBARCMLKitHelper()
+            ),
+            OSBARCImageHelper(),
+            { result ->
+                processReadSuccess(result)
+            },
+            {
+                processReadError(it)
+            }
+        )
+
         setContent {
+
+            // to know if device is phone or tablet
+            // more info: https://developer.android.com/guide/topics/large-screens/support-different-screen-sizes#window_size_classes
+            val windowSizeClass = calculateWindowSizeClass(this)
+
             BarcodeScannerTheme {
-                ScanScreen(parameters)
+                ScanScreen(parameters, windowSizeClass)
             }
         }
 
@@ -160,9 +193,11 @@ class OSBARCScannerActivity : ComponentActivity() {
     /**
      * Composable function, responsible for declaring the UI of the screen,
      * as well as creating an instance of OSBARCBarcodeAnalyzer for image analysis.
+     * @param parameters the scan parameters
+     * @param windowSizeClass WindowSizeClass object to determine device type - phone or tablet
      */
     @Composable
-    fun ScanScreen(parameters: OSBARCScanParameters) {
+    fun ScanScreen(parameters: OSBARCScanParameters, windowSizeClass: WindowSizeClass) {
         val lifecycleOwner = LocalLifecycleOwner.current
         val context = LocalContext.current
         var permissionGiven by remember { mutableStateOf(true) }
@@ -237,19 +272,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                         .build()
                     imageAnalysis.setAnalyzer(
                         ContextCompat.getMainExecutor(context),
-                        OSBARCBarcodeAnalyzer(
-                            OSBARCScanLibraryFactory.createScanLibraryWrapper(
-                                parameters.androidScanningLibrary ?: "",
-                                OSBARCZXingHelper(),
-                                OSBARCMLKitHelper()
-                            ),
-                            { result ->
-                                processReadSuccess(result)
-                            },
-                            {
-                                processReadError(it)
-                            }
-                        )
+                        barcodeAnalyzer
                     )
                     try {
                         camera = cameraProviderFuture.get().bindToLifecycle(
@@ -268,18 +291,43 @@ class OSBARCScannerActivity : ComponentActivity() {
                 modifier = Modifier.fillMaxSize()
             )
 
-            // actual UI on top of the camera stream
-            val configuration = LocalConfiguration.current
-            val screenHeight = configuration.screenHeightDp.dp
-            val screenWidth = configuration.screenWidthDp.dp
+            ScanScreenUI(parameters, windowSizeClass)
 
-            val isPortrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
+        }
+    }
 
-            if (isPortrait) {
-                ScanScreenUIPortrait(parameters, screenWidth)
+    /**
+     * Composable function, responsible for determining which UI
+     * should be rendered: portrait or landscape
+     * @param parameters the scan parameters
+     * @param windowSizeClass WindowSizeClass object to determine device type - phone or tablet
+     */
+    @Composable
+    fun ScanScreenUI(parameters: OSBARCScanParameters, windowSizeClass: WindowSizeClass) {
+        // actual UI on top of the camera stream
+        val configuration = LocalConfiguration.current
+        screenHeight = configuration.screenHeightDp.dp
+        screenWidth = configuration.screenWidthDp.dp
+
+        val isPortrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
+
+        if (isPortrait) {
+            // determine if device is phone or tablet
+            val isPhone = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact
+            if (isPhone) {
+                ScanScreenUIPortrait(parameters, screenWidth, ScannerBorderPadding, true)
             }
             else {
-                ScanScreenUILandscape(parameters, screenHeight)
+                ScanScreenUILandscape(parameters, (screenWidth / 2), ScannerBorderPadding, TextToRectPadding, isPhone = false, isPortrait = true)
+            }
+        }
+        else {
+            // determine if device is phone or tablet
+            val isPhone = windowSizeClass.heightSizeClass == WindowHeightSizeClass.Compact
+            if (isPhone) {
+                ScanScreenUILandscape(parameters, screenHeight, ScannerBorderPadding, TextToRectPadding, isPhone = true, isPortrait = false)
+            } else {
+                ScanScreenUILandscape(parameters, screenHeight / 2, ScannerBorderPadding, TextToRectPadding, isPhone = false, isPortrait = false)
             }
         }
     }
@@ -292,7 +340,11 @@ class OSBARCScannerActivity : ComponentActivity() {
      * @param verticalPadding the vertical padding for the whole view
      */
     @Composable
-    fun ScanScreenAim(height: Dp, horizontalPadding: Dp, verticalPadding: Dp) {
+    fun ScanScreenAim(
+        height: Dp, horizontalPadding: Dp, verticalPadding: Dp,
+        isPhone: Boolean,
+        isPortrait: Boolean
+    ) {
 
 
         // the canvas includes the rectangle and its edges
@@ -309,10 +361,26 @@ class OSBARCScannerActivity : ComponentActivity() {
 
                 // rectangle size is determined by removing the padding from the border of the screen
                 // and the padding to the corners of the rectangle
-                val rectWidth = canvasWidth - (horizontalPadding.toPx() * 2) - (ScannerAimRectCornerPadding.toPx() * 2)
-                val rectHeight = canvasHeight - (verticalPadding.toPx() * 2) - (ScannerAimRectCornerPadding.toPx() * 2)
+                var rectWidth: Float
+                var rectHeight: Float
+
+                if (isPhone) { // for phones
+                    rectWidth = canvasWidth - (horizontalPadding.toPx() * 2) - (ScannerAimRectCornerPadding.toPx() * 2)
+                    rectHeight = canvasHeight - (verticalPadding.toPx() * 2) - (ScannerAimRectCornerPadding.toPx() * 2)
+                } else { // for tablets
+                    if (isPortrait) {
+                        rectWidth = (canvasWidth) - (horizontalPadding.toPx() * 2) - (ScannerAimRectCornerPadding.toPx() * 2)
+                        rectHeight = rectWidth
+                    } else {
+                        rectWidth = canvasWidth - (horizontalPadding.toPx() * 2) - (ScannerAimRectCornerPadding.toPx() * 2)
+                        rectHeight = canvasHeight - (ScannerAimRectCornerPadding.toPx() * 2)
+                    }
+                }
+
                 val rectLeft = (canvasWidth - rectWidth) / 2
                 val rectTop = (canvasHeight - rectHeight) / 2
+
+                barcodeAnalyzer.isPortrait = isPortrait
 
                 val circlePath = Path().apply {
                     addRoundRect(
@@ -323,7 +391,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                     )
                 }
                 clipPath(circlePath, clipOp = ClipOp.Difference) {
-                    drawRect(color= ScannerBackgroundBlack)
+                    drawRect(color = ScannerBackgroundBlack)
                 }
 
                 val aimTop = rectTop - ScannerAimRectCornerPadding.toPx()
@@ -334,7 +402,7 @@ class OSBARCScannerActivity : ComponentActivity() {
 
                 val aimPath = Path()
                 // top left
-                AddCornerToAimPath(
+                addCornerToAimPath(
                     aimPath,
                     Point(aimLeft + aimLength, aimTop),
                     Point(aimLeft + radius, aimTop),
@@ -343,7 +411,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                     Point(aimLeft, aimTop + aimLength)
                 )
                 // bottom left
-                AddCornerToAimPath(
+                addCornerToAimPath(
                     aimPath,
                     Point(aimLeft, aimBottom - aimLength),
                     Point(aimLeft, aimBottom - radius),
@@ -352,7 +420,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                     Point(aimLeft + aimLength, aimBottom)
                 )
                 // bottom right
-                AddCornerToAimPath(
+                addCornerToAimPath(
                     aimPath,
                     Point(aimRight - aimLength, aimBottom),
                     Point(aimRight - radius, aimBottom),
@@ -361,7 +429,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                     Point(aimRight, aimBottom - aimLength)
                 )
                 // top right
-                AddCornerToAimPath(
+                addCornerToAimPath(
                     aimPath,
                     Point(aimRight, aimTop + aimLength),
                     Point(aimRight, aimTop + radius),
@@ -374,7 +442,7 @@ class OSBARCScannerActivity : ComponentActivity() {
         )
     }
 
-    private fun AddCornerToAimPath(path: Path,
+    private fun addCornerToAimPath(path: Path,
                                    startPoint: Point,
                                    startCornerPoint: Point,
                                    controlPoint: Point,
@@ -393,8 +461,10 @@ class OSBARCScannerActivity : ComponentActivity() {
      * @param borderPadding the value for the border padding
      */
     @Composable
-    fun ScanScreenUIPortrait(parameters: OSBARCScanParameters, screenHeight:Dp) {
-
+    fun ScanScreenUIPortrait(parameters: OSBARCScanParameters,
+                             screenHeight: Dp,
+                             borderPadding: Dp,
+                             isPhone: Boolean) {
         Column(
             modifier = Modifier
                 .fillMaxSize(),
@@ -423,12 +493,11 @@ class OSBARCScannerActivity : ComponentActivity() {
 
                 ScanInstructions(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = ScannerBorderPadding),
+                        .fillMaxWidth(),
                     parameters
                 )
 
-                ScanScreenAim(screenHeight, ScannerBorderPadding, NoPadding)
+                ScanScreenAim(screenHeight, borderPadding, borderPadding, isPhone, true)
             }
 
             Box(
@@ -452,13 +521,20 @@ class OSBARCScannerActivity : ComponentActivity() {
     }
 
     /**
-     * Composable function, responsible rendering the main UI in landscape mode
+     * Composable function, responsible rendering the main UI in landscape mode.
+     * This will also be used to for the UI of tablets in portrait, since the
+     * orientation of elements in the screen is the same for both orientations.
      * @param parameters the scan parameters
      * @param screenHeight the screen height
      * @param borderPadding the value for the border padding
      */
     @Composable
-    fun ScanScreenUILandscape(parameters: OSBARCScanParameters, screenHeight:Dp) {
+    fun ScanScreenUILandscape(parameters: OSBARCScanParameters,
+                              screenHeight:Dp,
+                              borderPadding: Dp,
+                              textToRectPadding: Dp,
+                              isPhone: Boolean,
+                              isPortrait: Boolean) {
         Row(
             modifier = Modifier
                 .fillMaxSize(),
@@ -479,14 +555,29 @@ class OSBARCScannerActivity : ComponentActivity() {
                 verticalArrangement = Arrangement.Center
             ) {
 
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f, fill = true)
+                        .background(ScannerBackgroundBlack)
+                )
+
                 ScanInstructions(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = ScannerBorderPadding),
+                        .padding(top = borderPadding, bottom = if (isPhone) NoPadding else textToRectPadding),
                     parameters
                 )
 
-                ScanScreenAim(screenHeight, NoPadding, ScannerBorderPadding)
+                ScanScreenAim(screenHeight, NoPadding, borderPadding, isPhone, isPortrait)
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f, fill = true)
+                        .background(ScannerBackgroundBlack)
+                )
+
             }
 
             Box(
@@ -636,20 +727,18 @@ class OSBARCScannerActivity : ComponentActivity() {
                           scanModifier: Modifier,
                           torchModifier: Modifier) {
 
-
         val showTorch = camera.cameraInfo.hasFlashUnit()
         val showScan = parameters.scanButton
 
-        val buttonsVerticalDistance = ActionButtonsDistance
         val buttonSpacing = if(showTorch && showScan)
-        { buttonsVerticalDistance.times(0.5f) } else { buttonsVerticalDistance.times(0f) }
+        { verticalPadding.times(0.5f) } else { verticalPadding.times(0f) }
 
         // flashlight button
         if (showTorch) {
             TorchButton(
                 torchModifier
                     .padding(bottom = buttonSpacing)
-                    .size(buttonsVerticalDistance),
+                    .size(ActionButtonsDistance),
             )
         }
 
@@ -658,7 +747,7 @@ class OSBARCScannerActivity : ComponentActivity() {
             ScanButton(
                 scanModifier
                     .padding(top = buttonSpacing)
-                    .height(buttonsVerticalDistance),
+                    .height(ActionButtonsDistance),
                 parameters.scanText)
         }
     }

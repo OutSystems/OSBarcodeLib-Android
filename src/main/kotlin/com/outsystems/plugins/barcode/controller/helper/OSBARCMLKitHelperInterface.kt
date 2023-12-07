@@ -1,6 +1,6 @@
 package com.outsystems.plugins.barcode.controller.helper
 
-import android.media.Image
+import android.graphics.Bitmap
 import androidx.camera.core.ImageProxy
 import com.google.mlkit.vision.barcode.common.Barcode
 
@@ -10,7 +10,7 @@ import com.google.mlkit.vision.barcode.common.Barcode
 fun interface OSBARCMLKitHelperInterface {
     fun decodeImage(
         imageProxy: ImageProxy,
-        mediaImage: Image,
+        imageBitmap: Bitmap,
         onSuccess: (MutableList<Barcode>) -> Unit,
         onError: () -> Unit
     )

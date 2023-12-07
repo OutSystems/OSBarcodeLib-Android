@@ -2,6 +2,7 @@ package com.outsystems.plugins.barcode
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Bitmap
 import android.media.Image
 import android.os.Bundle
 import androidx.camera.core.ImageInfo
@@ -9,6 +10,8 @@ import androidx.camera.core.ImageProxy
 import com.outsystems.plugins.barcode.controller.OSBARCBarcodeAnalyzer
 import com.outsystems.plugins.barcode.controller.OSBARCController
 import com.outsystems.plugins.barcode.controller.OSBARCScanLibraryFactory
+import com.outsystems.plugins.barcode.controller.helper.OSBARCImageHelperInterface
+import com.outsystems.plugins.barcode.mocks.OSBARCImageHelperMock
 import com.outsystems.plugins.barcode.mocks.OSBARCMLKitHelperMock
 import com.outsystems.plugins.barcode.mocks.OSBARCZXingHelperMock
 import com.outsystems.plugins.barcode.mocks.OSBARCScanLibraryMock
@@ -31,6 +34,9 @@ class ScanCodeTests {
     private lateinit var mockByteBuffer: ByteBuffer
     private lateinit var mockImageInfo: ImageInfo
     private lateinit var planes: Array<ImageProxy.PlaneProxy>
+
+    private lateinit var imageHelperMock: OSBARCImageHelperInterface
+    private lateinit var mockBitmap: Bitmap
 
     companion object {
         private const val SCAN_REQUEST_CODE = 112
@@ -56,6 +62,9 @@ class ScanCodeTests {
         Mockito.doReturn(30).`when`(mockImageProxy).height
         Mockito.doReturn(30).`when`(mockByteBuffer).remaining()
         Mockito.doReturn(mockImageInfo).`when`(mockImageProxy).imageInfo
+
+        imageHelperMock = OSBARCImageHelperMock()
+        mockBitmap = Mockito.mock(Bitmap::class.java)
     }
 
     @Test
@@ -273,12 +282,13 @@ class ScanCodeTests {
 
     @Test
     fun givenScanLibrarySuccessWhenScanBarcodeThenSuccess() {
-        val mockImageProxy = Mockito.mock(ImageProxy::class.java)
         val scanLibMock = OSBARCScanLibraryMock().apply {
             success = true
             resultCode = RESULT_CODE
         }
-        OSBARCBarcodeAnalyzer(scanLibMock,
+        OSBARCBarcodeAnalyzer(
+            scanLibMock,
+            imageHelperMock,
             {
                 assertEquals(RESULT_CODE, it)
             },
@@ -296,7 +306,9 @@ class ScanCodeTests {
             exception = false
             error = OSBARCError.SCANNING_GENERAL_ERROR
         }
-        OSBARCBarcodeAnalyzer(scanLibMock,
+        OSBARCBarcodeAnalyzer(
+            scanLibMock,
+            imageHelperMock,
             {
                 fail()
             },
@@ -309,13 +321,14 @@ class ScanCodeTests {
 
     @Test
     fun givenScanLibraryZXingErrorWhenScanBarcodeThenZxingError() {
-        val mockImageProxy = Mockito.mock(ImageProxy::class.java)
         val scanLibMock = OSBARCScanLibraryMock().apply {
             success = false
             exception = false
             error = OSBARCError.ZXING_LIBRARY_ERROR
         }
-        OSBARCBarcodeAnalyzer(scanLibMock,
+        OSBARCBarcodeAnalyzer(
+            scanLibMock,
+            imageHelperMock,
             {
                 fail()
             },
@@ -328,13 +341,14 @@ class ScanCodeTests {
 
     @Test
     fun givenScanLibraryMLKitErrorWhenScanBarcodeThenMLKitError() {
-        val mockImageProxy = Mockito.mock(ImageProxy::class.java)
         val scanLibMock = OSBARCScanLibraryMock().apply {
             success = false
             exception = false
             error = OSBARCError.MLKIT_LIBRARY_ERROR
         }
-        OSBARCBarcodeAnalyzer(scanLibMock,
+        OSBARCBarcodeAnalyzer(
+            scanLibMock,
+            imageHelperMock,
             {
                 fail()
             },
@@ -352,7 +366,9 @@ class ScanCodeTests {
             success = false
             exception = true
         }
-        OSBARCBarcodeAnalyzer(scanLibMock,
+        OSBARCBarcodeAnalyzer(
+            scanLibMock,
+            imageHelperMock,
             {
                 fail()
             },
@@ -361,6 +377,46 @@ class ScanCodeTests {
                 assertEquals(OSBARCError.SCANNING_GENERAL_ERROR.description, it.description)
             }
         ).analyze(mockImageProxy)
+    }
+
+    @Test
+    fun givenScanPhoneInPortraitWhenScanBarcodeThenSuccess() {
+        val scanLibMock = OSBARCScanLibraryMock().apply {
+            success = true
+            resultCode = RESULT_CODE
+        }
+        OSBARCBarcodeAnalyzer(
+            scanLibMock,
+            imageHelperMock,
+            {
+                assertEquals(RESULT_CODE, it)
+            },
+            {
+                fail()
+            }
+        ).apply {
+            isPortrait = true
+        }.analyze(mockImageProxy)
+    }
+
+    @Test
+    fun givenScanPhoneInLandscapeWhenScanBarcodeThenSuccess() {
+        val scanLibMock = OSBARCScanLibraryMock().apply {
+            success = true
+            resultCode = RESULT_CODE
+        }
+        OSBARCBarcodeAnalyzer(
+            scanLibMock,
+            imageHelperMock,
+            {
+                assertEquals(RESULT_CODE, it)
+            },
+            {
+                fail()
+            }
+        ).apply {
+            isPortrait = false
+        }.analyze(mockImageProxy)
     }
 
     @Test
@@ -373,7 +429,9 @@ class ScanCodeTests {
 
         Mockito.doReturn(90).`when`(mockImageInfo).rotationDegrees // do the same for 270 and 0 to cover all cases
 
-        wrapper.scanBarcode(mockImageProxy,
+        wrapper.scanBarcode(
+            mockImageProxy,
+            mockBitmap,
             {
                 assertEquals(SCAN_RESULT, it)
             },
@@ -393,7 +451,9 @@ class ScanCodeTests {
 
         Mockito.doReturn(270).`when`(mockImageInfo).rotationDegrees // do the same for 270 and 0 to cover all cases
 
-        wrapper.scanBarcode(mockImageProxy,
+        wrapper.scanBarcode(
+            mockImageProxy,
+            mockBitmap,
             {
                 assertEquals(SCAN_RESULT, it)
             },
@@ -413,7 +473,9 @@ class ScanCodeTests {
 
         Mockito.doReturn(0).`when`(mockImageInfo).rotationDegrees // do the same for 270 and 0 to cover all cases
 
-        wrapper.scanBarcode(mockImageProxy,
+        wrapper.scanBarcode(
+            mockImageProxy,
+            mockBitmap,
             {
                 assertEquals(SCAN_RESULT, it)
             },
@@ -436,7 +498,9 @@ class ScanCodeTests {
 
         Mockito.doReturn(0).`when`(mockImageInfo).rotationDegrees // do the same for 270 and 0 to cover all cases
 
-        wrapper.scanBarcode(mockImageProxy,
+        wrapper.scanBarcode(
+            mockImageProxy,
+            mockBitmap,
             {
                 fail()
             },
@@ -460,7 +524,9 @@ class ScanCodeTests {
 
         Mockito.doReturn(0).`when`(mockImageInfo).rotationDegrees // do the same for 270 and 0 to cover all cases
 
-        wrapper.scanBarcode(mockImageProxy,
+        wrapper.scanBarcode(
+            mockImageProxy,
+            mockBitmap,
             {
                 fail()
             },
@@ -486,7 +552,9 @@ class ScanCodeTests {
         val mockMediaImage = Mockito.mock(Image::class.java)
         Mockito.doReturn(mockMediaImage).`when`(mockImageProxy).image
 
-        wrapper.scanBarcode(mockImageProxy,
+        wrapper.scanBarcode(
+            mockImageProxy,
+            mockBitmap,
             {
                 assertEquals(SCAN_RESULT, it)
             },
@@ -511,7 +579,9 @@ class ScanCodeTests {
         val mockMediaImage = Mockito.mock(Image::class.java)
         Mockito.doReturn(mockMediaImage).`when`(mockImageProxy).image
 
-        wrapper.scanBarcode(mockImageProxy,
+        wrapper.scanBarcode(
+            mockImageProxy,
+            mockBitmap,
             {
                 // do nothing
             },
@@ -536,7 +606,9 @@ class ScanCodeTests {
         val mockMediaImage = Mockito.mock(Image::class.java)
         Mockito.doReturn(mockMediaImage).`when`(mockImageProxy).image
 
-        wrapper.scanBarcode(mockImageProxy,
+        wrapper.scanBarcode(
+            mockImageProxy,
+            mockBitmap,
             {
                 // do nothing
             },
@@ -559,7 +631,9 @@ class ScanCodeTests {
         val mockMediaImage = Mockito.mock(Image::class.java)
         Mockito.doReturn(mockMediaImage).`when`(mockImageProxy).image
 
-        wrapper.scanBarcode(mockImageProxy,
+        wrapper.scanBarcode(
+            mockImageProxy,
+            mockBitmap,
             {
                 // do nothing
             },
@@ -583,7 +657,9 @@ class ScanCodeTests {
         val mockMediaImage = Mockito.mock(Image::class.java)
         Mockito.doReturn(mockMediaImage).`when`(mockImageProxy).image
 
-        wrapper.scanBarcode(mockImageProxy,
+        wrapper.scanBarcode(
+            mockImageProxy,
+            mockBitmap,
             {
                 fail()
             },
@@ -609,7 +685,9 @@ class ScanCodeTests {
         val mockMediaImage = Mockito.mock(Image::class.java)
         Mockito.doReturn(mockMediaImage).`when`(mockImageProxy).image
 
-        wrapper.scanBarcode(mockImageProxy,
+        wrapper.scanBarcode(
+            mockImageProxy,
+            mockBitmap,
             {
                 fail()
             },
@@ -636,7 +714,9 @@ class ScanCodeTests {
         val mockMediaImage = Mockito.mock(Image::class.java)
         Mockito.doReturn(mockMediaImage).`when`(mockImageProxy).image
 
-        wrapper.scanBarcode(mockImageProxy,
+        wrapper.scanBarcode(
+            mockImageProxy,
+            mockBitmap,
             {
                 fail()
             },
@@ -659,7 +739,9 @@ class ScanCodeTests {
 
         Mockito.doReturn(null).`when`(mockImageProxy).image
 
-        wrapper.scanBarcode(mockImageProxy,
+        wrapper.scanBarcode(
+            mockImageProxy,
+            mockBitmap,
             {
                 // do nothing
             },
