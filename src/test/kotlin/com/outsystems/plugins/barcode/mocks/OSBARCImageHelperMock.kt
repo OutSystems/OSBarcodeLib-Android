@@ -5,11 +5,11 @@ import com.outsystems.plugins.barcode.controller.helper.OSBARCImageHelperInterfa
 import org.mockito.Mockito
 
 class OSBARCImageHelperMock: OSBARCImageHelperInterface {
-    override fun bitmapFromImageBytes(imageBytes: ByteArray): Bitmap {
+    override suspend fun bitmapFromImageBytes(imageBytes: ByteArray): Bitmap {
         return Mockito.mock(Bitmap::class.java)
     }
 
-    override fun createSubsetBitmapFromSource(
+    override suspend fun createSubsetBitmapFromSource(
         source: Bitmap,
         rectLeft: Int,
         rectTop: Int,

@@ -10,7 +10,7 @@ class OSBARCZXingHelperMock: OSBARCZXingHelperInterface {
     var success = true
     var exception = false
 
-    override fun rotateBitmap(bitmap: Bitmap, rotationDegrees: Int): Bitmap {
+    override suspend fun rotateBitmap(bitmap: Bitmap, rotationDegrees: Int): Bitmap {
         return Mockito.mock(Bitmap::class.java)
     }
 

@@ -11,6 +11,9 @@ import com.outsystems.plugins.barcode.controller.helper.OSBARCImageHelperInterfa
 import com.outsystems.plugins.barcode.model.OSBARCError
 import com.outsystems.plugins.barcode.view.ui.theme.SizeRatioHeight
 import com.outsystems.plugins.barcode.view.ui.theme.SizeRatioWidth
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import java.lang.Exception
 import java.nio.ByteBuffer
@@ -39,20 +42,22 @@ class OSBARCBarcodeAnalyzer(
      * @param image - ImageProxy object that represents the image to be analyzed.
      */
     override fun analyze(image: ImageProxy) {
-        try {
-            scanLibrary.scanBarcode(
-                image,
-                cropBitmap(imageProxyToBitmap(image)),
-                {
-                    onBarcodeScanned(it)
-                },
-                {
-                    onScanningError(it)
-                }
-            )
-        } catch (e: Exception) {
-            e.message?.let { Log.e(LOG_TAG, it) }
-            onScanningError(OSBARCError.SCANNING_GENERAL_ERROR)
+        CoroutineScope(Dispatchers.Default).launch {
+            try {
+                scanLibrary.scanBarcode(
+                    image,
+                    cropBitmap(imageProxyToBitmap(image)),
+                    {
+                        onBarcodeScanned(it)
+                    },
+                    {
+                        onScanningError(it)
+                    }
+                )
+            } catch (e: Exception) {
+                e.message?.let { Log.e(LOG_TAG, it) }
+                onScanningError(OSBARCError.SCANNING_GENERAL_ERROR)
+            }
         }
     }
 
@@ -67,7 +72,7 @@ class OSBARCBarcodeAnalyzer(
      * - https://developer.android.com/jetpack/androidx/releases/camera#1.3.0
      * @param image - ImageProxy object that represents the image to be analyzed.
      */
-    private fun imageProxyToBitmap(image: ImageProxy): Bitmap {
+    private suspend fun imageProxyToBitmap(image: ImageProxy): Bitmap {
 
         // get image data
         val planes = image.planes
@@ -110,7 +115,7 @@ class OSBARCBarcodeAnalyzer(
      * It uses different ratios depending on the orientation of the device - portrait or landscape.
      * @param bitmap - Bitmap object to crop.
      */
-    private fun cropBitmap(bitmap: Bitmap): Bitmap {
+    private suspend fun cropBitmap(bitmap: Bitmap): Bitmap {
         val rectWidth: Int
         val rectHeight: Int
 

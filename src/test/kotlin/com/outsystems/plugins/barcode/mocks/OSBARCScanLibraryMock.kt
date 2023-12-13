@@ -11,7 +11,7 @@ class OSBARCScanLibraryMock: OSBARCScanLibraryInterface {
     var success = true
     var exception = false
     var error: OSBARCError = OSBARCError.SCANNING_GENERAL_ERROR
-    override fun scanBarcode(
+    override suspend fun scanBarcode(
         imageProxy: ImageProxy,
         imageBitmap: Bitmap,
         onSuccess: (String) -> Unit,

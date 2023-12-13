@@ -22,7 +22,7 @@ class OSBARCMLKitWrapper(private val helper: OSBARCMLKitHelperInterface): OSBARC
      * @param onSuccess - The code to be executed if the operation was successful.
      * @param onError - The code to be executed if the operation was not successful.
      */
-    override fun scanBarcode(
+    override suspend fun scanBarcode(
         imageProxy: ImageProxy,
         imageBitmap: Bitmap,
         onSuccess: (String) -> Unit,

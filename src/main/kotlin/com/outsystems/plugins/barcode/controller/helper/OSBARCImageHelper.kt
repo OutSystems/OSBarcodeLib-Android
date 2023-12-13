@@ -2,6 +2,8 @@ package com.outsystems.plugins.barcode.controller.helper
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 /**
  * Helper class that implements the OSBARCImageHelperInterface
@@ -14,13 +16,14 @@ class OSBARCImageHelper: OSBARCImageHelperInterface {
      * @param imageBytes - ByteArray to convert
      * @return the resulting bitmap.
      */
-    override fun bitmapFromImageBytes(imageBytes: ByteArray): Bitmap {
-        return BitmapFactory.decodeByteArray(
-            imageBytes,
-            0, // use 0 in the offset to decode from the beginning of imageBytes
-            imageBytes.size // use byte array size as length because we want to decode the whole image
-        )
-    }
+    override suspend fun bitmapFromImageBytes(imageBytes: ByteArray): Bitmap =
+        withContext(Dispatchers.Default) {
+            return@withContext BitmapFactory.decodeByteArray(
+                imageBytes,
+                0, // use 0 in the offset to decode from the beginning of imageBytes
+                imageBytes.size // use byte array size as length because we want to decode the whole image
+            )
+        }
 
     /**
      * Creates a bitmap that is a subset of the source bitmap,
@@ -32,19 +35,21 @@ class OSBARCImageHelper: OSBARCImageHelperInterface {
      * @param rectHeight - Height of the bitmap.
      * @return the resulting bitmap.
      */
-    override fun createSubsetBitmapFromSource(
+    override suspend fun createSubsetBitmapFromSource(
         source: Bitmap,
         rectLeft: Int,
         rectTop: Int,
         rectWidth: Int,
         rectHeight: Int
-    ): Bitmap {
-        return Bitmap.createBitmap(
-            source,
-            rectLeft,
-            rectTop,
-            rectWidth,
-            rectHeight
-        )
-    }
+    ): Bitmap =
+        withContext(Dispatchers.Default) {
+            return@withContext Bitmap.createBitmap(
+                source,
+                rectLeft,
+                rectTop,
+                rectWidth,
+                rectHeight
+            )
+        }
+
 }

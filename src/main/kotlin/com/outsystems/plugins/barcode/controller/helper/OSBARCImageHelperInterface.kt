@@ -6,8 +6,8 @@ import android.graphics.Bitmap
  * Interface that provides the signature of the type's methods.
  */
 interface OSBARCImageHelperInterface {
-    fun bitmapFromImageBytes(imageBytes: ByteArray): Bitmap
-    fun createSubsetBitmapFromSource(
+    suspend fun bitmapFromImageBytes(imageBytes: ByteArray): Bitmap
+    suspend fun createSubsetBitmapFromSource(
         source: Bitmap,
         rectLeft: Int,
         rectTop: Int,
