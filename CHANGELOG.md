@@ -8,6 +8,9 @@ The changes documented here do not include those from the original repository.
 
 ## [Unreleased]
 
+### 13-12-2023
+Android - Refactor - Use coroutines to work with bitmaps (https://outsystemsrd.atlassian.net/browse/RMET-2912)
+
 ### 06-12-2023
 Android - Implement scanning only the frame area (Portrait, Landscape, Adaptive) (https://outsystemsrd.atlassian.net/browse/RMET-2912)
 
