@@ -6,6 +6,9 @@ import android.util.Log
 import com.outsystems.plugins.barcode.model.OSBARCError
 import com.outsystems.plugins.barcode.model.OSBARCScanParameters
 import com.outsystems.plugins.barcode.view.OSBARCScannerActivity
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /**
  * This class is responsible for implementing the Controller
@@ -27,11 +30,13 @@ class OSBARCController {
      * @param parameters - object that contains all the barcode parameters to be used when scanning.
      */
     fun scanCode(activity: Activity, parameters: OSBARCScanParameters) {
-        activity.startActivityForResult(
-            Intent(
-                activity, OSBARCScannerActivity::class.java
-            ).putExtra(SCAN_PARAMETERS, parameters), SCAN_REQUEST_CODE
-        )
+        CoroutineScope(Dispatchers.Default).launch {
+            activity.startActivityForResult(
+                Intent(
+                    activity, OSBARCScannerActivity::class.java
+                ).putExtra(SCAN_PARAMETERS, parameters), SCAN_REQUEST_CODE
+            )
+        }
     }
 
     /**
