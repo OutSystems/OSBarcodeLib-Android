@@ -54,6 +54,7 @@ class OSBARCBarcodeAnalyzer(
             e.message?.let { Log.e(LOG_TAG, it) }
             onScanningError(OSBARCError.SCANNING_GENERAL_ERROR)
         }
+        image.close()
     }
 
     /**

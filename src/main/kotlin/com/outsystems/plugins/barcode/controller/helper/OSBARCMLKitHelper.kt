@@ -47,9 +47,6 @@ class OSBARCMLKitHelper: OSBARCMLKitHelperInterface {
                 e.message?.let { Log.e(LOG_TAG, it) }
                 onError()
             }
-            .addOnCompleteListener {
-                imageProxy.close()
-            }
     }
 
 }
