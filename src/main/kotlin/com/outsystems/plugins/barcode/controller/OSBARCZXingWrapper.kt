@@ -62,8 +62,6 @@ class OSBARCZXingWrapper(private val helper: OSBARCZXingHelperInterface) : OSBAR
         } catch (e: Exception) {
             e.message?.let { Log.e(LOG_TAG, it) }
             onError(OSBARCError.ZXING_LIBRARY_ERROR)
-        } finally {
-            imageProxy.close()
         }
     }
 

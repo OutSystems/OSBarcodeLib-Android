@@ -105,6 +105,8 @@ import com.outsystems.plugins.barcode.view.ui.theme.ScannerAimStrokeWidth
 import com.outsystems.plugins.barcode.view.ui.theme.ScannerBackgroundBlack
 import com.outsystems.plugins.barcode.view.ui.theme.ScannerBorderPadding
 import com.outsystems.plugins.barcode.view.ui.theme.TextToRectPadding
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 /**
  * This class is responsible for implementing the UI of the scanning screen using Jetpack Compose.
@@ -117,6 +119,7 @@ class OSBARCScannerActivity : ComponentActivity() {
     private var permissionRequestCount = 0
     private var showDialog by mutableStateOf(false)
     private var isScanning = false
+    private lateinit var cameraExecutor: ExecutorService
 
     private lateinit var barcodeAnalyzer: OSBARCBarcodeAnalyzer
 
@@ -141,6 +144,8 @@ class OSBARCScannerActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        cameraExecutor = Executors.newSingleThreadExecutor()
 
         val parameters = intent.extras?.getSerializable(SCAN_PARAMETERS) as OSBARCScanParameters
 
@@ -188,6 +193,11 @@ class OSBARCScannerActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         showDialog = !hasCameraPermission(this.applicationContext)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        cameraExecutor.shutdown()
     }
 
     /**
@@ -271,7 +281,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                         .setBackpressureStrategy(STRATEGY_KEEP_ONLY_LATEST)
                         .build()
                     imageAnalysis.setAnalyzer(
-                        ContextCompat.getMainExecutor(context),
+                        cameraExecutor,
                         barcodeAnalyzer
                     )
                     try {
