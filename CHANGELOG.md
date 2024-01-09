@@ -8,6 +8,11 @@ The changes documented here do not include those from the original repository.
 
 ## [Unreleased]
 
+## [1.0.0]
+
+### 09-01-2024
+Android - Udpate error codes and messages (https://outsystemsrd.atlassian.net/browse/RMET-3037)
+
 ### 19-12-2023
 Android - Run image analysis outside of the main/UI thread (https://outsystemsrd.atlassian.net/browse/RMET-2912)
 
