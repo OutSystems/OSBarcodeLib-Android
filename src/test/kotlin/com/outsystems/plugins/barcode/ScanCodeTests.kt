@@ -42,6 +42,7 @@ class ScanCodeTests {
         private const val SCAN_REQUEST_CODE = 112
         private const val INVALID_REQUEST_CODE = 113
         private const val INVALID_RESULT_CODE = 9
+        private const val GENERAL_ERROR_CODE = 4
         private const val SCAN_RESULT = "scanResult"
         private const val RESULT_CODE = "myCode"
     }
@@ -168,7 +169,7 @@ class ScanCodeTests {
         Mockito.doReturn(null).`when`(mockBundle).getString(SCAN_RESULT)
 
         val barcodeController = OSBARCController()
-        barcodeController.handleActivityResult(SCAN_REQUEST_CODE, INVALID_RESULT_CODE, mockIntent,
+        barcodeController.handleActivityResult(SCAN_REQUEST_CODE, GENERAL_ERROR_CODE, mockIntent,
             {
                 fail()
             },
