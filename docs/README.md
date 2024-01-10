@@ -2,7 +2,45 @@
 
 An Android library to scan barcodes, using ML Kit or ZXing for code detection. The UI is implemented with Jetpack Compose, and image analysis is setup with CameraX (https://developer.android.com/reference/androidx/camera/core/ImageAnalysis).
 
-## Installation
+The library supports many popular encoding types of 1D and 2D barcodes, such as:
+- 1D Barcodes
+	- Codabar
+	- Code 39
+	- Code 93
+	- Code 128
+	- Databar (GS1)	(*only with ML Kit*)
+	- EAN-8
+	- EAN-13
+	- ITF
+	- ISBN-10
+	- ISBN-13
+	- ISBN-13 Dual Barcode
+	- RSSExpanded (*only with ZXing*)
+	- UPC-A
+	- UPC-E
+- 2D Barcodes
+	- Aztec Code
+	- Data Matrix
+ 	- MaxiCode (*only with ZXing*)
+	- PDF 417
+	- QR Code
+
+The `OSBARCController` class provides the main feature of the library, which is the **Barcode Scanner**, to be detailed in the following sections. 
+The `OSBARCScanLibraryFactory` provides a way to create a instance of `OSBARCScanLibraryInterface`, which an implementation for ML Kit and another for ZXing.
+
+## Index
+
+- [Motivation](#motivation)
+- [Usage](#usage)
+- [Methods](#methods)
+    - [scanBarcode](#scanbarcode)
+    - [handleActivityResult](#handleactivityresult)
+
+## Motivation
+
+This library is to be used by the [Barcode Plugin](https://github.com/OutSystems/cordova-outsystems-barcode).
+
+## Usage
 
 In your app-level gradle file, import the OSBarcodeLib library like so:
 
