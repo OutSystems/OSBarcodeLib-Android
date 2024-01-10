@@ -14,13 +14,13 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Setup Java
       uses: actions/setup-java@v3
       with:
         distribution: 'zulu'
-        java-version: '11'
+        java-version: '17'
 
     - name: Bundle Install
       run: bundle install
@@ -32,7 +32,7 @@ jobs:
       run: bundle exec fastlane coverage
 
     - name: Setup sonarqube
-      uses: warchant/setup-sonar-scanner@v3      
+      uses: warchant/setup-sonar-scanner@v7
 
     - name: Send to Sonarcloud
       run: bundle exec fastlane sonarqube
