@@ -26,7 +26,7 @@ The library supports many popular encoding types of 1D and 2D barcodes, such as:
 	- QR Code
 
 The `OSBARCController` class provides the main feature of the library, which is the **Barcode Scanner**, to be detailed in the following sections. 
-The `OSBARCScanLibraryFactory` provides a way to create a instance of `OSBARCScanLibraryInterface`, which an implementation for ML Kit and another for ZXing.
+The `OSBARCScanLibraryFactory` provides a way to create a instance of `OSBARCScanLibraryInterface`, which has an implementation for ML Kit and another for ZXing.
 
 ## Index
 
