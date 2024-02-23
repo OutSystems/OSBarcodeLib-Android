@@ -8,6 +8,9 @@ The changes documented here do not include those from the original repository.
 
 ## [Unreleased]
 
+### 22-02-2024
+- Update `github_actions.yml` file steps versions (https://outsystemsrd.atlassian.net/browse/RMET-2568).
+
 ## [1.0.0]
 
 ### 09-01-2024
