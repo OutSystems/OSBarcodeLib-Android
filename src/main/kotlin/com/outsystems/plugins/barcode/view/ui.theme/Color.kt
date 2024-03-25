@@ -23,3 +23,8 @@ val ButtonsTextOrange = Color(0xFFF59F00)
 val ScanInstructionsWhite = Color(0xFFFFFFFF)
 val ScanAimWhite = Color(0xFFFFFFFF)
 val ScannerBackgroundBlack = Color.Black.copy(alpha = 0.6f)
+
+val ZoomButtonBackground = Color.Black.copy(alpha = 0.2f)
+val ZoomButtonBackgroundSelected = Color.Black.copy(alpha = 0.5f)
+
+val CloseButtonBackground = Color.Black.copy(alpha = 0.25f)

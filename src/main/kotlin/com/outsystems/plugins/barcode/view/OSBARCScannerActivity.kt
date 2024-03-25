@@ -46,6 +46,7 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
@@ -69,6 +70,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ClipOp
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
@@ -97,6 +99,7 @@ import com.outsystems.plugins.barcode.view.ui.theme.ButtonsBorderGray
 import com.outsystems.plugins.barcode.view.ui.theme.ButtonsTextGray
 import com.outsystems.plugins.barcode.view.ui.theme.ButtonsTextOrange
 import com.outsystems.plugins.barcode.view.ui.theme.ButtonsTextWhite
+import com.outsystems.plugins.barcode.view.ui.theme.CloseButtonBackground
 import com.outsystems.plugins.barcode.view.ui.theme.CustomGray
 import com.outsystems.plugins.barcode.view.ui.theme.NoPadding
 import com.outsystems.plugins.barcode.view.ui.theme.ScanAimWhite
@@ -109,6 +112,8 @@ import com.outsystems.plugins.barcode.view.ui.theme.ScannerAimStrokeWidth
 import com.outsystems.plugins.barcode.view.ui.theme.ScannerBackgroundBlack
 import com.outsystems.plugins.barcode.view.ui.theme.ScannerBorderPadding
 import com.outsystems.plugins.barcode.view.ui.theme.TextToRectPadding
+import com.outsystems.plugins.barcode.view.ui.theme.ZoomButtonBackground
+import com.outsystems.plugins.barcode.view.ui.theme.ZoomButtonBackgroundSelected
 import com.outsystemsenterprise.enmobile11dev.BarcodeSampleAppNew.R
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -644,6 +649,7 @@ class OSBARCScannerActivity : ComponentActivity() {
             contentDescription = null,
             tint = CustomGray,
             modifier = modifier
+                .background(color = CloseButtonBackground, shape = CircleShape)
                 .clickable {
                     setResult(OSBARCError.SCAN_CANCELLED_ERROR.code)
                     finish()
@@ -759,11 +765,12 @@ class OSBARCScannerActivity : ComponentActivity() {
 
         Row(
             modifier = Modifier
-                .background(ButtonsBackgroundGray, RoundedCornerShape(ScanButtonCornerRadius))
+                .background(ButtonsBackgroundGray, CircleShape)
                 .wrapContentWidth(),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // we only show the button with zoom below zero if that zoom value is possible
             if (minZoomRatio < 1f) {
                 OutlinedButton(
                     onClick = {
@@ -771,11 +778,13 @@ class OSBARCScannerActivity : ComponentActivity() {
                         camera.cameraControl.setZoomRatio(minZoomRatio)
                     },
                     modifier= Modifier
-                        .padding(end = 8.dp)
-                        .size(50.dp),  //avoid the oval shape
+                        .padding(start = 6.dp, end = 8.dp, top = 4.dp, bottom = 4.dp)
+                        .size(40.dp),
                     shape = CircleShape,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (selectedButton == 1) ZoomButtonBackgroundSelected else ZoomButtonBackground
+                    ),
                     contentPadding = PaddingValues(0.dp),  //avoid the little icon
-                    enabled = selectedButton != 1
                 ) {
                     Text(
                         text = "$roundedRatio${if (selectedButton == 1) "x" else ""}",
@@ -785,14 +794,24 @@ class OSBARCScannerActivity : ComponentActivity() {
                 }
             }
 
-            Button(
+            OutlinedButton(
                 onClick = {
                     selectedButton = 2
                     camera.cameraControl.setZoomRatio(1f)
                 },
-                shape = RoundedCornerShape(ScanButtonCornerRadius),
-                border = BorderStroke(width = ScanButtonStrokeWidth, color = ButtonsBorderGray),
-                enabled = selectedButton != 2
+                modifier= Modifier
+                    .padding(
+                        start = if (minZoomRatio < 1) 0.dp else 6.dp,
+                        end = 8.dp,
+                        top = 4.dp,
+                        bottom = 4.dp
+                    )
+                    .size(40.dp),
+                shape = CircleShape,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (selectedButton == 2) ZoomButtonBackgroundSelected else ZoomButtonBackground
+                ),
+                contentPadding = PaddingValues(0.dp),  //avoid the little icon
             ) {
                 Text(
                     text = "1${if (selectedButton == 2) "x" else ""}",
@@ -801,16 +820,19 @@ class OSBARCScannerActivity : ComponentActivity() {
                 )
             }
 
-            Button(
+            OutlinedButton(
                 onClick = {
                     selectedButton = 3
                     camera.cameraControl.setZoomRatio(2f)
                 },
-                shape = RoundedCornerShape(ScanButtonCornerRadius),
-                border = BorderStroke(width = ScanButtonStrokeWidth, color = ButtonsBorderGray),
-                modifier = Modifier
-                    .padding(start = 8.dp),
-                enabled = selectedButton != 3
+                modifier= Modifier
+                    .padding(end = 6.dp, top = 4.dp, bottom = 4.dp)
+                    .size(40.dp),
+                shape = CircleShape,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (selectedButton == 3) ZoomButtonBackgroundSelected else ZoomButtonBackground
+                ),
+                contentPadding = PaddingValues(0.dp),  //avoid the little icon
             ) {
                 Text(
                     text = "2${if (selectedButton == 3) "x" else ""}",
@@ -818,6 +840,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                     textAlign = TextAlign.Center,
                 )
             }
+
         }
 
         // flashlight button
