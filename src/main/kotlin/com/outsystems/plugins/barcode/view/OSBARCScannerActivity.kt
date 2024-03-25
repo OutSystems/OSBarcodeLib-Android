@@ -33,6 +33,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -41,10 +42,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
@@ -78,7 +82,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
-import com.outsystems.plugins.barcode.R
 import com.outsystems.plugins.barcode.controller.OSBARCBarcodeAnalyzer
 import com.outsystems.plugins.barcode.controller.OSBARCScanLibraryFactory
 import com.outsystems.plugins.barcode.controller.helper.OSBARCImageHelper
@@ -92,6 +95,7 @@ import com.outsystems.plugins.barcode.view.ui.theme.ButtonsBackgroundGray
 import com.outsystems.plugins.barcode.view.ui.theme.ButtonsBackgroundWhite
 import com.outsystems.plugins.barcode.view.ui.theme.ButtonsBorderGray
 import com.outsystems.plugins.barcode.view.ui.theme.ButtonsTextGray
+import com.outsystems.plugins.barcode.view.ui.theme.ButtonsTextOrange
 import com.outsystems.plugins.barcode.view.ui.theme.ButtonsTextWhite
 import com.outsystems.plugins.barcode.view.ui.theme.CustomGray
 import com.outsystems.plugins.barcode.view.ui.theme.NoPadding
@@ -105,8 +109,10 @@ import com.outsystems.plugins.barcode.view.ui.theme.ScannerAimStrokeWidth
 import com.outsystems.plugins.barcode.view.ui.theme.ScannerBackgroundBlack
 import com.outsystems.plugins.barcode.view.ui.theme.ScannerBorderPadding
 import com.outsystems.plugins.barcode.view.ui.theme.TextToRectPadding
+import com.outsystemsenterprise.enmobile11dev.BarcodeSampleAppNew.R
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import kotlin.math.roundToInt
 
 /**
  * This class is responsible for implementing the UI of the scanning screen using Jetpack Compose.
@@ -575,7 +581,10 @@ class OSBARCScannerActivity : ComponentActivity() {
                 ScanInstructions(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = borderPadding, bottom = if (isPhone) NoPadding else textToRectPadding),
+                        .padding(
+                            top = borderPadding,
+                            bottom = if (isPhone) NoPadding else textToRectPadding
+                        ),
                     parameters
                 )
 
@@ -694,7 +703,7 @@ class OSBARCScannerActivity : ComponentActivity() {
             Text(
                 text = scanButtonText,
                 color = textColor,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
         }
     }
@@ -742,6 +751,74 @@ class OSBARCScannerActivity : ComponentActivity() {
 
         val buttonSpacing = if(showTorch && showScan)
         { verticalPadding.times(0.5f) } else { verticalPadding.times(0f) }
+
+        // zoom buttons
+        val minZoomRatio = camera.cameraInfo.zoomState.value?.minZoomRatio ?: 1f
+        val roundedRatio = (minZoomRatio * 10).roundToInt() / 10f
+        var selectedButton by remember { mutableStateOf(2) }
+
+        Row(
+            modifier = Modifier
+                .background(ButtonsBackgroundGray, RoundedCornerShape(ScanButtonCornerRadius))
+                .wrapContentWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (minZoomRatio < 1f) {
+                OutlinedButton(
+                    onClick = {
+                        selectedButton = 1
+                        camera.cameraControl.setZoomRatio(minZoomRatio)
+                    },
+                    modifier= Modifier
+                        .padding(end = 8.dp)
+                        .size(50.dp),  //avoid the oval shape
+                    shape = CircleShape,
+                    contentPadding = PaddingValues(0.dp),  //avoid the little icon
+                    enabled = selectedButton != 1
+                ) {
+                    Text(
+                        text = "$roundedRatio${if (selectedButton == 1) "x" else ""}",
+                        color = if (selectedButton == 1) ButtonsTextOrange else ButtonsTextWhite,
+                        textAlign = TextAlign.Center,
+                    )
+                }
+            }
+
+            Button(
+                onClick = {
+                    selectedButton = 2
+                    camera.cameraControl.setZoomRatio(1f)
+                },
+                shape = RoundedCornerShape(ScanButtonCornerRadius),
+                border = BorderStroke(width = ScanButtonStrokeWidth, color = ButtonsBorderGray),
+                enabled = selectedButton != 2
+            ) {
+                Text(
+                    text = "1${if (selectedButton == 2) "x" else ""}",
+                    color = if (selectedButton == 2) ButtonsTextOrange else ButtonsTextWhite,
+                    textAlign = TextAlign.Center,
+                )
+            }
+
+            Button(
+                onClick = {
+                    selectedButton = 3
+                    camera.cameraControl.setZoomRatio(2f)
+                },
+                shape = RoundedCornerShape(ScanButtonCornerRadius),
+                border = BorderStroke(width = ScanButtonStrokeWidth, color = ButtonsBorderGray),
+                modifier = Modifier
+                    .padding(start = 8.dp),
+                enabled = selectedButton != 3
+            ) {
+                Text(
+                    text = "2${if (selectedButton == 3) "x" else ""}",
+                    color = if (selectedButton == 3) ButtonsTextOrange else ButtonsTextWhite,
+                    textAlign = TextAlign.Center,
+                )
+            }
+        }
 
         // flashlight button
         if (showTorch) {

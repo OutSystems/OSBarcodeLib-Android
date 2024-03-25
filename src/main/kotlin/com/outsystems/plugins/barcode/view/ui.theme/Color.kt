@@ -18,6 +18,7 @@ val ButtonsBorderGray = Color(0xFF4F575E)
 val ButtonsBackgroundWhite = Color(0xFFFFFFD9)
 val ButtonsTextGray = Color(0xFF4F575E)
 val ButtonsTextWhite = Color(0xFFFFFFFF)
+val ButtonsTextOrange = Color(0xFFF59F00)
 
 val ScanInstructionsWhite = Color(0xFFFFFFFF)
 val ScanAimWhite = Color(0xFFFFFFFF)
