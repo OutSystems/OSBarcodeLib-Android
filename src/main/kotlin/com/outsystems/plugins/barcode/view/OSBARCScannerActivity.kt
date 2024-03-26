@@ -114,6 +114,7 @@ import com.outsystems.plugins.barcode.view.ui.theme.ScannerBorderPadding
 import com.outsystems.plugins.barcode.view.ui.theme.TextToRectPadding
 import com.outsystems.plugins.barcode.view.ui.theme.ZoomButtonBackground
 import com.outsystems.plugins.barcode.view.ui.theme.ZoomButtonBackgroundSelected
+import com.outsystems.plugins.barcode.view.ui.theme.ZoomButtonSize
 import com.outsystemsenterprise.enmobile11dev.BarcodeSampleAppNew.R
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -794,89 +795,67 @@ class OSBARCScannerActivity : ComponentActivity() {
         ) {
             // we only show the button with zoom below zero if that zoom value is possible
             if (minZoomRatio < 1f) {
-
                 ZoomButton(
                     onClick = {
                         selectedButton = 1
                         camera.cameraControl.setZoomRatio(minZoomRatio)
                     },
                     buttonModifier = Modifier
-                        .padding(start = 6.dp, end = 8.dp, top = 4.dp, bottom = 4.dp)
-                        .size(35.dp),
+                        .padding(start = 6.dp, end = 8.dp, top = 4.dp, bottom = 4.dp),
                     selectedButton = selectedButton,
-                    roundedRatio = roundedRatio
+                    buttonToCompare = 1,
+                    "$roundedRatio${if (selectedButton == 1) "x" else ""}"
                 )
-
             }
 
-            OutlinedButton(
+            ZoomButton(
                 onClick = {
                     selectedButton = 2
                     camera.cameraControl.setZoomRatio(1f)
                 },
-                modifier= Modifier
+                buttonModifier = Modifier
                     .padding(
                         start = if (minZoomRatio < 1) 0.dp else 6.dp,
                         end = 8.dp,
                         top = 4.dp,
                         bottom = 4.dp
-                    )
-                    .size(35.dp),
-                shape = CircleShape,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (selectedButton == 2) ZoomButtonBackgroundSelected else ZoomButtonBackground
-                ),
-                contentPadding = PaddingValues(0.dp),  //avoid the little icon
-            ) {
-                Text(
-                    text = "1${if (selectedButton == 2) "x" else ""}",
-                    color = if (selectedButton == 2) ButtonsTextOrange else ButtonsTextWhite,
-                    textAlign = TextAlign.Center,
-                )
-            }
+                    ),
+                selectedButton = selectedButton,
+                buttonToCompare = 2,
+                "1${if (selectedButton == 2) "x" else ""}"
+            )
 
-            OutlinedButton(
+            ZoomButton(
                 onClick = {
                     selectedButton = 3
                     camera.cameraControl.setZoomRatio(2f)
                 },
-                modifier= Modifier
-                    .padding(end = 6.dp, top = 4.dp, bottom = 4.dp)
-                    .size(35.dp),
-                shape = CircleShape,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (selectedButton == 3) ZoomButtonBackgroundSelected else ZoomButtonBackground
-                ),
-                contentPadding = PaddingValues(0.dp),  //avoid the little icon
-            ) {
-                Text(
-                    text = "2${if (selectedButton == 3) "x" else ""}",
-                    color = if (selectedButton == 3) ButtonsTextOrange else ButtonsTextWhite,
-                    textAlign = TextAlign.Center,
-                )
-            }
-
+                buttonModifier = Modifier
+                    .padding(end = 6.dp, top = 4.dp, bottom = 4.dp),
+                selectedButton = selectedButton,
+                buttonToCompare = 3,
+                "2${if (selectedButton == 3) "x" else ""}"
+            )
         }
-
     }
 
     /**
      * Composable function, responsible for building single zoom button on the UI.
      */
     @Composable
-    fun ZoomButton( onClick: () -> Unit, buttonModifier: Modifier, selectedButton: Int, roundedRatio: Float) {
+    fun ZoomButton( onClick: () -> Unit, buttonModifier: Modifier, selectedButton: Int, buttonToCompare: Int, buttonText: String) {
         OutlinedButton(
             onClick = { onClick() },
-            modifier= buttonModifier,
+            modifier = buttonModifier.size(ZoomButtonSize),
             shape = CircleShape,
             colors = ButtonDefaults.buttonColors(
-                containerColor = if (selectedButton == 1) ZoomButtonBackgroundSelected else ZoomButtonBackground
+                containerColor = if (selectedButton == buttonToCompare) ZoomButtonBackgroundSelected else ZoomButtonBackground
             ),
-            contentPadding = PaddingValues(0.dp),  //avoid the little icon
+            contentPadding = PaddingValues(NoPadding),  //avoid the little icon
         ) {
             Text(
-                text = "$roundedRatio${if (selectedButton == 1) "x" else ""}",
-                color = if (selectedButton == 1) ButtonsTextOrange else ButtonsTextWhite,
+                text = buttonText,
+                color = if (selectedButton == buttonToCompare) ButtonsTextOrange else ButtonsTextWhite,
                 textAlign = TextAlign.Center,
             )
         }
