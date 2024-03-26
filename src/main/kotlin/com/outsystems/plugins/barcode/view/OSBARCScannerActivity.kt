@@ -776,8 +776,6 @@ class OSBARCScannerActivity : ComponentActivity() {
      */
     @Composable
     fun ZoomButtons() {
-
-        // zoom buttons
         val minZoomRatio = camera.cameraInfo.zoomState.value?.minZoomRatio ?: 1f
         val roundedRatio = (minZoomRatio * 10).roundToInt() / 10f
         val maxZoomRatio = camera.cameraInfo.zoomState.value?.maxZoomRatio ?: 1f
@@ -851,7 +849,7 @@ class OSBARCScannerActivity : ComponentActivity() {
             colors = ButtonDefaults.buttonColors(
                 containerColor = if (selectedButton == buttonToCompare) ZoomButtonBackgroundSelected else ZoomButtonBackground
             ),
-            contentPadding = PaddingValues(NoPadding),  //avoid the little icon
+            contentPadding = PaddingValues(NoPadding),  // so that text shows
         ) {
             Text(
                 text = buttonText,
