@@ -47,7 +47,6 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
@@ -71,6 +70,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ClipOp
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
@@ -100,7 +100,6 @@ import com.outsystems.plugins.barcode.view.ui.theme.ButtonsTextGray
 import com.outsystems.plugins.barcode.view.ui.theme.ButtonsTextOrange
 import com.outsystems.plugins.barcode.view.ui.theme.ButtonsTextWhite
 import com.outsystems.plugins.barcode.view.ui.theme.CloseButtonBackground
-import com.outsystems.plugins.barcode.view.ui.theme.CustomGray
 import com.outsystems.plugins.barcode.view.ui.theme.NoPadding
 import com.outsystems.plugins.barcode.view.ui.theme.ScanAimWhite
 import com.outsystems.plugins.barcode.view.ui.theme.ScanButtonCornerRadius
@@ -685,7 +684,7 @@ class OSBARCScannerActivity : ComponentActivity() {
         Icon(
             painter = painterResource(id = R.drawable.close),
             contentDescription = null,
-            tint = CustomGray,
+            tint = Color.White,
             modifier = modifier
                 .background(color = CloseButtonBackground, shape = CircleShape)
                 .clickable {

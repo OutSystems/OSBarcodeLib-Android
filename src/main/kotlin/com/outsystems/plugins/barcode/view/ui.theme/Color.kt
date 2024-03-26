@@ -27,4 +27,4 @@ val ScannerBackgroundBlack = Color.Black.copy(alpha = 0.6f)
 val ZoomButtonBackground = Color.Black.copy(alpha = 0.2f)
 val ZoomButtonBackgroundSelected = Color.Black.copy(alpha = 0.5f)
 
-val CloseButtonBackground = Color.Black.copy(alpha = 0.25f)
+val CloseButtonBackground = Color.Black.copy(alpha = 0.90f)
