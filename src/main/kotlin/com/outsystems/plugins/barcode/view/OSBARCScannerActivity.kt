@@ -651,7 +651,6 @@ class OSBARCScannerActivity : ComponentActivity() {
                     if (showTorch) {
                         TorchButton(
                             modifier = Modifier
-                                .padding(bottom = 0.dp)
                                 .align(Alignment.End)
                         )
                         Spacer(modifier = Modifier.height(16.dp))
