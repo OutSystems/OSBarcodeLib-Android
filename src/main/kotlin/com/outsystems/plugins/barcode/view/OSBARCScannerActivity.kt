@@ -527,8 +527,6 @@ class OSBARCScannerActivity : ComponentActivity() {
                     .background(ScannerBackgroundBlack)
                     .weight(1f, fill = true),
             ) {
-
-
                 val showTorch = camera.cameraInfo.hasFlashUnit()
                 val showScan = parameters.scanButton
 
@@ -646,7 +644,6 @@ class OSBARCScannerActivity : ComponentActivity() {
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.End
                 ) {
-
                     val showTorch = camera.cameraInfo.hasFlashUnit()
                     val showScan = parameters.scanButton
 
