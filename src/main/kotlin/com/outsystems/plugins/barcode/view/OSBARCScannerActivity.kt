@@ -784,6 +784,7 @@ class OSBARCScannerActivity : ComponentActivity() {
         // zoom buttons
         val minZoomRatio = camera.cameraInfo.zoomState.value?.minZoomRatio ?: 1f
         val roundedRatio = (minZoomRatio * 10).roundToInt() / 10f
+        val maxZoomRatio = camera.cameraInfo.zoomState.value?.maxZoomRatio ?: 1f
         var selectedButton by remember { mutableStateOf(2) }
 
         Row(
@@ -825,17 +826,20 @@ class OSBARCScannerActivity : ComponentActivity() {
                 "1${if (selectedButton == 2) "x" else ""}"
             )
 
-            ZoomButton(
-                onClick = {
-                    selectedButton = 3
-                    camera.cameraControl.setZoomRatio(2f)
-                },
-                buttonModifier = Modifier
-                    .padding(end = 6.dp, top = 4.dp, bottom = 4.dp),
-                selectedButton = selectedButton,
-                buttonToCompare = 3,
-                "2${if (selectedButton == 3) "x" else ""}"
-            )
+            // we only show 2x button if that zoom is available
+            if (maxZoomRatio >= 2) {
+                ZoomButton(
+                    onClick = {
+                        selectedButton = 3
+                        camera.cameraControl.setZoomRatio(2f)
+                    },
+                    buttonModifier = Modifier
+                        .padding(end = 6.dp, top = 4.dp, bottom = 4.dp),
+                    selectedButton = selectedButton,
+                    buttonToCompare = 3,
+                    "2${if (selectedButton == 3) "x" else ""}"
+                )
+            }
         }
     }
 
