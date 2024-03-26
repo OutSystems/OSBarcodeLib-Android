@@ -793,46 +793,48 @@ class OSBARCScannerActivity : ComponentActivity() {
             if (minZoomRatio < 1f) {
                 ZoomButton(
                     modifier = Modifier
-                        .padding(start = 6.dp, end = 8.dp, top = 4.dp, bottom = 4.dp),
+                        .padding(start = 6.dp, end = 8.dp),
                     selectedButton = selectedButton,
                     buttonToCompare = 1,
                     "$roundedRatio${if (selectedButton == 1) "x" else ""}",
                     onClick = {
                         selectedButton = 1
                         camera.cameraControl.setZoomRatio(minZoomRatio)
-                    },
+                    }
                 )
             }
 
-            ZoomButton(
-                modifier = Modifier
-                    .padding(
-                        start = if (minZoomRatio < 1) 0.dp else 6.dp,
-                        end = 8.dp,
-                        top = 4.dp,
-                        bottom = 4.dp
-                    ),
-                selectedButton = selectedButton,
-                buttonToCompare = 2,
-                "1${if (selectedButton == 2) "x" else ""}",
-                onClick = {
-                    selectedButton = 2
-                    camera.cameraControl.setZoomRatio(1f)
-                },
-            )
-
-            // we only show 2x button if that zoom is available
-            if (maxZoomRatio >= 2) {
+            // we only want to show 1x button if there are more buttons
+            // if 1x is the only button, might as well not show it
+            if (minZoomRatio < 1f || maxZoomRatio >= 2f) {
                 ZoomButton(
                     modifier = Modifier
-                        .padding(end = 6.dp, top = 4.dp, bottom = 4.dp),
+                        .padding(
+                            start = if (minZoomRatio < 1) 0.dp else 6.dp,
+                            end = if (maxZoomRatio >= 2) 8.dp else 6.dp
+                        ),
+                    selectedButton = selectedButton,
+                    buttonToCompare = 2,
+                    "1${if (selectedButton == 2) "x" else ""}",
+                    onClick = {
+                        selectedButton = 2
+                        camera.cameraControl.setZoomRatio(1f)
+                    }
+                )
+            }
+
+            // we only show 2x button if that zoom is available
+            if (maxZoomRatio >= 2f) {
+                ZoomButton(
+                    modifier = Modifier
+                        .padding(end = 6.dp),
                     selectedButton = selectedButton,
                     buttonToCompare = 3,
                     "2${if (selectedButton == 3) "x" else ""}",
                     onClick = {
                         selectedButton = 3
                         camera.cameraControl.setZoomRatio(2f)
-                    },
+                    }
                 )
             }
         }
@@ -856,7 +858,9 @@ class OSBARCScannerActivity : ComponentActivity() {
     ) {
         OutlinedButton(
             onClick = onClick,
-            modifier = modifier.size(ZoomButtonSize),
+            modifier = modifier
+                .padding(top = 4.dp, bottom = 4.dp)
+                .size(ZoomButtonSize),
             shape = CircleShape,
             colors = ButtonDefaults.buttonColors(
                 containerColor = if (selectedButton == buttonToCompare) ZoomButtonBackgroundSelected else ZoomButtonBackground
