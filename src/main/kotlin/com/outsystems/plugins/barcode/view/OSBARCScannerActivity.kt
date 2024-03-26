@@ -791,24 +791,20 @@ class OSBARCScannerActivity : ComponentActivity() {
             // we only show the button with zoom below zero if that zoom value is possible
             if (minZoomRatio < 1f) {
                 ZoomButton(
+                    modifier = Modifier
+                        .padding(start = 6.dp, end = 8.dp, top = 4.dp, bottom = 4.dp),
+                    selectedButton = selectedButton,
+                    buttonToCompare = 1,
+                    "$roundedRatio${if (selectedButton == 1) "x" else ""}",
                     onClick = {
                         selectedButton = 1
                         camera.cameraControl.setZoomRatio(minZoomRatio)
                     },
-                    buttonModifier = Modifier
-                        .padding(start = 6.dp, end = 8.dp, top = 4.dp, bottom = 4.dp),
-                    selectedButton = selectedButton,
-                    buttonToCompare = 1,
-                    "$roundedRatio${if (selectedButton == 1) "x" else ""}"
                 )
             }
 
             ZoomButton(
-                onClick = {
-                    selectedButton = 2
-                    camera.cameraControl.setZoomRatio(1f)
-                },
-                buttonModifier = Modifier
+                modifier = Modifier
                     .padding(
                         start = if (minZoomRatio < 1) 0.dp else 6.dp,
                         end = 8.dp,
@@ -817,21 +813,25 @@ class OSBARCScannerActivity : ComponentActivity() {
                     ),
                 selectedButton = selectedButton,
                 buttonToCompare = 2,
-                "1${if (selectedButton == 2) "x" else ""}"
+                "1${if (selectedButton == 2) "x" else ""}",
+                onClick = {
+                    selectedButton = 2
+                    camera.cameraControl.setZoomRatio(1f)
+                },
             )
 
             // we only show 2x button if that zoom is available
             if (maxZoomRatio >= 2) {
                 ZoomButton(
+                    modifier = Modifier
+                        .padding(end = 6.dp, top = 4.dp, bottom = 4.dp),
+                    selectedButton = selectedButton,
+                    buttonToCompare = 3,
+                    "2${if (selectedButton == 3) "x" else ""}",
                     onClick = {
                         selectedButton = 3
                         camera.cameraControl.setZoomRatio(2f)
                     },
-                    buttonModifier = Modifier
-                        .padding(end = 6.dp, top = 4.dp, bottom = 4.dp),
-                    selectedButton = selectedButton,
-                    buttonToCompare = 3,
-                    "2${if (selectedButton == 3) "x" else ""}"
                 )
             }
         }
@@ -839,12 +839,23 @@ class OSBARCScannerActivity : ComponentActivity() {
 
     /**
      * Composable function, responsible for building single zoom button on the UI.
+     * @param onClick - closure to be called when clickng the button
+     * @param buttonModifier - modifier to be used in button
+     * @param selectedButton - information about the selected button (1, 2 or 3)
+     * @param buttonToCompare - value to compare with selectedButton
+     * @param buttonText - string to be used in Text composable
      */
     @Composable
-    fun ZoomButton(onClick: () -> Unit, buttonModifier: Modifier, selectedButton: Int, buttonToCompare: Int, buttonText: String) {
+    fun ZoomButton(
+        modifier: Modifier = Modifier,
+        selectedButton: Int,
+        buttonToCompare: Int,
+        buttonText: String,
+        onClick: () -> Unit
+    ) {
         OutlinedButton(
-            onClick = { onClick() },
-            modifier = buttonModifier.size(ZoomButtonSize),
+            onClick = onClick,
+            modifier = modifier.size(ZoomButtonSize),
             shape = CircleShape,
             colors = ButtonDefaults.buttonColors(
                 containerColor = if (selectedButton == buttonToCompare) ZoomButtonBackgroundSelected else ZoomButtonBackground
