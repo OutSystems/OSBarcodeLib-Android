@@ -8,6 +8,9 @@ The changes documented here do not include those from the original repository.
 
 ## [Unreleased]
 
+### 26-03-2024
+- Add zoom options (https://outsystemsrd.atlassian.net/browse/RMET-2987).
+
 ### 22-02-2024
 - Update `github_actions.yml` file steps versions (https://outsystemsrd.atlassian.net/browse/RMET-2568).
 
