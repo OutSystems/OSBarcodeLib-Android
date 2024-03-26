@@ -84,6 +84,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
+import com.outsystems.plugins.barcode.R
 import com.outsystems.plugins.barcode.controller.OSBARCBarcodeAnalyzer
 import com.outsystems.plugins.barcode.controller.OSBARCScanLibraryFactory
 import com.outsystems.plugins.barcode.controller.helper.OSBARCImageHelper
@@ -114,7 +115,6 @@ import com.outsystems.plugins.barcode.view.ui.theme.TextToRectPadding
 import com.outsystems.plugins.barcode.view.ui.theme.ZoomButtonBackground
 import com.outsystems.plugins.barcode.view.ui.theme.ZoomButtonBackgroundSelected
 import com.outsystems.plugins.barcode.view.ui.theme.ZoomButtonSize
-import com.outsystemsenterprise.enmobile11dev.BarcodeSampleAppNew.R
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlin.math.roundToInt
