@@ -743,7 +743,7 @@ class OSBARCScannerActivity : ComponentActivity() {
             Text(
                 text = scanButtonText,
                 color = textColor,
-                textAlign = TextAlign.Center,
+                textAlign = TextAlign.Center
             )
         }
     }
