@@ -841,11 +841,11 @@ class OSBARCScannerActivity : ComponentActivity() {
 
     /**
      * Composable function, responsible for building single zoom button on the UI.
-     * @param onClick - closure to be called when clickng the button
-     * @param buttonModifier - modifier to be used in button
+     * @param modifier - modifier to be used in button
      * @param selectedButton - information about the selected button (1, 2 or 3)
      * @param buttonToCompare - value to compare with selectedButton
      * @param buttonText - string to be used in Text composable
+     * @param onClick - closure to be called when clicking the button
      */
     @Composable
     fun ZoomButton(
