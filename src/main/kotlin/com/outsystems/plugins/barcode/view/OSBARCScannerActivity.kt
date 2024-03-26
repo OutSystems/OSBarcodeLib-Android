@@ -688,6 +688,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                     setResult(OSBARCError.SCAN_CANCELLED_ERROR.code)
                     finish()
                 }
+                .padding(12.dp)
         )
     }
 
