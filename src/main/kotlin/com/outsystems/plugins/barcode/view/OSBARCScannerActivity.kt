@@ -841,7 +841,7 @@ class OSBARCScannerActivity : ComponentActivity() {
      * Composable function, responsible for building single zoom button on the UI.
      */
     @Composable
-    fun ZoomButton( onClick: () -> Unit, buttonModifier: Modifier, selectedButton: Int, buttonToCompare: Int, buttonText: String) {
+    fun ZoomButton(onClick: () -> Unit, buttonModifier: Modifier, selectedButton: Int, buttonToCompare: Int, buttonText: String) {
         OutlinedButton(
             onClick = { onClick() },
             modifier = buttonModifier.size(ZoomButtonSize),
