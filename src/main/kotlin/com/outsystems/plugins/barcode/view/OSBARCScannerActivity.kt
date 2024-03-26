@@ -796,7 +796,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                         .padding(start = 6.dp, end = 8.dp),
                     selectedButton = selectedButton,
                     buttonToCompare = 1,
-                    "$roundedRatio${if (selectedButton == 1) "x" else ""}",
+                    "$roundedRatio${getZoomButtonSuffix(selectedButton, 1)}",
                     onClick = {
                         selectedButton = 1
                         camera.cameraControl.setZoomRatio(minZoomRatio)
@@ -815,7 +815,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                         ),
                     selectedButton = selectedButton,
                     buttonToCompare = 2,
-                    "1${if (selectedButton == 2) "x" else ""}",
+                    "1${getZoomButtonSuffix(selectedButton, 2)}",
                     onClick = {
                         selectedButton = 2
                         camera.cameraControl.setZoomRatio(1f)
@@ -830,7 +830,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                         .padding(end = 6.dp),
                     selectedButton = selectedButton,
                     buttonToCompare = 3,
-                    "2${if (selectedButton == 3) "x" else ""}",
+                    "2${getZoomButtonSuffix(selectedButton, 3)}",
                     onClick = {
                         selectedButton = 3
                         camera.cameraControl.setZoomRatio(2f)
@@ -873,6 +873,13 @@ class OSBARCScannerActivity : ComponentActivity() {
                 textAlign = TextAlign.Center,
             )
         }
+    }
+
+    /**
+     * Helper function to determine suffix for zoom buttons
+     */
+    private fun getZoomButtonSuffix(selectedButton: Int, buttonToCompare: Int): String {
+        return if (selectedButton == buttonToCompare) "x" else ""
     }
 
     private fun hasCameraPermission(context: Context): Boolean {
