@@ -33,7 +33,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -41,10 +43,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
@@ -65,6 +70,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ClipOp
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
@@ -92,8 +98,9 @@ import com.outsystems.plugins.barcode.view.ui.theme.ButtonsBackgroundGray
 import com.outsystems.plugins.barcode.view.ui.theme.ButtonsBackgroundWhite
 import com.outsystems.plugins.barcode.view.ui.theme.ButtonsBorderGray
 import com.outsystems.plugins.barcode.view.ui.theme.ButtonsTextGray
+import com.outsystems.plugins.barcode.view.ui.theme.ButtonsTextOrange
 import com.outsystems.plugins.barcode.view.ui.theme.ButtonsTextWhite
-import com.outsystems.plugins.barcode.view.ui.theme.CustomGray
+import com.outsystems.plugins.barcode.view.ui.theme.CloseButtonBackground
 import com.outsystems.plugins.barcode.view.ui.theme.NoPadding
 import com.outsystems.plugins.barcode.view.ui.theme.ScanAimWhite
 import com.outsystems.plugins.barcode.view.ui.theme.ScanButtonCornerRadius
@@ -105,8 +112,12 @@ import com.outsystems.plugins.barcode.view.ui.theme.ScannerAimStrokeWidth
 import com.outsystems.plugins.barcode.view.ui.theme.ScannerBackgroundBlack
 import com.outsystems.plugins.barcode.view.ui.theme.ScannerBorderPadding
 import com.outsystems.plugins.barcode.view.ui.theme.TextToRectPadding
+import com.outsystems.plugins.barcode.view.ui.theme.ZoomButtonBackground
+import com.outsystems.plugins.barcode.view.ui.theme.ZoomButtonBackgroundSelected
+import com.outsystems.plugins.barcode.view.ui.theme.ZoomButtonSize
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import kotlin.math.roundToInt
 
 /**
  * This class is responsible for implementing the UI of the scanning screen using Jetpack Compose.
@@ -516,16 +527,36 @@ class OSBARCScannerActivity : ComponentActivity() {
                     .background(ScannerBackgroundBlack)
                     .weight(1f, fill = true),
             ) {
-                ScanActionButtons(
-                    parameters,
-                    NoPadding,
-                    scanModifier = Modifier
+                val showTorch = camera.cameraInfo.hasFlashUnit()
+                val showScan = parameters.scanButton
+
+                Column(
+                    modifier = Modifier
                         .padding(bottom = ScannerBorderPadding)
                         .align(Alignment.BottomCenter),
-                    torchModifier = Modifier
-                        .padding(bottom = ScannerBorderPadding, end = ScannerBorderPadding)
-                        .align(Alignment.BottomEnd)
-                )
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+
+                    ZoomButtons()
+
+                    // scan button to turn on scanning when used
+                    if (showScan) {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        ScanButton(
+                            modifier = Modifier
+                                .height(ActionButtonsDistance),
+                            parameters.scanText)
+                    }
+                }
+
+                // flashlight button
+                if (showTorch) {
+                    TorchButton(
+                        modifier = Modifier
+                            .padding(bottom = ScannerBorderPadding, end = ScannerBorderPadding)
+                            .align(Alignment.BottomEnd)
+                    )
+                }
             }
         }
     }
@@ -575,7 +606,10 @@ class OSBARCScannerActivity : ComponentActivity() {
                 ScanInstructions(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = borderPadding, bottom = if (isPhone) NoPadding else textToRectPadding),
+                        .padding(
+                            top = borderPadding,
+                            bottom = if (isPhone) NoPadding else textToRectPadding
+                        ),
                     parameters
                 )
 
@@ -607,20 +641,33 @@ class OSBARCScannerActivity : ComponentActivity() {
                     modifier = Modifier
                         .padding(end = ScannerBorderPadding)
                         .align(Alignment.CenterEnd),
-                    verticalArrangement = Arrangement.Center
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.End
                 ) {
-                    ScanActionButtons(
-                        parameters,
-                        ScannerBorderPadding,
-                        scanModifier = Modifier
-                            .align(Alignment.End),
-                        torchModifier = Modifier
-                            .align(Alignment.End),
-                    )
+                    val showTorch = camera.cameraInfo.hasFlashUnit()
+                    val showScan = parameters.scanButton
+
+                    // flashlight button
+                    if (showTorch) {
+                        TorchButton(
+                            modifier = Modifier
+                                .align(Alignment.End)
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
+
+                    ZoomButtons()
+
+                    // scan button to turn on scanning when used
+                    if (showScan) {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        ScanButton(
+                            modifier = Modifier
+                                .height(ActionButtonsDistance),
+                            parameters.scanText)
+                    }
                 }
-
             }
-
         }
     }
 
@@ -633,12 +680,14 @@ class OSBARCScannerActivity : ComponentActivity() {
         Icon(
             painter = painterResource(id = R.drawable.close),
             contentDescription = null,
-            tint = CustomGray,
+            tint = Color.White,
             modifier = modifier
+                .background(color = CloseButtonBackground, shape = CircleShape)
                 .clickable {
                     setResult(OSBARCError.SCAN_CANCELLED_ERROR.code)
                     finish()
                 }
+                .padding(12.dp)
         )
     }
 
@@ -723,43 +772,113 @@ class OSBARCScannerActivity : ComponentActivity() {
     }
 
     /**
-     * Composable function, responsible for building the action buttons
-     * on the UI.
-     * This component will only be rendered if scan parameters instructs so.
-     * @param parameters the scan parameters
-     * @param verticalPadding the vertical spacing between buttons
-     * @param scanModifier the custom modifier for the scan button
-     * @param torchModifier the custom modifier for the torch button
+     * Composable function, responsible for building the zoom buttons on the UI.
      */
     @Composable
-    fun ScanActionButtons(parameters: OSBARCScanParameters,
-                          verticalPadding: Dp,
-                          scanModifier: Modifier,
-                          torchModifier: Modifier) {
+    fun ZoomButtons() {
+        val minZoomRatio = camera.cameraInfo.zoomState.value?.minZoomRatio ?: 1f
+        val roundedRatio = (minZoomRatio * 10).roundToInt() / 10f
+        val maxZoomRatio = camera.cameraInfo.zoomState.value?.maxZoomRatio ?: 1f
+        var selectedButton by remember { mutableStateOf(2) }
 
-        val showTorch = camera.cameraInfo.hasFlashUnit()
-        val showScan = parameters.scanButton
+        Row(
+            modifier = Modifier
+                .background(ButtonsBackgroundGray, CircleShape)
+                .wrapContentWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            // we only show the button with zoom below zero if that zoom value is possible
+            if (minZoomRatio < 1f) {
+                ZoomButton(
+                    modifier = Modifier
+                        .padding(start = 6.dp, end = 8.dp),
+                    selectedButton = selectedButton,
+                    buttonToCompare = 1,
+                    "$roundedRatio${getZoomButtonSuffix(selectedButton, 1)}",
+                    onClick = {
+                        selectedButton = 1
+                        camera.cameraControl.setZoomRatio(minZoomRatio)
+                    }
+                )
+            }
 
-        val buttonSpacing = if(showTorch && showScan)
-        { verticalPadding.times(0.5f) } else { verticalPadding.times(0f) }
+            // we only want to show 1x button if there are more buttons
+            // if 1x is the only button, might as well not show it
+            if (minZoomRatio < 1f || maxZoomRatio >= 2f) {
+                ZoomButton(
+                    modifier = Modifier
+                        .padding(
+                            start = if (minZoomRatio < 1) 0.dp else 6.dp,
+                            end = if (maxZoomRatio >= 2) 8.dp else 6.dp
+                        ),
+                    selectedButton = selectedButton,
+                    buttonToCompare = 2,
+                    "1${getZoomButtonSuffix(selectedButton, 2)}",
+                    onClick = {
+                        selectedButton = 2
+                        camera.cameraControl.setZoomRatio(1f)
+                    }
+                )
+            }
 
-        // flashlight button
-        if (showTorch) {
-            TorchButton(
-                torchModifier
-                    .padding(bottom = buttonSpacing)
-                    .size(ActionButtonsDistance),
+            // we only show 2x button if that zoom is available
+            if (maxZoomRatio >= 2f) {
+                ZoomButton(
+                    modifier = Modifier
+                        .padding(end = 6.dp),
+                    selectedButton = selectedButton,
+                    buttonToCompare = 3,
+                    "2${getZoomButtonSuffix(selectedButton, 3)}",
+                    onClick = {
+                        selectedButton = 3
+                        camera.cameraControl.setZoomRatio(2f)
+                    }
+                )
+            }
+        }
+    }
+
+    /**
+     * Composable function, responsible for building single zoom button on the UI.
+     * @param modifier - modifier to be used in button
+     * @param selectedButton - information about the selected button (1, 2 or 3)
+     * @param buttonToCompare - value to compare with selectedButton
+     * @param buttonText - string to be used in Text composable
+     * @param onClick - closure to be called when clicking the button
+     */
+    @Composable
+    fun ZoomButton(
+        modifier: Modifier = Modifier,
+        selectedButton: Int,
+        buttonToCompare: Int,
+        buttonText: String,
+        onClick: () -> Unit
+    ) {
+        OutlinedButton(
+            onClick = onClick,
+            modifier = modifier
+                .padding(top = 4.dp, bottom = 4.dp)
+                .size(ZoomButtonSize),
+            shape = CircleShape,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (selectedButton == buttonToCompare) ZoomButtonBackgroundSelected else ZoomButtonBackground
+            ),
+            contentPadding = PaddingValues(NoPadding),  // so that text shows
+        ) {
+            Text(
+                text = buttonText,
+                color = if (selectedButton == buttonToCompare) ButtonsTextOrange else ButtonsTextWhite,
+                textAlign = TextAlign.Center,
             )
         }
+    }
 
-        // scan button to turn on scanning when used
-        if (showScan) {
-            ScanButton(
-                scanModifier
-                    .padding(top = buttonSpacing)
-                    .height(ActionButtonsDistance),
-                parameters.scanText)
-        }
+    /**
+     * Helper function to determine suffix for zoom buttons
+     */
+    private fun getZoomButtonSuffix(selectedButton: Int, buttonToCompare: Int): String {
+        return if (selectedButton == buttonToCompare) "x" else ""
     }
 
     private fun hasCameraPermission(context: Context): Boolean {

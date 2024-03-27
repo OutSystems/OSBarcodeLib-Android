@@ -16,3 +16,5 @@ val ActionButtonsDistance = 48f.dp
 
 const val SizeRatioWidth = 0.6
 const val SizeRatioHeight = 0.5
+
+val ZoomButtonSize = 35f.dp
