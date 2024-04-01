@@ -127,3 +127,7 @@ barcodeController.handleActivityResult(requestCode, resultCode, intent,
 |OS-PLUG-BARC-0008|Scanning parameters are invalid.|
 |OS-PLUG-BARC-0009|There was an error scanning the barcode with ZXing.|
 |OS-PLUG-BARC-0010|There was an error scanning the barcode with ML Kit.|
+
+## Credits
+
+Third-party libraries: [ZXing](https://github.com/zxing/zxing), [ML Kit](https://developers.google.com/ml-kit),  licensed with [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0).
