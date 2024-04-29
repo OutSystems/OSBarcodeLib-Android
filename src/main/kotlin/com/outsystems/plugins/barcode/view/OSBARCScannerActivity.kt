@@ -23,6 +23,8 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST
 import androidx.camera.core.Preview
+import androidx.camera.core.resolutionselector.ResolutionSelector
+import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.BorderStroke
@@ -288,8 +290,16 @@ class OSBARCScannerActivity : ComponentActivity() {
                     val previewView = PreviewView(context)
                     val preview = Preview.Builder().build()
                     preview.setSurfaceProvider(previewView.surfaceProvider)
+
+                    val resolutionSelector = ResolutionSelector.Builder().setResolutionStrategy(
+                        ResolutionStrategy(android.util.Size(1920, 1080),
+                        ResolutionStrategy.FALLBACK_RULE_NONE)
+                    ).build()
+
                     val imageAnalysis = ImageAnalysis.Builder()
-                        .setTargetResolution(android.util.Size(1920, 1080))
+                        //.setTargetResolution(android.util.Size(1920, 1080))
+                        //.setTargetResolution(android.util.Size(1280, 720))
+                        .setResolutionSelector(resolutionSelector)
                         .setBackpressureStrategy(STRATEGY_KEEP_ONLY_LATEST)
                         .build()
                     imageAnalysis.setAnalyzer(
