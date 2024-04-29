@@ -64,7 +64,7 @@ class OSBARCZXingHelper: OSBARCZXingHelperInterface {
                         DecodeHintType.TRY_HARDER to arrayListOf(true)
                     )
                 )
-            }.decode(binaryBitmap)
+            }.decodeWithState(binaryBitmap)
             onSuccess(result.text)
         } catch (e: NotFoundException) {
             // keep trying, no barcode was found in this camera frame
