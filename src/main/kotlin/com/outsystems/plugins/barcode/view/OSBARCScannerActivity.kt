@@ -297,8 +297,6 @@ class OSBARCScannerActivity : ComponentActivity() {
                     ).build()
 
                     val imageAnalysis = ImageAnalysis.Builder()
-                        //.setTargetResolution(android.util.Size(1920, 1080))
-                        //.setTargetResolution(android.util.Size(1280, 720))
                         .setResolutionSelector(resolutionSelector)
                         .setBackpressureStrategy(STRATEGY_KEEP_ONLY_LATEST)
                         .build()

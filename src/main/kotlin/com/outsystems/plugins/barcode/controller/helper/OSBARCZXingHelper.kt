@@ -58,13 +58,7 @@ class OSBARCZXingHelper: OSBARCZXingHelperInterface {
         try {
             val source = RGBLuminanceSource(width, height, pixels)
             val binaryBitmap = BinaryBitmap(HybridBinarizer(source))
-            val result = MultiFormatReader().apply {
-                setHints(
-                    mapOf(
-                        DecodeHintType.TRY_HARDER to arrayListOf(true)
-                    )
-                )
-            }.decodeWithState(binaryBitmap)
+            val result = MultiFormatReader().decodeWithState(binaryBitmap)
             onSuccess(result.text)
         } catch (e: NotFoundException) {
             // keep trying, no barcode was found in this camera frame
