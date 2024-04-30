@@ -4,7 +4,6 @@ import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.util.Log
 import com.google.zxing.BinaryBitmap
-import com.google.zxing.DecodeHintType
 import com.google.zxing.MultiFormatReader
 import com.google.zxing.NotFoundException
 import com.google.zxing.RGBLuminanceSource

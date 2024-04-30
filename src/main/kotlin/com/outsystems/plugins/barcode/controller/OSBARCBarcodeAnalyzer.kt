@@ -1,9 +1,6 @@
 package com.outsystems.plugins.barcode.controller
 
 import android.graphics.Bitmap
-import android.graphics.ImageFormat
-import android.graphics.Rect
-import android.graphics.YuvImage
 import android.util.Log
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
@@ -11,9 +8,7 @@ import com.outsystems.plugins.barcode.controller.helper.OSBARCImageHelperInterfa
 import com.outsystems.plugins.barcode.model.OSBARCError
 import com.outsystems.plugins.barcode.view.ui.theme.SizeRatioHeight
 import com.outsystems.plugins.barcode.view.ui.theme.SizeRatioWidth
-import java.io.ByteArrayOutputStream
 import java.lang.Exception
-import java.nio.ByteBuffer
 
 /**
  * This class is responsible for implementing the ImageAnalysis.Analyzer interface,
