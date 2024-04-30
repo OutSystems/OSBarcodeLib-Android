@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 The changes documented here do not include those from the original repository.
 
+## [1.1.1]
+
+### 30-04-2024
+- Fix: Improve scanning by using higher resolution frames (https://outsystemsrd.atlassian.net/browse/RMET-3399).
+
 ## [1.1.0]
 
 ### 26-03-2024

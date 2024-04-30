@@ -287,6 +287,7 @@ class ScanCodeTests {
             success = true
             resultCode = RESULT_CODE
         }
+        Mockito.doReturn(mockBitmap).`when`(mockImageProxy).toBitmap()
         OSBARCBarcodeAnalyzer(
             scanLibMock,
             imageHelperMock,
@@ -327,6 +328,7 @@ class ScanCodeTests {
             exception = false
             error = OSBARCError.ZXING_LIBRARY_ERROR
         }
+        Mockito.doReturn(mockBitmap).`when`(mockImageProxy).toBitmap()
         OSBARCBarcodeAnalyzer(
             scanLibMock,
             imageHelperMock,
@@ -347,6 +349,7 @@ class ScanCodeTests {
             exception = false
             error = OSBARCError.MLKIT_LIBRARY_ERROR
         }
+        Mockito.doReturn(mockBitmap).`when`(mockImageProxy).toBitmap()
         OSBARCBarcodeAnalyzer(
             scanLibMock,
             imageHelperMock,
@@ -386,6 +389,7 @@ class ScanCodeTests {
             success = true
             resultCode = RESULT_CODE
         }
+        Mockito.doReturn(mockBitmap).`when`(mockImageProxy).toBitmap()
         OSBARCBarcodeAnalyzer(
             scanLibMock,
             imageHelperMock,
@@ -406,6 +410,7 @@ class ScanCodeTests {
             success = true
             resultCode = RESULT_CODE
         }
+        Mockito.doReturn(mockBitmap).`when`(mockImageProxy).toBitmap()
         OSBARCBarcodeAnalyzer(
             scanLibMock,
             imageHelperMock,
