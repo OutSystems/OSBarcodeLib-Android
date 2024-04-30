@@ -292,10 +292,9 @@ class OSBARCScannerActivity : ComponentActivity() {
                     preview.setSurfaceProvider(previewView.surfaceProvider)
 
                     val resolutionSelector = ResolutionSelector.Builder().setResolutionStrategy(
-                        ResolutionStrategy(android.util.Size(1920, 1080),
-                        ResolutionStrategy.FALLBACK_RULE_NONE)
+                        ResolutionStrategy(android.util.Size(1920, 1080), // high resolution for optimal scanning
+                        ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER)
                     ).build()
-
                     val imageAnalysis = ImageAnalysis.Builder()
                         .setResolutionSelector(resolutionSelector)
                         .setBackpressureStrategy(STRATEGY_KEEP_ONLY_LATEST)
