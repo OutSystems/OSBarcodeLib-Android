@@ -178,7 +178,7 @@ class OSBARCScannerActivity : ComponentActivity() {
             OSBARCScanLibraryFactory.createScanLibraryWrapper(
                 parameters.androidScanningLibrary ?: "",
                 OSBARCZXingHelper(),
-                OSBARCMLKitHelper(parameters.scanInterval)
+                OSBARCMLKitHelper()
             ),
             OSBARCImageHelper(),
             { result ->
@@ -186,7 +186,8 @@ class OSBARCScannerActivity : ComponentActivity() {
             },
             {
                 processReadError(it)
-            }
+            },
+            parameters.scanInterval
         )
 
         setContent {
