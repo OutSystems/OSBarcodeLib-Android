@@ -767,7 +767,7 @@ class OSBARCScannerActivity : ComponentActivity() {
      */
     @Composable
     fun ScanInstructions(modifier: Modifier, parameters: OSBARCScanParameters, isPortrait: Boolean) {
-        if (!parameters.scanInstructions.isNullOrBlank() || isPortrait) {
+        if (isPortrait || !parameters.scanInstructions.isNullOrBlank()) {
             Box(
                 modifier = Modifier
                     .background(ScannerBackgroundBlack)
