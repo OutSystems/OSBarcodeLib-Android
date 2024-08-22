@@ -520,11 +520,17 @@ class OSBARCScannerActivity : ComponentActivity() {
                 verticalArrangement = Arrangement.Center
             ) {
 
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f, fill = true)
+                        .background(ScannerBackgroundBlack)
+                )
+
                 ScanInstructions(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    parameters,
-                    true
+                    parameters
                 )
 
                 ScanScreenAim(screenHeight, borderPadding, borderPadding, isPhone, true)
@@ -619,8 +625,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                             top = borderPadding,
                             bottom = if (isPhone) NoPadding else textToRectPadding
                         ),
-                    parameters,
-                    false
+                    parameters
                 )
 
                 ScanScreenAim(screenHeight, NoPadding, borderPadding, isPhone, isPortrait)
@@ -763,17 +768,16 @@ class OSBARCScannerActivity : ComponentActivity() {
      * This component will only be rendered if scan parameters instructs so.
      * @param modifier the custom modifier for the whole view
      * @param parameters the scan parameters
-     * @param isPortrait identifies if the layout is portrait or landscape
      */
     @Composable
-    fun ScanInstructions(modifier: Modifier, parameters: OSBARCScanParameters, isPortrait: Boolean) {
-        if (isPortrait || !parameters.scanInstructions.isNullOrBlank()) {
+    fun ScanInstructions(modifier: Modifier, parameters: OSBARCScanParameters) {
+        if (!parameters.scanInstructions.isNullOrBlank()) {
             Box(
                 modifier = Modifier
                     .background(ScannerBackgroundBlack)
             ) {
                 Text(
-                    text = parameters.scanInstructions ?: "",
+                    text = parameters.scanInstructions,
                     modifier = modifier,
                     color = ScanInstructionsWhite,
                     textAlign = TextAlign.Center
