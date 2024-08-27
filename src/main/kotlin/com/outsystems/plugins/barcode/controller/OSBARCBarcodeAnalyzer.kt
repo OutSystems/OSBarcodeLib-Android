@@ -18,10 +18,12 @@ class OSBARCBarcodeAnalyzer(
     private val scanLibrary: OSBARCScanLibraryInterface,
     private val imageHelper: OSBARCImageHelperInterface,
     private val onBarcodeScanned: (String) -> Unit,
-    private val onScanningError: (OSBARCError) -> Unit
+    private val onScanningError: (OSBARCError) -> Unit,
+    private val delayMillis: Long? = 500L
 ): ImageAnalysis.Analyzer {
 
     var isPortrait = true
+    private var lastAnalyzedTimestamp = 0L
 
     companion object {
         private const val LOG_TAG = "OSBARCBarcodeAnalyzer"
@@ -34,20 +36,30 @@ class OSBARCBarcodeAnalyzer(
      * @param image - ImageProxy object that represents the image to be analyzed.
      */
     override fun analyze(image: ImageProxy) {
-        try {
-            scanLibrary.scanBarcode(
-                image,
-                cropBitmap(image.toBitmap()),
-                {
-                    onBarcodeScanned(it)
-                },
-                {
-                    onScanningError(it)
-                }
-            )
-        } catch (e: Exception) {
-            e.message?.let { Log.e(LOG_TAG, it) }
-            onScanningError(OSBARCError.SCANNING_GENERAL_ERROR)
+        val currentTimestamp = System.currentTimeMillis()
+
+        // Use the delayMillis value, defaulting to 500 milliseconds if it is null
+        val effectiveDelayMillis = delayMillis ?: 500L
+
+        // Only analyze the image if the desired delay has passed
+        if (currentTimestamp - lastAnalyzedTimestamp >= effectiveDelayMillis) {
+            try {
+                scanLibrary.scanBarcode(
+                    image,
+                    cropBitmap(image.toBitmap()),
+                    {
+                        onBarcodeScanned(it)
+                    },
+                    {
+                        onScanningError(it)
+                    }
+                )
+            } catch (e: Exception) {
+                e.message?.let { Log.e(LOG_TAG, it) }
+                onScanningError(OSBARCError.SCANNING_GENERAL_ERROR)
+            }
+            // Update the timestamp of the last analyzed frame
+            lastAnalyzedTimestamp = currentTimestamp
         }
         image.close()
     }
