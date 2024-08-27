@@ -520,6 +520,13 @@ class OSBARCScannerActivity : ComponentActivity() {
                 verticalArrangement = Arrangement.Center
             ) {
 
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f, fill = true)
+                        .background(ScannerBackgroundBlack)
+                )
+
                 ScanInstructions(
                     modifier = Modifier
                         .fillMaxWidth(),
@@ -764,7 +771,7 @@ class OSBARCScannerActivity : ComponentActivity() {
      */
     @Composable
     fun ScanInstructions(modifier: Modifier, parameters: OSBARCScanParameters) {
-        if (!parameters.scanInstructions.isNullOrEmpty()) {
+        if (!parameters.scanInstructions.isNullOrBlank()) {
             Box(
                 modifier = Modifier
                     .background(ScannerBackgroundBlack)
