@@ -608,14 +608,15 @@ class OSBARCScannerActivity : ComponentActivity() {
                 .fillMaxSize(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-
-            Box(
+            // Left spacer to maintain horizontal conformance
+            Spacer(
                 modifier = Modifier
                     .fillMaxHeight()
                     .width(rightButtonsWidth)
                     .background(ScannerBackgroundBlack)
             )
 
+            // Center column with scanning area
             Column(
                 modifier = Modifier
                     .fillMaxHeight()
@@ -650,6 +651,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                 )
             }
 
+            // Right column with buttons
             Box(
                 modifier = Modifier
                     .fillMaxHeight()
@@ -667,7 +669,7 @@ class OSBARCScannerActivity : ComponentActivity() {
 
                 Column(
                     modifier = Modifier
-                        .padding(end = ScannerBorderPadding)
+                        .padding(start = 24.dp, end = ScannerBorderPadding)
                         .align(Alignment.CenterEnd),
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.End
