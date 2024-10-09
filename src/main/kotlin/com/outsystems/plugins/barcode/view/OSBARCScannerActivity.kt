@@ -45,6 +45,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -76,8 +77,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -394,15 +397,21 @@ class OSBARCScannerActivity : ComponentActivity() {
                 var rectHeight: Float
 
                 if (isPhone) { // for phones
-                    rectWidth = canvasWidth - (horizontalPadding.toPx() * 2) - (ScannerAimRectCornerPadding.toPx() * 2)
-                    rectHeight = canvasHeight - (verticalPadding.toPx() * 2) - (ScannerAimRectCornerPadding.toPx() * 2)
-                } else { // for tablets
                     if (isPortrait) {
-                        rectWidth = (canvasWidth) - (horizontalPadding.toPx() * 2) - (ScannerAimRectCornerPadding.toPx() * 2)
-                        rectHeight = rectWidth
-                    } else {
                         rectWidth = canvasWidth - (horizontalPadding.toPx() * 2) - (ScannerAimRectCornerPadding.toPx() * 2)
-                        rectHeight = canvasHeight - (ScannerAimRectCornerPadding.toPx() * 2)
+                        rectHeight = canvasHeight - (verticalPadding.toPx() * 2) - (ScannerAimRectCornerPadding.toPx() * 2)
+                    } else {
+                        // For phone landscape, use the full width
+                        rectWidth = canvasWidth - (ScannerAimRectCornerPadding.toPx() * 2)
+                        rectHeight = canvasHeight - (verticalPadding.toPx() * 2) - (ScannerAimRectCornerPadding.toPx() * 2)
+                    }
+                } else { // for tablets
+                    // For tablets, use the full width in both orientations
+                    rectWidth = canvasWidth - (ScannerAimRectCornerPadding.toPx() * 2)
+                    rectHeight = if (isPortrait) {
+                        rectWidth // Make it square in portrait
+                    } else {
+                        canvasHeight - (ScannerAimRectCornerPadding.toPx() * 2)
                     }
                 }
 
@@ -591,6 +600,9 @@ class OSBARCScannerActivity : ComponentActivity() {
                               textToRectPadding: Dp,
                               isPhone: Boolean,
                               isPortrait: Boolean) {
+        var rightButtonsWidth by remember { mutableStateOf(0.dp) }
+        val density = LocalDensity.current
+
         Row(
             modifier = Modifier
                 .fillMaxSize(),
@@ -600,14 +612,14 @@ class OSBARCScannerActivity : ComponentActivity() {
             Box(
                 modifier = Modifier
                     .fillMaxHeight()
-                    .weight(1f, fill = true)
+                    .width(rightButtonsWidth)
                     .background(ScannerBackgroundBlack)
             )
 
             Column(
                 modifier = Modifier
                     .fillMaxHeight()
-                    .weight(2f, fill = true),
+                    .weight(1f),
                 verticalArrangement = Arrangement.Center
             ) {
 
@@ -636,13 +648,14 @@ class OSBARCScannerActivity : ComponentActivity() {
                         .weight(1f, fill = true)
                         .background(ScannerBackgroundBlack)
                 )
-
             }
 
             Box(
                 modifier = Modifier
                     .fillMaxHeight()
-                    .weight(1f, fill = true)
+                    .onGloballyPositioned { coordinates ->
+                        rightButtonsWidth = with(density) { coordinates.size.width.toDp() }
+                    }
                     .background(ScannerBackgroundBlack)
             ) {
 
