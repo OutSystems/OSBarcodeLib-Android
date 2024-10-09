@@ -432,10 +432,13 @@ class OSBARCScannerActivity : ComponentActivity() {
                     drawRect(color = ScannerBackgroundBlack)
                 }
 
-                val aimTop = rectTop - ScannerAimRectCornerPadding.toPx()
-                val aimLeft = rectLeft - ScannerAimRectCornerPadding.toPx()
-                val aimRight = aimLeft + rectWidth + (ScannerAimRectCornerPadding * 2).toPx()
-                val aimBottom = aimTop + rectHeight + (ScannerAimRectCornerPadding * 2).toPx()
+                val strokeWidth = ScannerAimStrokeWidth
+                val halfStroke = strokeWidth / 2
+
+                val aimTop = rectTop - ScannerAimRectCornerPadding.toPx() + halfStroke
+                val aimLeft = rectLeft - ScannerAimRectCornerPadding.toPx() + halfStroke
+                val aimRight = aimLeft + rectWidth + (ScannerAimRectCornerPadding * 2).toPx() - strokeWidth
+                val aimBottom = aimTop + rectHeight + (ScannerAimRectCornerPadding * 2).toPx() - strokeWidth
                 val aimLength = ScannerAimCornerLength.toPx()
 
                 val aimPath = Path()
@@ -475,7 +478,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                     Point(aimRight - radius, aimTop),
                     Point(aimRight - aimLength, aimTop)
                 )
-                drawPath(aimPath, color = ScanAimWhite, style = Stroke(width = ScannerAimStrokeWidth))
+                drawPath(aimPath, color = ScanAimWhite, style = Stroke(width = strokeWidth))
             }
         )
     }
