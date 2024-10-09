@@ -672,7 +672,7 @@ class OSBARCScannerActivity : ComponentActivity() {
 
                 Column(
                     modifier = Modifier
-                        .padding(start = 24.dp, end = ScannerBorderPadding)
+                        .padding(start = 12.dp, end = ScannerBorderPadding)
                         .align(Alignment.CenterEnd),
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.End
