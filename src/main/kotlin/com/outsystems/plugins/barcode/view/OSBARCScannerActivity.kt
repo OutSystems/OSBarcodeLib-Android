@@ -406,13 +406,9 @@ class OSBARCScannerActivity : ComponentActivity() {
                         rectHeight = canvasHeight - (verticalPadding.toPx() * 2) - (ScannerAimRectCornerPadding.toPx() * 2)
                     }
                 } else { // for tablets
-                    // For tablets, use the full width in both orientations
+                    // For tablets, ensure the rectangle fits within the canvas
                     rectWidth = canvasWidth - (ScannerAimRectCornerPadding.toPx() * 2)
-                    rectHeight = if (isPortrait) {
-                        rectWidth // Make it square in portrait
-                    } else {
-                        canvasHeight - (ScannerAimRectCornerPadding.toPx() * 2)
-                    }
+                    rectHeight = minOf(rectWidth, canvasHeight - (ScannerAimRectCornerPadding.toPx() * 2))
                 }
 
                 val rectLeft = (canvasWidth - rectWidth) / 2
