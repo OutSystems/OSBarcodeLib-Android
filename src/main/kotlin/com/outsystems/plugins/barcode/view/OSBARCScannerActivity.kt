@@ -45,6 +45,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -76,8 +77,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -394,16 +397,18 @@ class OSBARCScannerActivity : ComponentActivity() {
                 var rectHeight: Float
 
                 if (isPhone) { // for phones
-                    rectWidth = canvasWidth - (horizontalPadding.toPx() * 2) - (ScannerAimRectCornerPadding.toPx() * 2)
-                    rectHeight = canvasHeight - (verticalPadding.toPx() * 2) - (ScannerAimRectCornerPadding.toPx() * 2)
-                } else { // for tablets
                     if (isPortrait) {
-                        rectWidth = (canvasWidth) - (horizontalPadding.toPx() * 2) - (ScannerAimRectCornerPadding.toPx() * 2)
-                        rectHeight = rectWidth
-                    } else {
                         rectWidth = canvasWidth - (horizontalPadding.toPx() * 2) - (ScannerAimRectCornerPadding.toPx() * 2)
-                        rectHeight = canvasHeight - (ScannerAimRectCornerPadding.toPx() * 2)
+                        rectHeight = canvasHeight - (verticalPadding.toPx() * 2) - (ScannerAimRectCornerPadding.toPx() * 2)
+                    } else {
+                        // For phone landscape, use the full width
+                        rectWidth = canvasWidth - (ScannerAimRectCornerPadding.toPx() * 2)
+                        rectHeight = canvasHeight - (verticalPadding.toPx() * 2) - (ScannerAimRectCornerPadding.toPx() * 2)
                     }
+                } else { // for tablets
+                    // For tablets, ensure the rectangle fits within the canvas
+                    rectWidth = canvasWidth - (ScannerAimRectCornerPadding.toPx() * 2)
+                    rectHeight = minOf(rectWidth, canvasHeight - (ScannerAimRectCornerPadding.toPx() * 2))
                 }
 
                 val rectLeft = (canvasWidth - rectWidth) / 2
@@ -423,10 +428,13 @@ class OSBARCScannerActivity : ComponentActivity() {
                     drawRect(color = ScannerBackgroundBlack)
                 }
 
-                val aimTop = rectTop - ScannerAimRectCornerPadding.toPx()
-                val aimLeft = rectLeft - ScannerAimRectCornerPadding.toPx()
-                val aimRight = aimLeft + rectWidth + (ScannerAimRectCornerPadding * 2).toPx()
-                val aimBottom = aimTop + rectHeight + (ScannerAimRectCornerPadding * 2).toPx()
+                val strokeWidth = ScannerAimStrokeWidth
+                val halfStroke = strokeWidth / 2
+
+                val aimTop = rectTop - ScannerAimRectCornerPadding.toPx() + halfStroke
+                val aimLeft = rectLeft - ScannerAimRectCornerPadding.toPx() + halfStroke
+                val aimRight = aimLeft + rectWidth + (ScannerAimRectCornerPadding * 2).toPx() - strokeWidth
+                val aimBottom = aimTop + rectHeight + (ScannerAimRectCornerPadding * 2).toPx() - strokeWidth
                 val aimLength = ScannerAimCornerLength.toPx()
 
                 val aimPath = Path()
@@ -466,7 +474,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                     Point(aimRight - radius, aimTop),
                     Point(aimRight - aimLength, aimTop)
                 )
-                drawPath(aimPath, color = ScanAimWhite, style = Stroke(width = ScannerAimStrokeWidth))
+                drawPath(aimPath, color = ScanAimWhite, style = Stroke(width = strokeWidth))
             }
         )
     }
@@ -591,23 +599,27 @@ class OSBARCScannerActivity : ComponentActivity() {
                               textToRectPadding: Dp,
                               isPhone: Boolean,
                               isPortrait: Boolean) {
+        var rightButtonsWidth by remember { mutableStateOf(0.dp) }
+        val density = LocalDensity.current
+
         Row(
             modifier = Modifier
                 .fillMaxSize(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-
-            Box(
+            // Left spacer to maintain horizontal conformance
+            Spacer(
                 modifier = Modifier
                     .fillMaxHeight()
-                    .weight(1f, fill = true)
+                    .width(rightButtonsWidth)
                     .background(ScannerBackgroundBlack)
             )
 
+            // Center column with scanning area
             Column(
                 modifier = Modifier
                     .fillMaxHeight()
-                    .weight(2f, fill = true),
+                    .weight(1f),
                 verticalArrangement = Arrangement.Center
             ) {
 
@@ -636,13 +648,15 @@ class OSBARCScannerActivity : ComponentActivity() {
                         .weight(1f, fill = true)
                         .background(ScannerBackgroundBlack)
                 )
-
             }
 
+            // Right column with buttons
             Box(
                 modifier = Modifier
                     .fillMaxHeight()
-                    .weight(1f, fill = true)
+                    .onGloballyPositioned { coordinates ->
+                        rightButtonsWidth = with(density) { coordinates.size.width.toDp() }
+                    }
                     .background(ScannerBackgroundBlack)
             ) {
 
@@ -654,7 +668,7 @@ class OSBARCScannerActivity : ComponentActivity() {
 
                 Column(
                     modifier = Modifier
-                        .padding(end = ScannerBorderPadding)
+                        .padding(start = 12.dp, end = ScannerBorderPadding)
                         .align(Alignment.CenterEnd),
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.End
