@@ -393,21 +393,14 @@ class OSBARCScannerActivity : ComponentActivity() {
 
                 // rectangle size is determined by removing the padding from the border of the screen
                 // and the padding to the corners of the rectangle
-                var rectWidth: Float
-                var rectHeight: Float
+                var rectWidth: Float = canvasWidth - (ScannerAimRectCornerPadding.toPx() * 2)
+                var rectHeight: Float = canvasHeight - (verticalPadding.toPx() * 2) - (ScannerAimRectCornerPadding.toPx() * 2)
 
                 if (isPhone) { // for phones
                     if (isPortrait) {
                         rectWidth = canvasWidth - (horizontalPadding.toPx() * 2) - (ScannerAimRectCornerPadding.toPx() * 2)
-                        rectHeight = canvasHeight - (verticalPadding.toPx() * 2) - (ScannerAimRectCornerPadding.toPx() * 2)
-                    } else {
-                        // For phone landscape, use the full width
-                        rectWidth = canvasWidth - (ScannerAimRectCornerPadding.toPx() * 2)
-                        rectHeight = canvasHeight - (verticalPadding.toPx() * 2) - (ScannerAimRectCornerPadding.toPx() * 2)
                     }
                 } else { // for tablets
-                    // For tablets, ensure the rectangle fits within the canvas
-                    rectWidth = canvasWidth - (ScannerAimRectCornerPadding.toPx() * 2)
                     rectHeight = minOf(rectWidth, canvasHeight - (ScannerAimRectCornerPadding.toPx() * 2))
                 }
 
