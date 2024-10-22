@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 The changes documented here do not include those from the original repository.
 
+## [1.1.4]
+
+### 08-10-2024
+- Fix: Make Scanner view wider on landscape and on tablets (https://outsystemsrd.atlassian.net/browse/RMET-3682).
+
 ## [1.1.3]
 
 ### 22-08-2024
