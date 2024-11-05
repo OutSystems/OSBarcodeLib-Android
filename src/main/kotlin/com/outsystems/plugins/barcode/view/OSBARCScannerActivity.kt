@@ -77,6 +77,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
+import androidx.compose.ui.graphics.toComposeRect
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -89,6 +90,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
+import androidx.window.layout.WindowMetricsCalculator
 import com.outsystems.plugins.barcode.R
 import com.outsystems.plugins.barcode.controller.OSBARCBarcodeAnalyzer
 import com.outsystems.plugins.barcode.controller.OSBARCScanLibraryFactory
@@ -337,8 +339,13 @@ class OSBARCScannerActivity : ComponentActivity() {
     fun ScanScreenUI(parameters: OSBARCScanParameters, windowSizeClass: WindowSizeClass) {
         // actual UI on top of the camera stream
         val configuration = LocalConfiguration.current
-        screenHeight = configuration.screenHeightDp.dp
-        screenWidth = configuration.screenWidthDp.dp
+        val windowMetrics =
+            WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(this)
+        val rect = windowMetrics.bounds.toComposeRect()
+        with(LocalDensity.current) {
+            screenHeight = rect.height.toDp()
+            screenWidth = rect.width.toDp()
+        }
 
         val isPortrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
 
