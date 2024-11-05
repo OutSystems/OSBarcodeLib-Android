@@ -286,7 +286,6 @@ class OSBARCScannerActivity : ComponentActivity() {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .safeDrawingPadding()
         ) {
             AndroidView(
                 factory = { context ->
@@ -505,7 +504,8 @@ class OSBARCScannerActivity : ComponentActivity() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(ScannerBackgroundBlack)
-                    .weight(1f, fill = true),
+                    .weight(1f, fill = true)
+                    .safeDrawingPadding(),
             ) {
                 CloseButton(
                     modifier = Modifier
@@ -541,7 +541,8 @@ class OSBARCScannerActivity : ComponentActivity() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(ScannerBackgroundBlack)
-                    .weight(1f, fill = true),
+                    .weight(1f, fill = true)
+                    .safeDrawingPadding(),
             ) {
                 val showTorch = camera.cameraInfo.hasFlashUnit()
                 val showScan = parameters.scanButton
@@ -651,6 +652,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                         rightButtonsWidth = with(density) { coordinates.size.width.toDp() }
                     }
                     .background(ScannerBackgroundBlack)
+                    .safeDrawingPadding()
             ) {
 
                 CloseButton(
