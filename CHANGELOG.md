@@ -8,6 +8,9 @@ The changes documented here do not include those from the original repository.
 
 ## [Unreleased]
 
+### 08-11-2024
+- Fix: Update libraries for supporting 16KB page size (https://outsystemsrd.atlassian.net/browse/RMET-3602)
+
 ### 05-11-2024
 - Fix: Edge-to-edge support on Android 15 (https://outsystemsrd.atlassian.net/browse/RMET-3597)
 
