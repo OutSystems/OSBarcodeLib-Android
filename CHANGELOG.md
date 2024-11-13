@@ -8,6 +8,10 @@ The changes documented here do not include those from the original repository.
 
 ## [Unreleased]
 
+### 13-11-2024
+- Feature: Support Edge-to-Edge on all Android versions.
+
+
 ### 08-11-2024
 - Fix: Update libraries for supporting 16KB page size (https://outsystemsrd.atlassian.net/browse/RMET-3602)
 
