@@ -191,7 +191,8 @@ class OSBARCScannerActivity : ComponentActivity() {
             },
             {
                 processReadError(it)
-            }
+            },
+            parameters.scanInterval
         )
 
         setContent {
