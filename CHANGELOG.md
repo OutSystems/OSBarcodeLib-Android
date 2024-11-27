@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 The changes documented here do not include those from the original repository.
 
+## Unreleased
+
+### 13-11-2024
+- Feature: Support Edge-to-Edge on all Android versions.
+
 ## [1.1.5]
 
 ### 08-11-2024
