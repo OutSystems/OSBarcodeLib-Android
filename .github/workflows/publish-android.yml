@@ -1,10 +1,6 @@
 name: Publish Native Android Library
 
-#on: workflow_dispatch
-on:
-  workflow_dispatch:
-  push:
-    branches: [ feat/RMET-3983/add-publish-workflow ]
+on: workflow_dispatch
 
 jobs:
   publish-android:

@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 The changes documented here do not include those from the original repository.
 
+## [Unreleased]
+
+- Add `publish-android` workflow to publish library under `io.ionic.libs` in Maven (https://outsystemsrd.atlassian.net/browse/RMET-3983)
+
 ## [1.2.0]
 
 ### 02-12-2024
