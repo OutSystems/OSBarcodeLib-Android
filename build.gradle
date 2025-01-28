@@ -99,14 +99,9 @@ android {
         unitTests.returnDefaultValues = true
     }
 
-    lintOptions {
-        abortOnError false
-    }
-
     publishing {
         singleVariant("release")
     }
-
 }
 
 repositories {
