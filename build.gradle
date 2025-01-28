@@ -138,3 +138,7 @@ dependencies {
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.2"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.2"
 }
+
+if (System.getenv("SHOULD_PUBLISH") == "true") {
+    apply from: file("./scripts/publish-module.gradle")
+}
