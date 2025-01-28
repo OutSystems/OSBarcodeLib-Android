@@ -6,6 +6,9 @@ buildscript {
         mavenCentral()
     }
     dependencies {
+        if (System.getenv("SHOULD_PUBLISH") == "true") {
+            classpath("io.github.gradle-nexus:publish-plugin:1.1.0")
+        }
         classpath 'com.android.tools.build:gradle:8.7.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jacoco:org.jacoco.core:$jacocoVersion"
@@ -22,6 +25,11 @@ sonarqube {
         property "sonar.organization", "outsystemsrd"
         property "sonar.host.url", "https://sonarcloud.io"
     }
+}
+
+if (System.getenv("SHOULD_PUBLISH") == "true") {
+    apply plugin: "io.github.gradle-nexus.publish-plugin"
+    apply from: file("./scripts/publish-root.gradle")
 }
 
 apply plugin: "com.android.library"
