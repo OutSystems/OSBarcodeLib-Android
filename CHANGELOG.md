@@ -8,6 +8,7 @@ The changes documented here do not include those from the original repository.
 
 ## [Unreleased]
 
+### 28-01-2025
 - Add `publish-android` workflow to publish library under `io.ionic.libs` in Maven (https://outsystemsrd.atlassian.net/browse/RMET-3983)
 
 ## [1.2.0]
