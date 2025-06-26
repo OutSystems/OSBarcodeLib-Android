@@ -8,6 +8,10 @@ The changes documented here do not include those from the original repository.
 
 ## [Unreleased]
 
+### 2025-06-24
+
+- Migrate publishing from OSSRH to Central Portal.
+
 ### 28-01-2025
 - Add `publish-android` workflow to publish library under `io.ionic.libs` in Maven (https://outsystemsrd.atlassian.net/browse/RMET-3983)
 
