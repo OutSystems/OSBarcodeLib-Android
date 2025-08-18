@@ -18,6 +18,13 @@ class OSBARCMLKitHelper: OSBARCMLKitHelperInterface {
         private const val LOG_TAG = "OSBARCMLKitHelper"
     }
 
+    private val scanner by lazy {
+        val options = BarcodeScannerOptions.Builder()
+            .enableAllPotentialBarcodes()
+            .build()
+        BarcodeScanning.getClient(options)
+    }
+
     /**
      * Scans an image looking for barcodes, using the ML Kit library.
      * @param imageProxy - ImageProxy object that represents the image to be analyzed.
@@ -31,10 +38,6 @@ class OSBARCMLKitHelper: OSBARCMLKitHelperInterface {
         onSuccess: (MutableList<Barcode>) -> Unit,
         onError: () -> Unit
     ) {
-        val options = BarcodeScannerOptions.Builder()
-            .enableAllPotentialBarcodes()
-            .build()
-        val scanner = BarcodeScanning.getClient(options)
         val image = InputImage.fromBitmap(
             imageBitmap,
             imageProxy.imageInfo.rotationDegrees
