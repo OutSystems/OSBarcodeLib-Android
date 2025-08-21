@@ -183,8 +183,8 @@ class OSBARCScannerActivity : ComponentActivity() {
         barcodeAnalyzer = OSBARCBarcodeAnalyzer(
             OSBARCScanLibraryFactory.createScanLibraryWrapper(
                 parameters.androidScanningLibrary ?: "",
-                OSBARCZXingHelper(),
-                OSBARCMLKitHelper()
+                OSBARCZXingHelper(parameters.hint),
+                OSBARCMLKitHelper(parameters.hint)
             ),
             OSBARCImageHelper(),
             { result ->

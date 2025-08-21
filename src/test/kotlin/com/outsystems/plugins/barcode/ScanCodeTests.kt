@@ -17,6 +17,7 @@ import com.outsystems.plugins.barcode.mocks.OSBARCZXingHelperMock
 import com.outsystems.plugins.barcode.mocks.OSBARCScanLibraryMock
 import com.outsystems.plugins.barcode.model.OSBARCError
 import com.outsystems.plugins.barcode.model.OSBARCScanParameters
+import com.outsystems.plugins.barcode.model.OSBARCScannerHint
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import org.junit.Before
@@ -77,7 +78,7 @@ class ScanCodeTests {
             1,
             false,
             "",
-            1,
+            OSBARCScannerHint.QR_CODE,
             "zxing"
         )
         barcodeController.scanCode(mockActivity, parameters)

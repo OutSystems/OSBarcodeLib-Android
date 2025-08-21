@@ -3,21 +3,35 @@ package com.outsystems.plugins.barcode.controller.helper
 import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.util.Log
+import com.google.zxing.BarcodeFormat
 import com.google.zxing.BinaryBitmap
+import com.google.zxing.DecodeHintType
 import com.google.zxing.MultiFormatReader
 import com.google.zxing.NotFoundException
 import com.google.zxing.RGBLuminanceSource
 import com.google.zxing.common.HybridBinarizer
+import com.outsystems.plugins.barcode.model.OSBARCScannerHint
 
 /**
  * Helper class that implements the OSBARCZXingHelperInterface
  * to scan an image using the ZXing library.
  * It encapsulates all the code related with the ZXing library.
  */
-class OSBARCZXingHelper: OSBARCZXingHelperInterface {
+class OSBARCZXingHelper(private val hint: OSBARCScannerHint?): OSBARCZXingHelperInterface {
 
     companion object {
         private const val LOG_TAG = "OSBARCZXingHelper"
+    }
+
+    private val reader: MultiFormatReader by lazy {
+        val format = hint.toZXingBarcodeFormat()
+        MultiFormatReader().apply {
+            if (format != null) {
+                setHints(
+                    mapOf(DecodeHintType.POSSIBLE_FORMATS to setOf(format))
+                )
+            }
+        }
     }
 
     /**
@@ -57,7 +71,7 @@ class OSBARCZXingHelper: OSBARCZXingHelperInterface {
         try {
             val source = RGBLuminanceSource(width, height, pixels)
             val binaryBitmap = BinaryBitmap(HybridBinarizer(source))
-            val result = MultiFormatReader().decodeWithState(binaryBitmap)
+            val result = reader.decodeWithState(binaryBitmap)
             onSuccess(result.text)
         } catch (e: NotFoundException) {
             // keep trying, no barcode was found in this camera frame
@@ -66,7 +80,27 @@ class OSBARCZXingHelper: OSBARCZXingHelperInterface {
             e.message?.let { Log.e(LOG_TAG, it) }
             onError()
         }
-
     }
 
+    private fun OSBARCScannerHint?.toZXingBarcodeFormat(): BarcodeFormat? = when (this) {
+        OSBARCScannerHint.QR_CODE -> BarcodeFormat.QR_CODE
+        OSBARCScannerHint.AZTEC -> BarcodeFormat.AZTEC
+        OSBARCScannerHint.CODABAR -> BarcodeFormat.CODABAR
+        OSBARCScannerHint.CODE_39 -> BarcodeFormat.CODE_39
+        OSBARCScannerHint.CODE_93 -> BarcodeFormat.CODE_93
+        OSBARCScannerHint.CODE_128 -> BarcodeFormat.CODE_128
+        OSBARCScannerHint.DATA_MATRIX -> BarcodeFormat.DATA_MATRIX
+        OSBARCScannerHint.MAXICODE -> BarcodeFormat.MAXICODE
+        OSBARCScannerHint.ITF -> BarcodeFormat.ITF
+        OSBARCScannerHint.EAN_13 -> BarcodeFormat.EAN_13
+        OSBARCScannerHint.EAN_8 -> BarcodeFormat.EAN_8
+        OSBARCScannerHint.PDF_417 -> BarcodeFormat.PDF_417
+        OSBARCScannerHint.RSS_14 -> BarcodeFormat.RSS_14
+        OSBARCScannerHint.RSS_EXPANDED -> BarcodeFormat.RSS_EXPANDED
+        OSBARCScannerHint.UPC_A -> BarcodeFormat.UPC_A
+        OSBARCScannerHint.UPC_E -> BarcodeFormat.UPC_E
+        OSBARCScannerHint.UPC_EAN_EXTENSION -> BarcodeFormat.UPC_EAN_EXTENSION
+        OSBARCScannerHint.UNKNOWN -> null
+        null -> null
+    }
 }

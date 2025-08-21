@@ -12,6 +12,6 @@ data class OSBARCScanParameters(
     @SerializedName("scanOrientation") val scanOrientation: Int?,
     @SerializedName("scanButton") val scanButton: Boolean,
     @SerializedName("scanText") val scanText: String,
-    @SerializedName("hint") val hint: Int?,
+    @SerializedName("hint") val hint: OSBARCScannerHint?,
     @SerializedName("androidScanningLibrary") val androidScanningLibrary: String?
 ) : Serializable
