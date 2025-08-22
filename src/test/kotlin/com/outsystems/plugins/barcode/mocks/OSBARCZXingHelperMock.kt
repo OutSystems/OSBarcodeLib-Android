@@ -2,11 +2,13 @@ package com.outsystems.plugins.barcode.mocks
 
 import android.graphics.Bitmap
 import com.outsystems.plugins.barcode.controller.helper.OSBARCZXingHelperInterface
+import com.outsystems.plugins.barcode.model.OSBARCScanResult
+import com.outsystems.plugins.barcode.model.OSBARCScannerHint
 import org.mockito.Mockito
 
 class OSBARCZXingHelperMock: OSBARCZXingHelperInterface {
 
-    var scanResult = ""
+    var scanResult = OSBARCScanResult("", OSBARCScannerHint.UNKNOWN)
     var success = true
     var exception = false
 
@@ -18,7 +20,7 @@ class OSBARCZXingHelperMock: OSBARCZXingHelperInterface {
         pixels: IntArray,
         width: Int,
         height: Int,
-        onSuccess: (String) -> Unit,
+        onSuccess: (OSBARCScanResult) -> Unit,
         onError: () -> Unit
     ) {
         if (success) {

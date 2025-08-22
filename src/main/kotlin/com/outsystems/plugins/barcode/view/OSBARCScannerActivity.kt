@@ -90,6 +90,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.core.content.IntentCompat
 import androidx.core.view.WindowCompat
 import androidx.window.layout.WindowMetricsCalculator
 import com.outsystems.plugins.barcode.R
@@ -100,6 +101,7 @@ import com.outsystems.plugins.barcode.controller.helper.OSBARCMLKitHelper
 import com.outsystems.plugins.barcode.controller.helper.OSBARCZXingHelper
 import com.outsystems.plugins.barcode.model.OSBARCError
 import com.outsystems.plugins.barcode.model.OSBARCScanParameters
+import com.outsystems.plugins.barcode.model.OSBARCScanResult
 import com.outsystems.plugins.barcode.view.ui.theme.ActionButtonsDistance
 import com.outsystems.plugins.barcode.view.ui.theme.BarcodeScannerTheme
 import com.outsystems.plugins.barcode.view.ui.theme.ButtonsBackgroundGray
@@ -166,7 +168,7 @@ class OSBARCScannerActivity : ComponentActivity() {
 
         cameraExecutor = Executors.newSingleThreadExecutor()
 
-        val parameters = intent.extras?.getSerializable(SCAN_PARAMETERS) as OSBARCScanParameters
+        val parameters = IntentCompat.getSerializableExtra(intent, SCAN_PARAMETERS, OSBARCScanParameters::class.java)!!
 
         // possibly lock orientation, the screen is adaptive by default
         if (parameters.scanOrientation == ORIENTATION_PORTRAIT) {
@@ -920,7 +922,7 @@ class OSBARCScannerActivity : ComponentActivity() {
         ) == PackageManager.PERMISSION_GRANTED
     }
 
-    private fun processReadSuccess(result: String) {
+    private fun processReadSuccess(result: OSBARCScanResult) {
         // we only want to process the scan result if scanning is active
         if (isScanning) {
             val resultIntent = Intent()

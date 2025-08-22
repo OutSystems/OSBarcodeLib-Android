@@ -4,12 +4,13 @@ import android.graphics.Bitmap
 import androidx.camera.core.ImageProxy
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.outsystems.plugins.barcode.controller.helper.OSBARCMLKitHelperInterface
+import com.outsystems.plugins.barcode.model.OSBARCScanResult
 import org.mockito.Mockito
 
 class OSBARCMLKitHelperMock: OSBARCMLKitHelperInterface {
 
     var success = true
-    var scanResult: String? = null
+    var scanResult: OSBARCScanResult? = null
     var exception = false
     var barcodesEmpty = true
 
@@ -27,7 +28,8 @@ class OSBARCMLKitHelperMock: OSBARCMLKitHelperInterface {
         }
 
         if (success) {
-            Mockito.doReturn(scanResult).`when`(mockBarcode).rawValue
+            Mockito.doReturn(scanResult?.text).`when`(mockBarcode).rawValue
+            Mockito.doReturn(scanResult?.format).`when`(mockBarcode).format
             onSuccess(mutableListOf(mockBarcode))
         }
         else if (!exception) {

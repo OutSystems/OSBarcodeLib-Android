@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.camera.core.ImageProxy
 import com.outsystems.plugins.barcode.controller.helper.OSBARCZXingHelperInterface
 import com.outsystems.plugins.barcode.model.OSBARCError
+import com.outsystems.plugins.barcode.model.OSBARCScanResult
 
 /**
  * Wrapper class that implements the OSBARCScanLibraryInterface
@@ -25,7 +26,7 @@ class OSBARCZXingWrapper(private val helper: OSBARCZXingHelperInterface) : OSBAR
     override fun scanBarcode(
         imageProxy: ImageProxy,
         imageBitmap: Bitmap,
-        onSuccess: (String) -> Unit,
+        onSuccess: (OSBARCScanResult) -> Unit,
         onError: (OSBARCError) -> Unit
     ) {
         try {

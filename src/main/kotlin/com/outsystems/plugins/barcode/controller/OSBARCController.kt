@@ -3,8 +3,10 @@ package com.outsystems.plugins.barcode.controller
 import android.app.Activity
 import android.content.Intent
 import android.util.Log
+import androidx.core.content.IntentCompat
 import com.outsystems.plugins.barcode.model.OSBARCError
 import com.outsystems.plugins.barcode.model.OSBARCScanParameters
+import com.outsystems.plugins.barcode.model.OSBARCScanResult
 import com.outsystems.plugins.barcode.view.OSBARCScannerActivity
 
 /**
@@ -46,15 +48,17 @@ class OSBARCController {
         requestCode: Int,
         resultCode: Int,
         intent: Intent?,
-        onSuccess: (String) -> Unit,
+        onSuccess: (OSBARCScanResult) -> Unit,
         onError: (OSBARCError) -> Unit
     ) {
         when (requestCode) {
             SCAN_REQUEST_CODE -> {
                 when (resultCode) {
                     Activity.RESULT_OK -> {
-                        val result = intent?.extras?.getString(SCAN_RESULT)
-                        if (result.isNullOrEmpty()) {
+                        val result: OSBARCScanResult? = intent?.let {
+                            IntentCompat.getSerializableExtra(intent, SCAN_RESULT, OSBARCScanResult::class.java)
+                        }
+                        if (result == null || result.text.isEmpty()) {
                             onError(OSBARCError.SCANNING_GENERAL_ERROR)
                             return
                         }
