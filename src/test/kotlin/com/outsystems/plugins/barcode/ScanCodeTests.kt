@@ -7,6 +7,7 @@ import android.media.Image
 import android.os.Bundle
 import androidx.camera.core.ImageInfo
 import androidx.camera.core.ImageProxy
+import androidx.core.content.IntentCompat
 import com.outsystems.plugins.barcode.controller.OSBARCBarcodeAnalyzer
 import com.outsystems.plugins.barcode.controller.OSBARCController
 import com.outsystems.plugins.barcode.controller.OSBARCScanLibraryFactory
@@ -17,11 +18,15 @@ import com.outsystems.plugins.barcode.mocks.OSBARCZXingHelperMock
 import com.outsystems.plugins.barcode.mocks.OSBARCScanLibraryMock
 import com.outsystems.plugins.barcode.model.OSBARCError
 import com.outsystems.plugins.barcode.model.OSBARCScanParameters
+import com.outsystems.plugins.barcode.model.OSBARCScanResult
 import com.outsystems.plugins.barcode.model.OSBARCScannerHint
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
+import org.mockito.Mock
+import org.mockito.MockedStatic
 import org.mockito.Mockito
 import java.nio.ByteBuffer
 
@@ -35,6 +40,7 @@ class ScanCodeTests {
     private lateinit var mockByteBuffer: ByteBuffer
     private lateinit var mockImageInfo: ImageInfo
     private lateinit var planes: Array<ImageProxy.PlaneProxy>
+    private lateinit var mockIntentCompat: MockedStatic<IntentCompat>
 
     private lateinit var imageHelperMock: OSBARCImageHelperInterface
     private lateinit var mockBitmap: Bitmap
@@ -42,10 +48,10 @@ class ScanCodeTests {
     companion object {
         private const val SCAN_REQUEST_CODE = 112
         private const val INVALID_REQUEST_CODE = 113
-        private const val INVALID_RESULT_CODE = 9
         private const val GENERAL_ERROR_CODE = 4
-        private const val SCAN_RESULT = "scanResult"
-        private const val RESULT_CODE = "myCode"
+        private const val SCAN_RESULT_KEY = "scanResult"
+        private val SCAN_RESULT = OSBARCScanResult("scanResult", OSBARCScannerHint.ITF)
+        private val RESULT_CODE = OSBARCScanResult("myCode", OSBARCScannerHint.QR_CODE)
     }
 
     @Before
@@ -67,6 +73,12 @@ class ScanCodeTests {
 
         imageHelperMock = OSBARCImageHelperMock()
         mockBitmap = Mockito.mock(Bitmap::class.java)
+        mockIntentCompat = Mockito.mockStatic(IntentCompat::class.java)
+    }
+
+    @After
+    fun after() {
+        mockIntentCompat.close()
     }
 
     @Test
@@ -86,11 +98,15 @@ class ScanCodeTests {
 
     @Test
     fun givenResultOKAndBarcodeValidWhenHandleScanResultThenSuccess() {
-        Mockito.doReturn(mockBundle).`when`(mockIntent).extras
-        Mockito.doReturn(RESULT_CODE).`when`(mockBundle).getString(SCAN_RESULT)
+        mockIntentCompat
+            .`when`<OSBARCScanResult?> {
+                IntentCompat.getSerializableExtra(mockIntent, SCAN_RESULT_KEY, OSBARCScanResult::class.java)
+            }
+            .thenReturn(RESULT_CODE)
 
         val barcodeController = OSBARCController()
-        barcodeController.handleActivityResult(SCAN_REQUEST_CODE, Activity.RESULT_OK, mockIntent,
+        barcodeController.handleActivityResult(
+            SCAN_REQUEST_CODE, Activity.RESULT_OK, mockIntent,
             {
                 assertEquals(RESULT_CODE, it)
             },
@@ -132,8 +148,11 @@ class ScanCodeTests {
 
     @Test
     fun givenStringNullWhenHandleScanResultThenGeneralError() {
-        Mockito.doReturn(mockBundle).`when`(mockIntent).extras
-        Mockito.doReturn(null).`when`(mockBundle).getString(SCAN_RESULT)
+        mockIntentCompat
+            .`when`<OSBARCScanResult?> {
+                IntentCompat.getSerializableExtra(mockIntent, SCAN_RESULT_KEY, OSBARCScanResult::class.java)
+            }
+            .thenReturn(null)
 
         val barcodeController = OSBARCController()
         barcodeController.handleActivityResult(SCAN_REQUEST_CODE, Activity.RESULT_OK, mockIntent,
@@ -149,8 +168,11 @@ class ScanCodeTests {
 
     @Test
     fun givenInvalidRequestCodeWhenHandleScanResultThenGeneralError() {
-        Mockito.doReturn(mockBundle).`when`(mockIntent).extras
-        Mockito.doReturn(null).`when`(mockBundle).getString(SCAN_RESULT)
+        mockIntentCompat
+            .`when`<OSBARCScanResult?> {
+                IntentCompat.getSerializableExtra(mockIntent, SCAN_RESULT_KEY, OSBARCScanResult::class.java)
+            }
+            .thenReturn(null)
 
         val barcodeController = OSBARCController()
         barcodeController.handleActivityResult(INVALID_REQUEST_CODE, Activity.RESULT_OK, mockIntent,
@@ -166,8 +188,11 @@ class ScanCodeTests {
 
     @Test
     fun givenInvalidResultCodeWhenHandleScanResultThenGeneralError() {
-        Mockito.doReturn(mockBundle).`when`(mockIntent).extras
-        Mockito.doReturn(null).`when`(mockBundle).getString(SCAN_RESULT)
+        mockIntentCompat
+            .`when`<OSBARCScanResult?> {
+                IntentCompat.getSerializableExtra(mockIntent, SCAN_RESULT_KEY, OSBARCScanResult::class.java)
+            }
+            .thenReturn(null)
 
         val barcodeController = OSBARCController()
         barcodeController.handleActivityResult(SCAN_REQUEST_CODE, GENERAL_ERROR_CODE, mockIntent,
@@ -183,8 +208,11 @@ class ScanCodeTests {
 
     @Test
     fun givenResultOKAndBarcodeEmptyWhenHandleScanResultThenScanningError() {
-        Mockito.doReturn(mockBundle).`when`(mockIntent).extras
-        Mockito.doReturn("").`when`(mockBundle).getString(SCAN_RESULT)
+        mockIntentCompat
+            .`when`<OSBARCScanResult?> {
+                IntentCompat.getSerializableExtra(mockIntent, SCAN_RESULT_KEY, OSBARCScanResult::class.java)
+            }
+            .thenReturn(OSBARCScanResult("", OSBARCScannerHint.UNKNOWN))
 
         val barcodeController = OSBARCController()
         barcodeController.handleActivityResult(SCAN_REQUEST_CODE, Activity.RESULT_OK, mockIntent,
@@ -577,7 +605,7 @@ class ScanCodeTests {
             "mlkit",
             OSBARCZXingHelperMock(),
             OSBARCMLKitHelperMock().apply {
-                scanResult = ""
+                scanResult = SCAN_RESULT.copy(text = "")
                 success = true
                 barcodesEmpty = false
             }

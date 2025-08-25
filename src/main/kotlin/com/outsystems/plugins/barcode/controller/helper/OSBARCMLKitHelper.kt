@@ -8,6 +8,7 @@ import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
 import com.outsystems.plugins.barcode.model.OSBARCScannerHint
+import org.jetbrains.annotations.VisibleForTesting
 
 /**
  * Helper class that implements the OSBARCMLKitHelperInterface
@@ -17,6 +18,29 @@ import com.outsystems.plugins.barcode.model.OSBARCScannerHint
 class OSBARCMLKitHelper(private val hint: OSBARCScannerHint?): OSBARCMLKitHelperInterface {
     companion object {
         private const val LOG_TAG = "OSBARCMLKitHelper"
+
+        @VisibleForTesting
+        internal fun OSBARCScannerHint?.toMLKitBarcodeFormat(): Int? = when (this) {
+            OSBARCScannerHint.QR_CODE -> Barcode.FORMAT_QR_CODE
+            OSBARCScannerHint.AZTEC -> Barcode.FORMAT_AZTEC
+            OSBARCScannerHint.CODABAR -> Barcode.FORMAT_CODABAR
+            OSBARCScannerHint.CODE_39 -> Barcode.FORMAT_CODE_39
+            OSBARCScannerHint.CODE_93 -> Barcode.FORMAT_CODE_93
+            OSBARCScannerHint.CODE_128 -> Barcode.FORMAT_CODE_128
+            OSBARCScannerHint.DATA_MATRIX -> Barcode.FORMAT_DATA_MATRIX
+            OSBARCScannerHint.MAXICODE -> null // not supported by ML Kit
+            OSBARCScannerHint.ITF -> Barcode.FORMAT_ITF
+            OSBARCScannerHint.EAN_13 -> Barcode.FORMAT_EAN_13
+            OSBARCScannerHint.EAN_8 -> Barcode.FORMAT_EAN_8
+            OSBARCScannerHint.PDF_417 -> Barcode.FORMAT_PDF417
+            OSBARCScannerHint.RSS_14 -> null // not supported by ML Kit
+            OSBARCScannerHint.RSS_EXPANDED -> null // not supported by ML Kit
+            OSBARCScannerHint.UPC_A -> Barcode.FORMAT_UPC_A
+            OSBARCScannerHint.UPC_E -> Barcode.FORMAT_UPC_E
+            OSBARCScannerHint.UPC_EAN_EXTENSION -> null // not supported by ML Kit
+            OSBARCScannerHint.UNKNOWN -> null
+            null -> null
+        }
     }
 
     private val scanner by lazy {
@@ -56,27 +80,5 @@ class OSBARCMLKitHelper(private val hint: OSBARCScannerHint?): OSBARCMLKitHelper
                 e.message?.let { Log.e(LOG_TAG, it) }
                 onError()
             }
-    }
-
-    private fun OSBARCScannerHint?.toMLKitBarcodeFormat(): Int? = when (this) {
-        OSBARCScannerHint.QR_CODE -> Barcode.FORMAT_QR_CODE
-        OSBARCScannerHint.AZTEC -> Barcode.FORMAT_AZTEC
-        OSBARCScannerHint.CODABAR -> Barcode.FORMAT_CODABAR
-        OSBARCScannerHint.CODE_39 -> Barcode.FORMAT_CODE_39
-        OSBARCScannerHint.CODE_93 -> Barcode.FORMAT_CODE_93
-        OSBARCScannerHint.CODE_128 -> Barcode.FORMAT_CODE_128
-        OSBARCScannerHint.DATA_MATRIX -> Barcode.FORMAT_DATA_MATRIX
-        OSBARCScannerHint.MAXICODE -> null // not supported by ML Kit
-        OSBARCScannerHint.ITF -> Barcode.FORMAT_ITF
-        OSBARCScannerHint.EAN_13 -> Barcode.FORMAT_EAN_13
-        OSBARCScannerHint.EAN_8 -> Barcode.FORMAT_EAN_8
-        OSBARCScannerHint.PDF_417 -> Barcode.FORMAT_PDF417
-        OSBARCScannerHint.RSS_14 -> null // not supported by ML Kit
-        OSBARCScannerHint.RSS_EXPANDED -> null // not supported by ML Kit
-        OSBARCScannerHint.UPC_A -> Barcode.FORMAT_UPC_A
-        OSBARCScannerHint.UPC_E -> Barcode.FORMAT_UPC_E
-        OSBARCScannerHint.UPC_EAN_EXTENSION -> null // not supported by ML Kit
-        OSBARCScannerHint.UNKNOWN -> null
-        null -> null
     }
 }
