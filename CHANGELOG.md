@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 The changes documented here do not include those from the original repository.
 
+## [2.0.0]
+
+### 2025-08-22
+
+**BREAKING CHANGE:** The signature of `handleActivityResult` has changed - the onSuccess now returns `OSBARCScanResult` instead of just a string with the scanned code.
+
+- Add **hint** parameter to scan for specific barcode formats
+- Return the format of the scanned code inside the scan result.
+
 ## [1.2.1]
 
 ### 20205-08-18

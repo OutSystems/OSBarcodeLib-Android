@@ -46,7 +46,7 @@ In your app-level gradle file, import the OSBarcodeLib library like so:
 
 ```gradle
 dependencies {
-    implementation("com.github.outsystems:osbarcode-android:1.0.0@aar")
+    implementation("com.github.outsystems:osbarcode-android:2.0.0@aar")
 }
 ```
 
@@ -72,7 +72,7 @@ A method that triggers the barcode reader/scanner, opening a new activity with t
 	- **scanOrientation**: An integer indicating which scan orientation to use - portrait, landscape, or adaptive.
 	- **scanButton**: A boolean that will display a scan button on the barcode reader. If true, scanning will only be triggered when pressing the button instead of automatically when framing the barcode. A second click on the button disables scannning.
   - **scanText**: A string that contains the text to be displayed on the scan button. It will only be shown if **scanButton** is set to true.
-  - **hint**: An integer that holds a hint to what type of barcode to look for. **This parameter isn't being used yet**.
+  - **hint**: An integer that holds a hint to what type of barcode to look for.
 	- **androidScanningLibrary**: A string which determines what barcode library to use - ML Kit or ZXing.
     
 #### Usage
@@ -89,7 +89,7 @@ fun handleActivityResult(
         requestCode: Int,
         resultCode: Int,
         intent: Intent?,
-        onSuccess: (String) -> Unit,
+        onSuccess: (OSBARCScanResult) -> Unit,
         onError: (OSBARCError) -> Unit
     )
 ```
