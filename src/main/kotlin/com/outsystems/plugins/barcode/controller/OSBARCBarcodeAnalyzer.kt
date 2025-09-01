@@ -6,6 +6,7 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import com.outsystems.plugins.barcode.controller.helper.OSBARCImageHelperInterface
 import com.outsystems.plugins.barcode.model.OSBARCError
+import com.outsystems.plugins.barcode.model.OSBARCScanResult
 import com.outsystems.plugins.barcode.view.ui.theme.SizeRatioHeight
 import com.outsystems.plugins.barcode.view.ui.theme.SizeRatioWidth
 import java.lang.Exception
@@ -17,7 +18,7 @@ import java.lang.Exception
 class OSBARCBarcodeAnalyzer(
     private val scanLibrary: OSBARCScanLibraryInterface,
     private val imageHelper: OSBARCImageHelperInterface,
-    private val onBarcodeScanned: (String) -> Unit,
+    private val onBarcodeScanned: (OSBARCScanResult) -> Unit,
     private val onScanningError: (OSBARCError) -> Unit
 ): ImageAnalysis.Analyzer {
 
