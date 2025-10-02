@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 The changes documented here do not include those from the original repository.
 
+# [2.0.1]
+
+### 2025-10-02
+
+- Fix crash `kotlin.UninitializedPropertyAccessException: lateinit property camera has not been initialized` (https://outsystemsrd.atlassian.net/browse/RMET-4530)
+
 ## [2.0.0]
 
 ### 2025-08-22
