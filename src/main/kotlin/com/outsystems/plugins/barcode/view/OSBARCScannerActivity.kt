@@ -135,7 +135,7 @@ import kotlin.math.roundToInt
  * implements the ImageAnalysis.Analyzer interface.
  */
 class OSBARCScannerActivity : ComponentActivity() {
-    private lateinit var camera: Camera
+    private var camera: Camera? = null
     private lateinit var selector: CameraSelector
     private var permissionRequestCount = 0
     private var showDialog by mutableStateOf(false)
@@ -232,6 +232,7 @@ class OSBARCScannerActivity : ComponentActivity() {
         val lifecycleOwner = LocalLifecycleOwner.current
         val context = LocalContext.current
         var permissionGiven by remember { mutableStateOf(true) }
+        var uiState by remember { mutableStateOf(OSBARCScannerUiState.DEFAULT) }
 
         // permissions
         val requestPermissionLauncher = rememberLauncherForActivityResult(
@@ -316,7 +317,13 @@ class OSBARCScannerActivity : ComponentActivity() {
                             selector,
                             preview,
                             imageAnalysis
-                        )
+                        ).also {
+                            uiState = OSBARCScannerUiState(
+                                hasFlashUnit = it.cameraInfo.hasFlashUnit(),
+                                minZoomRatio = it.cameraInfo.zoomState.value?.minZoomRatio ?: 1f,
+                                maxZoomRatio = it.cameraInfo.zoomState.value?.maxZoomRatio ?: 1f
+                            )
+                        }
                     } catch (e: Exception) {
                         e.message?.let { Log.e(LOG_TAG, it) }
                         setResult(OSBARCError.SCANNING_GENERAL_ERROR.code)
@@ -327,7 +334,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                 modifier = Modifier.fillMaxSize()
             )
 
-            ScanScreenUI(parameters, windowSizeClass)
+            ScanScreenUI(parameters, windowSizeClass, uiState)
 
         }
     }
@@ -337,9 +344,14 @@ class OSBARCScannerActivity : ComponentActivity() {
      * should be rendered: portrait or landscape
      * @param parameters the scan parameters
      * @param windowSizeClass WindowSizeClass object to determine device type - phone or tablet
+     * @param uiState structure containing the state of the screen
      */
     @Composable
-    fun ScanScreenUI(parameters: OSBARCScanParameters, windowSizeClass: WindowSizeClass) {
+    fun ScanScreenUI(
+        parameters: OSBARCScanParameters,
+        windowSizeClass: WindowSizeClass,
+        uiState: OSBARCScannerUiState
+    ) {
         // actual UI on top of the camera stream
         val configuration = LocalConfiguration.current
         val windowMetrics =
@@ -356,19 +368,19 @@ class OSBARCScannerActivity : ComponentActivity() {
             // determine if device is phone or tablet
             val isPhone = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact
             if (isPhone) {
-                ScanScreenUIPortrait(parameters, screenWidth, ScannerBorderPadding, true)
+                ScanScreenUIPortrait(parameters, screenWidth, ScannerBorderPadding, true, uiState = uiState)
             }
             else {
-                ScanScreenUILandscape(parameters, (screenWidth / 2), ScannerBorderPadding, TextToRectPadding, isPhone = false, isPortrait = true)
+                ScanScreenUILandscape(parameters, (screenWidth / 2), ScannerBorderPadding, TextToRectPadding, isPhone = false, isPortrait = true, uiState = uiState)
             }
         }
         else {
             // determine if device is phone or tablet
             val isPhone = windowSizeClass.heightSizeClass == WindowHeightSizeClass.Compact
             if (isPhone) {
-                ScanScreenUILandscape(parameters, screenHeight, ScannerBorderPadding, TextToRectPadding, isPhone = true, isPortrait = false)
+                ScanScreenUILandscape(parameters, screenHeight, ScannerBorderPadding, TextToRectPadding, isPhone = true, isPortrait = false, uiState = uiState)
             } else {
-                ScanScreenUILandscape(parameters, screenHeight / 2, ScannerBorderPadding, TextToRectPadding, isPhone = false, isPortrait = false)
+                ScanScreenUILandscape(parameters, screenHeight / 2, ScannerBorderPadding, TextToRectPadding, isPhone = false, isPortrait = false, uiState = uiState)
             }
         }
     }
@@ -498,12 +510,14 @@ class OSBARCScannerActivity : ComponentActivity() {
      * @param parameters the scan parameters
      * @param screenHeight the screen height
      * @param borderPadding the value for the border padding
+     * @param uiState structure containing the state of the screen
      */
     @Composable
     fun ScanScreenUIPortrait(parameters: OSBARCScanParameters,
                              screenHeight: Dp,
                              borderPadding: Dp,
-                             isPhone: Boolean) {
+                             isPhone: Boolean,
+                             uiState: OSBARCScannerUiState) {
         Column(
             modifier = Modifier
                 .fillMaxSize(),
@@ -554,7 +568,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                     .weight(1f, fill = true)
                     .safeDrawingPadding(),
             ) {
-                val showTorch = camera.cameraInfo.hasFlashUnit()
+                val showTorch = uiState.hasFlashUnit
                 val showScan = parameters.scanButton
 
                 Column(
@@ -564,7 +578,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
 
-                    ZoomButtons()
+                    ZoomButtons(uiState)
 
                     // scan button to turn on scanning when used
                     if (showScan) {
@@ -595,6 +609,7 @@ class OSBARCScannerActivity : ComponentActivity() {
      * @param parameters the scan parameters
      * @param screenHeight the screen height
      * @param borderPadding the value for the border padding
+     * @param uiState structure containing the state of the screen
      */
     @Composable
     fun ScanScreenUILandscape(parameters: OSBARCScanParameters,
@@ -602,7 +617,8 @@ class OSBARCScannerActivity : ComponentActivity() {
                               borderPadding: Dp,
                               textToRectPadding: Dp,
                               isPhone: Boolean,
-                              isPortrait: Boolean) {
+                              isPortrait: Boolean,
+                              uiState: OSBARCScannerUiState) {
         var rightButtonsWidth by remember { mutableStateOf(0.dp) }
         val density = LocalDensity.current
 
@@ -678,7 +694,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.End
                 ) {
-                    val showTorch = camera.cameraInfo.hasFlashUnit()
+                    val showTorch = uiState.hasFlashUnit
                     val showScan = parameters.scanButton
 
                     // flashlight button
@@ -690,7 +706,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                         Spacer(modifier = Modifier.height(16.dp))
                     }
 
-                    ZoomButtons()
+                    ZoomButtons(uiState)
 
                     // scan button to turn on scanning when used
                     if (showScan) {
@@ -742,7 +758,7 @@ class OSBARCScannerActivity : ComponentActivity() {
             modifier = modifier
                 .clickable {
                     try {
-                        camera.cameraControl.enableTorch(!isFlashlightOn)
+                        camera?.cameraControl?.enableTorch(!isFlashlightOn)
                         isFlashlightOn = !isFlashlightOn
                     } catch (e: Exception) {
                         e.message?.let { Log.e(LOG_TAG, it) }
@@ -807,12 +823,13 @@ class OSBARCScannerActivity : ComponentActivity() {
 
     /**
      * Composable function, responsible for building the zoom buttons on the UI.
+     * @param uiState structure containing the state of the screen
      */
     @Composable
-    fun ZoomButtons() {
-        val minZoomRatio = camera.cameraInfo.zoomState.value?.minZoomRatio ?: 1f
+    fun ZoomButtons(uiState: OSBARCScannerUiState) {
+        val minZoomRatio = uiState.minZoomRatio
         val roundedRatio = (minZoomRatio * 10).roundToInt() / 10f
-        val maxZoomRatio = camera.cameraInfo.zoomState.value?.maxZoomRatio ?: 1f
+        val maxZoomRatio = uiState.maxZoomRatio
         var selectedButton by remember { mutableStateOf(2) }
 
         Row(
@@ -832,7 +849,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                     "$roundedRatio${getZoomButtonSuffix(selectedButton, 1)}",
                     onClick = {
                         selectedButton = 1
-                        camera.cameraControl.setZoomRatio(minZoomRatio)
+                        camera?.cameraControl?.setZoomRatio(minZoomRatio)
                     }
                 )
             }
@@ -851,7 +868,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                     "1${getZoomButtonSuffix(selectedButton, 2)}",
                     onClick = {
                         selectedButton = 2
-                        camera.cameraControl.setZoomRatio(1f)
+                        camera?.cameraControl?.setZoomRatio(1f)
                     }
                 )
             }
@@ -866,7 +883,7 @@ class OSBARCScannerActivity : ComponentActivity() {
                     "2${getZoomButtonSuffix(selectedButton, 3)}",
                     onClick = {
                         selectedButton = 3
-                        camera.cameraControl.setZoomRatio(2f)
+                        camera?.cameraControl?.setZoomRatio(2f)
                     }
                 )
             }
