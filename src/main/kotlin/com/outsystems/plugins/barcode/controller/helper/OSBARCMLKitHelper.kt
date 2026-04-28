@@ -15,7 +15,10 @@ import org.jetbrains.annotations.VisibleForTesting
  * to scan an image using the ML Kit library.
  * It encapsulates all the code related with the ML Kit library.
  */
-class OSBARCMLKitHelper(private val hint: OSBARCScannerHint?): OSBARCMLKitHelperInterface {
+class OSBARCMLKitHelper(private val hints: List<OSBARCScannerHint>): OSBARCMLKitHelperInterface {
+    
+    constructor(hint: OSBARCScannerHint?) : this(listOfNotNull(hint))
+
     companion object {
         private const val LOG_TAG = "OSBARCMLKitHelper"
 
@@ -44,10 +47,10 @@ class OSBARCMLKitHelper(private val hint: OSBARCScannerHint?): OSBARCMLKitHelper
     }
 
     private val scanner by lazy {
+        val formats = hints.mapNotNull { it.toMLKitBarcodeFormat() }
         val options = BarcodeScannerOptions.Builder().apply {
-            val format = hint.toMLKitBarcodeFormat()
-            if (format != null) {
-                setBarcodeFormats(format)
+            if (formats.isNotEmpty()) {
+                setBarcodeFormats(formats.first(), *formats.drop(1).toIntArray())
             } else {
                 enableAllPotentialBarcodes()
             }
