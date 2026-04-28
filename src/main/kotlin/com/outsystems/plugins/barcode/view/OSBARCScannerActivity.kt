@@ -102,6 +102,7 @@ import com.outsystems.plugins.barcode.controller.helper.OSBARCZXingHelper
 import com.outsystems.plugins.barcode.model.OSBARCError
 import com.outsystems.plugins.barcode.model.OSBARCScanParameters
 import com.outsystems.plugins.barcode.model.OSBARCScanResult
+import com.outsystems.plugins.barcode.model.OSBARCScannerHint
 import com.outsystems.plugins.barcode.view.ui.theme.ActionButtonsDistance
 import com.outsystems.plugins.barcode.view.ui.theme.BarcodeScannerTheme
 import com.outsystems.plugins.barcode.view.ui.theme.ButtonsBackgroundGray
@@ -182,11 +183,15 @@ class OSBARCScannerActivity : ComponentActivity() {
             .requireLensFacing(if (parameters.cameraDirection == CAM_DIRECTION_FRONT) CameraSelector.LENS_FACING_FRONT else CameraSelector.LENS_FACING_BACK)
             .build()
 
+        val rawHints = parameters.hints?.takeIf { it.isNotEmpty() } ?: listOfNotNull(parameters.hint)
+        // UNKNOWN is the JS-side ALL sentinel; its presence forces scan-all (empty list).
+        val hints = if (rawHints.any { it == OSBARCScannerHint.UNKNOWN }) emptyList() else rawHints
+
         barcodeAnalyzer = OSBARCBarcodeAnalyzer(
             OSBARCScanLibraryFactory.createScanLibraryWrapper(
                 parameters.androidScanningLibrary ?: "",
-                OSBARCZXingHelper(parameters.hint),
-                OSBARCMLKitHelper(parameters.hint)
+                OSBARCZXingHelper(hints),
+                OSBARCMLKitHelper(hints)
             ),
             OSBARCImageHelper(),
             { result ->

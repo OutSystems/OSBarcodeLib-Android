@@ -18,18 +18,20 @@ import com.outsystems.plugins.barcode.model.OSBARCScannerHint
  * to scan an image using the ZXing library.
  * It encapsulates all the code related with the ZXing library.
  */
-class OSBARCZXingHelper(private val hint: OSBARCScannerHint?): OSBARCZXingHelperInterface {
+class OSBARCZXingHelper(private val hints: List<OSBARCScannerHint>): OSBARCZXingHelperInterface {
+
+    constructor(hint: OSBARCScannerHint?) : this(listOfNotNull(hint))
 
     companion object {
         private const val LOG_TAG = "OSBARCZXingHelper"
     }
 
     private val reader: MultiFormatReader by lazy {
-        val format = hint.toZXingBarcodeFormat()
+        val formats = hints.mapNotNull { it.toZXingBarcodeFormat() }.toSet()
         MultiFormatReader().apply {
-            if (format != null) {
+            if (formats.isNotEmpty()) {
                 setHints(
-                    mapOf(DecodeHintType.POSSIBLE_FORMATS to setOf(format))
+                    mapOf(DecodeHintType.POSSIBLE_FORMATS to formats)
                 )
             }
         }
