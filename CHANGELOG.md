@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 The changes documented here do not include those from the original repository.
 
+# [2.0.2]
+
+### 2026-06-11
+
+- Add alternative text (content description) to the Torch and Cancel buttons for screen readers, defaulting to English (https://github.com/OutSystems/OSBarcodeLib-Android/issues/54)
+- Add optional `cancelButtonAccessibilityLabel`, `torchButtonOnAccessibilityLabel` and `torchButtonOffAccessibilityLabel` scan parameters so consumers can customize/localize those accessibility labels
+
 # [2.0.1]
 
 ### 2025-10-02

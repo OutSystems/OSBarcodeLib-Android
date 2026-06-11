@@ -157,6 +157,11 @@ class OSBARCScannerActivity : ComponentActivity() {
         private const val CAM_DIRECTION_FRONT = 2
         private const val ORIENTATION_PORTRAIT = 1
         private const val ORIENTATION_LANDSCAPE = 2
+
+        // default English accessibility labels, used when the consumer does not provide custom ones
+        private const val DEFAULT_CANCEL_ACCESSIBILITY_LABEL = "Cancel scanning"
+        private const val DEFAULT_TORCH_ON_ACCESSIBILITY_LABEL = "Turn off flashlight"
+        private const val DEFAULT_TORCH_OFF_ACCESSIBILITY_LABEL = "Turn on flashlight"
     }
 
     /**
@@ -534,7 +539,8 @@ class OSBARCScannerActivity : ComponentActivity() {
                 CloseButton(
                     modifier = Modifier
                         .padding(top = ScannerBorderPadding, end = ScannerBorderPadding)
-                        .align(Alignment.TopEnd)
+                        .align(Alignment.TopEnd),
+                    accessibilityLabel = parameters.cancelButtonAccessibilityLabel
                 )
             }
 
@@ -595,7 +601,9 @@ class OSBARCScannerActivity : ComponentActivity() {
                     TorchButton(
                         modifier = Modifier
                             .padding(bottom = ScannerBorderPadding, end = ScannerBorderPadding)
-                            .align(Alignment.BottomEnd)
+                            .align(Alignment.BottomEnd),
+                        onAccessibilityLabel = parameters.torchButtonOnAccessibilityLabel,
+                        offAccessibilityLabel = parameters.torchButtonOffAccessibilityLabel
                     )
                 }
             }
@@ -684,7 +692,8 @@ class OSBARCScannerActivity : ComponentActivity() {
                 CloseButton(
                     modifier = Modifier
                         .padding(top = ScannerBorderPadding, end = ScannerBorderPadding)
-                        .align(Alignment.TopEnd)
+                        .align(Alignment.TopEnd),
+                    accessibilityLabel = parameters.cancelButtonAccessibilityLabel
                 )
 
                 Column(
@@ -701,7 +710,9 @@ class OSBARCScannerActivity : ComponentActivity() {
                     if (showTorch) {
                         TorchButton(
                             modifier = Modifier
-                                .align(Alignment.End)
+                                .align(Alignment.End),
+                            onAccessibilityLabel = parameters.torchButtonOnAccessibilityLabel,
+                            offAccessibilityLabel = parameters.torchButtonOffAccessibilityLabel
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                     }
@@ -724,12 +735,15 @@ class OSBARCScannerActivity : ComponentActivity() {
     /**
      * Composable function, responsible rendering the close button
      * @param modifier the custom modifier for the button
+     * @param accessibilityLabel optional text to override the default content description used by screen readers
      */
     @Composable
-    fun CloseButton(modifier: Modifier) {
+    fun CloseButton(modifier: Modifier, accessibilityLabel: String? = null) {
+        val contentDescription = accessibilityLabel?.takeIf { it.isNotBlank() }
+            ?: DEFAULT_CANCEL_ACCESSIBILITY_LABEL
         Icon(
             painter = painterResource(id = R.drawable.close),
-            contentDescription = null,
+            contentDescription = contentDescription,
             tint = Color.White,
             modifier = modifier
                 .background(color = CloseButtonBackground, shape = CircleShape)
@@ -744,17 +758,30 @@ class OSBARCScannerActivity : ComponentActivity() {
     /**
      * Composable function, responsible rendering the torch button
      * @param modifier the custom modifier for the button
+     * @param onAccessibilityLabel optional text to override the default content description used by screen readers when the torch is on
+     * @param offAccessibilityLabel optional text to override the default content description used by screen readers when the torch is off
      */
     @Composable
-    fun TorchButton(modifier: Modifier) {
+    fun TorchButton(
+        modifier: Modifier,
+        onAccessibilityLabel: String? = null,
+        offAccessibilityLabel: String? = null
+    ) {
         var isFlashlightOn by remember { mutableStateOf(false) }
         val onIcon = painterResource(id = R.drawable.flash_on)
         val offIcon = painterResource(id = R.drawable.flash_off)
         val icon = if (isFlashlightOn) onIcon else offIcon
+        val torchContentDescription = if (isFlashlightOn) {
+            onAccessibilityLabel?.takeIf { it.isNotBlank() }
+                ?: DEFAULT_TORCH_ON_ACCESSIBILITY_LABEL
+        } else {
+            offAccessibilityLabel?.takeIf { it.isNotBlank() }
+                ?: DEFAULT_TORCH_OFF_ACCESSIBILITY_LABEL
+        }
 
         Image(
             painter = icon,
-            contentDescription = null,
+            contentDescription = torchContentDescription,
             modifier = modifier
                 .clickable {
                     try {
