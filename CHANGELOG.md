@@ -10,8 +10,7 @@ The changes documented here do not include those from the original repository.
 
 ### 2026-06-11
 
-- Add alternative text (content description) to the Torch and Cancel buttons for screen readers, defaulting to English (https://github.com/OutSystems/OSBarcodeLib-Android/issues/54)
-- Add optional `cancelButtonAccessibilityLabel`, `torchButtonOnAccessibilityLabel` and `torchButtonOffAccessibilityLabel` scan parameters so consumers can customize/localize those accessibility labels
+- Add optional `cancelButtonAccessibilityLabel`, `torchButtonOnAccessibilityLabel` and `torchButtonOffAccessibilityLabel` scan parameters to set the alternative text (content description) read by screen readers on the Cancel and Torch buttons. When not provided, no label is set, keeping the previous behavior unchanged. (https://github.com/OutSystems/OSBarcodeLib-Android/issues/54)
 
 # [2.0.1]
 

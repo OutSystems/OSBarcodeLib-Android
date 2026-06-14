@@ -157,11 +157,6 @@ class OSBARCScannerActivity : ComponentActivity() {
         private const val CAM_DIRECTION_FRONT = 2
         private const val ORIENTATION_PORTRAIT = 1
         private const val ORIENTATION_LANDSCAPE = 2
-
-        // default English accessibility labels, used when the consumer does not provide custom ones
-        private const val DEFAULT_CANCEL_ACCESSIBILITY_LABEL = "Cancel scanning"
-        private const val DEFAULT_TORCH_ON_ACCESSIBILITY_LABEL = "Turn off flashlight"
-        private const val DEFAULT_TORCH_OFF_ACCESSIBILITY_LABEL = "Turn on flashlight"
     }
 
     /**
@@ -735,15 +730,13 @@ class OSBARCScannerActivity : ComponentActivity() {
     /**
      * Composable function, responsible rendering the close button
      * @param modifier the custom modifier for the button
-     * @param accessibilityLabel optional text to override the default content description used by screen readers
+     * @param accessibilityLabel optional content description read by screen readers; when null or blank no label is set (default behavior)
      */
     @Composable
     fun CloseButton(modifier: Modifier, accessibilityLabel: String? = null) {
-        val contentDescription = accessibilityLabel?.takeIf { it.isNotBlank() }
-            ?: DEFAULT_CANCEL_ACCESSIBILITY_LABEL
         Icon(
             painter = painterResource(id = R.drawable.close),
-            contentDescription = contentDescription,
+            contentDescription = accessibilityLabel?.takeIf { it.isNotBlank() },
             tint = Color.White,
             modifier = modifier
                 .background(color = CloseButtonBackground, shape = CircleShape)
@@ -758,8 +751,8 @@ class OSBARCScannerActivity : ComponentActivity() {
     /**
      * Composable function, responsible rendering the torch button
      * @param modifier the custom modifier for the button
-     * @param onAccessibilityLabel optional text to override the default content description used by screen readers when the torch is on
-     * @param offAccessibilityLabel optional text to override the default content description used by screen readers when the torch is off
+     * @param onAccessibilityLabel optional content description read by screen readers when the torch is on; when null or blank no label is set (default behavior)
+     * @param offAccessibilityLabel optional content description read by screen readers when the torch is off; when null or blank no label is set (default behavior)
      */
     @Composable
     fun TorchButton(
@@ -773,10 +766,8 @@ class OSBARCScannerActivity : ComponentActivity() {
         val icon = if (isFlashlightOn) onIcon else offIcon
         val torchContentDescription = if (isFlashlightOn) {
             onAccessibilityLabel?.takeIf { it.isNotBlank() }
-                ?: DEFAULT_TORCH_ON_ACCESSIBILITY_LABEL
         } else {
             offAccessibilityLabel?.takeIf { it.isNotBlank() }
-                ?: DEFAULT_TORCH_OFF_ACCESSIBILITY_LABEL
         }
 
         Image(
