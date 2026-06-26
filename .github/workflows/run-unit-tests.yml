@@ -36,6 +36,6 @@ jobs:
 
     #- name: Send to Sonarcloud
     #  run: bundle exec fastlane sonarqube
-    #  env: 
+    #  env:
     #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    #    SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}      
+    #    SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
