@@ -46,7 +46,7 @@ In your app-level gradle file, import the OSBarcodeLib library like so:
 
 ```gradle
 dependencies {
-    implementation("com.github.outsystems:osbarcode-android:2.0.2@aar")
+    implementation("com.github.outsystems:osbarcode-android:2.1.0@aar")
 }
 ```
 
