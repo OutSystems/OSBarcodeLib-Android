@@ -534,7 +534,8 @@ class OSBARCScannerActivity : ComponentActivity() {
                 CloseButton(
                     modifier = Modifier
                         .padding(top = ScannerBorderPadding, end = ScannerBorderPadding)
-                        .align(Alignment.TopEnd)
+                        .align(Alignment.TopEnd),
+                    accessibilityLabel = parameters.cancelButtonAccessibilityLabel
                 )
             }
 
@@ -595,7 +596,9 @@ class OSBARCScannerActivity : ComponentActivity() {
                     TorchButton(
                         modifier = Modifier
                             .padding(bottom = ScannerBorderPadding, end = ScannerBorderPadding)
-                            .align(Alignment.BottomEnd)
+                            .align(Alignment.BottomEnd),
+                        onAccessibilityLabel = parameters.torchButtonOnAccessibilityLabel,
+                        offAccessibilityLabel = parameters.torchButtonOffAccessibilityLabel
                     )
                 }
             }
@@ -684,7 +687,8 @@ class OSBARCScannerActivity : ComponentActivity() {
                 CloseButton(
                     modifier = Modifier
                         .padding(top = ScannerBorderPadding, end = ScannerBorderPadding)
-                        .align(Alignment.TopEnd)
+                        .align(Alignment.TopEnd),
+                    accessibilityLabel = parameters.cancelButtonAccessibilityLabel
                 )
 
                 Column(
@@ -701,7 +705,9 @@ class OSBARCScannerActivity : ComponentActivity() {
                     if (showTorch) {
                         TorchButton(
                             modifier = Modifier
-                                .align(Alignment.End)
+                                .align(Alignment.End),
+                            onAccessibilityLabel = parameters.torchButtonOnAccessibilityLabel,
+                            offAccessibilityLabel = parameters.torchButtonOffAccessibilityLabel
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                     }
@@ -724,12 +730,13 @@ class OSBARCScannerActivity : ComponentActivity() {
     /**
      * Composable function, responsible rendering the close button
      * @param modifier the custom modifier for the button
+     * @param accessibilityLabel optional content description read by screen readers; when null or blank no label is set (default behavior)
      */
     @Composable
-    fun CloseButton(modifier: Modifier) {
+    fun CloseButton(modifier: Modifier, accessibilityLabel: String? = null) {
         Icon(
             painter = painterResource(id = R.drawable.close),
-            contentDescription = null,
+            contentDescription = accessibilityLabel?.takeIf { it.isNotBlank() },
             tint = Color.White,
             modifier = modifier
                 .background(color = CloseButtonBackground, shape = CircleShape)
@@ -744,17 +751,28 @@ class OSBARCScannerActivity : ComponentActivity() {
     /**
      * Composable function, responsible rendering the torch button
      * @param modifier the custom modifier for the button
+     * @param onAccessibilityLabel optional content description read by screen readers when the torch is on; when null or blank no label is set (default behavior)
+     * @param offAccessibilityLabel optional content description read by screen readers when the torch is off; when null or blank no label is set (default behavior)
      */
     @Composable
-    fun TorchButton(modifier: Modifier) {
+    fun TorchButton(
+        modifier: Modifier,
+        onAccessibilityLabel: String? = null,
+        offAccessibilityLabel: String? = null
+    ) {
         var isFlashlightOn by remember { mutableStateOf(false) }
         val onIcon = painterResource(id = R.drawable.flash_on)
         val offIcon = painterResource(id = R.drawable.flash_off)
         val icon = if (isFlashlightOn) onIcon else offIcon
+        val torchContentDescription = if (isFlashlightOn) {
+            onAccessibilityLabel?.takeIf { it.isNotBlank() }
+        } else {
+            offAccessibilityLabel?.takeIf { it.isNotBlank() }
+        }
 
         Image(
             painter = icon,
-            contentDescription = null,
+            contentDescription = torchContentDescription,
             modifier = modifier
                 .clickable {
                     try {

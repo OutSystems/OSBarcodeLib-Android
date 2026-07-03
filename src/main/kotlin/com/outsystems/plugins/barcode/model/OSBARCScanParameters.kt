@@ -13,5 +13,8 @@ data class OSBARCScanParameters(
     @SerializedName("scanButton") val scanButton: Boolean,
     @SerializedName("scanText") val scanText: String,
     @SerializedName("hint") val hint: OSBARCScannerHint?,
-    @SerializedName("androidScanningLibrary") val androidScanningLibrary: String?
+    @SerializedName("androidScanningLibrary") val androidScanningLibrary: String?,
+    @SerializedName("cancelButtonAccessibilityLabel") val cancelButtonAccessibilityLabel: String? = null,
+    @SerializedName("torchButtonOnAccessibilityLabel") val torchButtonOnAccessibilityLabel: String? = null,
+    @SerializedName("torchButtonOffAccessibilityLabel") val torchButtonOffAccessibilityLabel: String? = null
 ) : Serializable

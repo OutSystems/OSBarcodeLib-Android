@@ -46,7 +46,7 @@ In your app-level gradle file, import the OSBarcodeLib library like so:
 
 ```gradle
 dependencies {
-    implementation("com.github.outsystems:osbarcode-android:2.0.2@aar")
+    implementation("com.github.outsystems:osbarcode-android:2.1.0@aar")
 }
 ```
 
@@ -74,6 +74,9 @@ A method that triggers the barcode reader/scanner, opening a new activity with t
   - **scanText**: A string that contains the text to be displayed on the scan button. It will only be shown if **scanButton** is set to true.
   - **hint**: An integer that holds a hint to what type of barcode to look for.
 	- **androidScanningLibrary**: A string which determines what barcode library to use - ML Kit or ZXing.
+	- **cancelButtonAccessibilityLabel**: A string used as the content description (alternative text) read by screen readers for the cancel button. When null or empty, no content description is set.
+	- **torchButtonOnAccessibilityLabel**: A string used as the content description read by screen readers for the torch button when the torch is on. When null or empty, no content description is set.
+	- **torchButtonOffAccessibilityLabel**: A string used as the content description read by screen readers for the torch button when the torch is off. When null or empty, no content description is set.
     
 #### Usage
 
