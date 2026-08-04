@@ -139,6 +139,7 @@ class OSBARCScannerActivity : ComponentActivity() {
     private lateinit var selector: CameraSelector
     private var permissionRequestCount = 0
     private var showDialog by mutableStateOf(false)
+    private var permissionGiven by mutableStateOf(false)
     private var isScanning = false
     private lateinit var cameraExecutor: ExecutorService
 
@@ -213,7 +214,7 @@ class OSBARCScannerActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        showDialog = !hasCameraPermission(this.applicationContext)
+        updatePermissionState(hasCameraPermission(this.applicationContext))
     }
 
     override fun onDestroy() {
@@ -231,20 +232,13 @@ class OSBARCScannerActivity : ComponentActivity() {
     fun ScanScreen(parameters: OSBARCScanParameters, windowSizeClass: WindowSizeClass) {
         val lifecycleOwner = LocalLifecycleOwner.current
         val context = LocalContext.current
-        var permissionGiven by remember { mutableStateOf(true) }
         var uiState by remember { mutableStateOf(OSBARCScannerUiState.DEFAULT) }
 
         // permissions
         val requestPermissionLauncher = rememberLauncherForActivityResult(
             ActivityResultContracts.RequestPermission()
         ) { isGranted: Boolean ->
-            if (isGranted) {
-                permissionGiven = true
-                showDialog = false
-            } else {
-                permissionGiven = false
-                showDialog = true
-            }
+            updatePermissionState(isGranted)
         }
         SideEffect {
             if (permissionRequestCount == 0) {
@@ -278,61 +272,53 @@ class OSBARCScannerActivity : ComponentActivity() {
             ProcessCameraProvider.getInstance(context)
         }
 
-        try {
-            camera = cameraProviderFuture.get().bindToLifecycle(
-                lifecycleOwner,
-                selector
-            )
-        } catch (e: Exception) {
-            e.message?.let { Log.e(LOG_TAG, it) }
-            setResult(OSBARCError.SCANNING_GENERAL_ERROR.code)
-            finish()
-        }
-
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .background(ScannerBackgroundBlack)
         ) {
-            AndroidView(
-                factory = { context ->
-                    val previewView = PreviewView(context)
-                    val preview = Preview.Builder().build()
-                    preview.setSurfaceProvider(previewView.surfaceProvider)
+            if (permissionGiven) {
+                AndroidView(
+                    factory = { context ->
+                        val previewView = PreviewView(context)
+                        val preview = Preview.Builder().build()
+                        preview.setSurfaceProvider(previewView.surfaceProvider)
 
-                    val resolutionSelector = ResolutionSelector.Builder().setResolutionStrategy(
-                        ResolutionStrategy(android.util.Size(1920, 1080), // high resolution for optimal scanning
-                        ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER)
-                    ).build()
-                    val imageAnalysis = ImageAnalysis.Builder()
-                        .setResolutionSelector(resolutionSelector)
-                        .setBackpressureStrategy(STRATEGY_KEEP_ONLY_LATEST)
-                        .build()
-                    imageAnalysis.setAnalyzer(
-                        cameraExecutor,
-                        barcodeAnalyzer
-                    )
-                    try {
-                        camera = cameraProviderFuture.get().bindToLifecycle(
-                            lifecycleOwner,
-                            selector,
-                            preview,
-                            imageAnalysis
-                        ).also {
-                            uiState = OSBARCScannerUiState(
-                                hasFlashUnit = it.cameraInfo.hasFlashUnit(),
-                                minZoomRatio = it.cameraInfo.zoomState.value?.minZoomRatio ?: 1f,
-                                maxZoomRatio = it.cameraInfo.zoomState.value?.maxZoomRatio ?: 1f
-                            )
+                        val resolutionSelector = ResolutionSelector.Builder().setResolutionStrategy(
+                            ResolutionStrategy(android.util.Size(1920, 1080), // high resolution for optimal scanning
+                                ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER)
+                        ).build()
+                        val imageAnalysis = ImageAnalysis.Builder()
+                            .setResolutionSelector(resolutionSelector)
+                            .setBackpressureStrategy(STRATEGY_KEEP_ONLY_LATEST)
+                            .build()
+                        imageAnalysis.setAnalyzer(
+                            cameraExecutor,
+                            barcodeAnalyzer
+                        )
+                        try {
+                            camera = cameraProviderFuture.get().bindToLifecycle(
+                                lifecycleOwner,
+                                selector,
+                                preview,
+                                imageAnalysis
+                            ).also {
+                                uiState = OSBARCScannerUiState(
+                                    hasFlashUnit = it.cameraInfo.hasFlashUnit(),
+                                    minZoomRatio = it.cameraInfo.zoomState.value?.minZoomRatio ?: 1f,
+                                    maxZoomRatio = it.cameraInfo.zoomState.value?.maxZoomRatio ?: 1f
+                                )
+                            }
+                        } catch (e: Exception) {
+                            e.message?.let { Log.e(LOG_TAG, it) }
+                            setResult(OSBARCError.SCANNING_GENERAL_ERROR.code)
+                            finish()
                         }
-                    } catch (e: Exception) {
-                        e.message?.let { Log.e(LOG_TAG, it) }
-                        setResult(OSBARCError.SCANNING_GENERAL_ERROR.code)
-                        finish()
-                    }
-                    previewView
-                },
-                modifier = Modifier.fillMaxSize()
-            )
+                        previewView
+                    },
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
 
             ScanScreenUI(parameters, windowSizeClass, uiState)
 
@@ -955,6 +941,13 @@ class OSBARCScannerActivity : ComponentActivity() {
             context,
             Manifest.permission.CAMERA
         ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun updatePermissionState(hasPermission: Boolean) {
+        permissionGiven = hasPermission
+        if (permissionRequestCount > 0) {
+            showDialog = !hasPermission
+        }
     }
 
     private fun processReadSuccess(result: OSBARCScanResult) {
