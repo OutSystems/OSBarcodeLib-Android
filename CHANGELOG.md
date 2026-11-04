@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 The changes documented here do not include those from the original repository.
 
+# [Unreleased]
+
+### 2026-10-30
+
+- Chore: Update dependencies and build tooling (Gradle 8.14.3, AGP 8.13.0, Kotlin 1.9.25, compileSdk/targetSdk 36, androidx libraries, CameraX 1.4.2, zxing, gson).
+
 # [2.1.1]
 
 ### 2026-08-03
