@@ -169,7 +169,15 @@ class OSBARCScannerActivity : ComponentActivity() {
 
         cameraExecutor = Executors.newSingleThreadExecutor()
 
-        val parameters = IntentCompat.getSerializableExtra(intent, SCAN_PARAMETERS, OSBARCScanParameters::class.java)!!
+        val parameters = IntentCompat.getSerializableExtra(intent, SCAN_PARAMETERS, OSBARCScanParameters::class.java)
+        if (parameters == null) {
+            // SCAN_PARAMETERS can be missing if the OS recreates this activity without the
+            // original intent extras (e.g. process death while backgrounded during a scan).
+            Log.e(LOG_TAG, "Missing $SCAN_PARAMETERS intent extra, finishing activity")
+            setResult(OSBARCError.INVALID_PARAMETERS_ERROR.code)
+            finish()
+            return
+        }
 
         // possibly lock orientation, the screen is adaptive by default
         if (parameters.scanOrientation == ORIENTATION_PORTRAIT) {
