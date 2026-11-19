@@ -8,6 +8,8 @@ The changes documented here do not include those from the original repository.
 
 # [Unreleased]
 
+# [2.1.2]
+
 ### 2026-10-30
 
 - Chore: Update dependencies and build tooling (Gradle 8.14.3, AGP 8.13.0, Kotlin 1.9.25, compileSdk/targetSdk 36, androidx libraries, CameraX 1.4.2, zxing, gson).
