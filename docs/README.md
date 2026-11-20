@@ -42,11 +42,13 @@ This library is to be used by the [Barcode Plugin](https://github.com/OutSystems
 
 ## Usage
 
+> Replace ${version to use} below with the version you want to use. Check the Releases page for available versions.
+
 In your app-level gradle file, import the OSBarcodeLib library like so:
 
 ```gradle
 dependencies {
-    implementation("com.github.outsystems:osbarcode-android:2.1.2@aar")
+    implementation("com.github.outsystems:osbarcode-android:${version to use}@aar")
 }
 ```
 
