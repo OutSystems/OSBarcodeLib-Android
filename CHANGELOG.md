@@ -6,33 +6,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 The changes documented here do not include those from the original repository.
 
-# [Unreleased]
+## [Unreleased]
 
-# [2.1.2]
+## [2.1.2]
 
 ### 2026-10-30
 
 - Chore: Update dependencies and build tooling (Gradle 8.14.3, AGP 8.13.0, Kotlin 1.9.25, compileSdk/targetSdk 36, androidx libraries, CameraX 1.4.2, zxing, gson).
 
-# [2.1.1]
+## [2.1.1]
 
 ### 2026-08-03
 
 - Show camera preview only after permission is granted. This issue was uncovered while updating a consumer app's androidx camera2 dependency do 1.6.2 (https://outsystemsrd.atlassian.net/browse/RMET-5329 + https://github.com/OutSystems/OSBarcodeLib-Android/issues/57)
 
-# [2.1.0]
+## [2.1.0]
 
 ### 2026-06-26
 
 - Add optional `cancelButtonAccessibilityLabel`, `torchButtonOnAccessibilityLabel` and `torchButtonOffAccessibilityLabel` scan parameters to set the alternative text (content description) read by screen readers on the Cancel and Torch buttons. When not provided, no label is set, keeping the previous behavior unchanged. (https://github.com/OutSystems/OSBarcodeLib-Android/issues/54)
 
-# [2.0.2]
+## [2.0.2]
 
 ### 2026-06-25
 
 - Prevent Expanded Dark Theme inversion on scanner activity (https://outsystemsrd.atlassian.net/browse/RMET-5280)
 
-# [2.0.1]
+## [2.0.1]
 
 ### 2025-10-02
 
